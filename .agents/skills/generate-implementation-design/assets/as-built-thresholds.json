@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "coverage": {
+    "statement_percent": 95,
+    "branch_percent": 90,
+    "enforcement": "advisory"
+  },
+  "application": {
+    "complexity_per_function": 10,
+    "control_nesting": 3,
+    "function_logical_lines": 50,
+    "router_logical_lines": 200,
+    "file_logical_lines": 400,
+    "arguments": 3,
+    "returns_per_function": 4,
+    "boolean_operators": 2,
+    "ternary_nesting": 0
+  },
+  "tool": {
+    "complexity_per_function": 12,
+    "control_nesting": 4,
+    "function_logical_lines": 30,
+    "file_logical_lines": 500,
+    "arguments": 8,
+    "returns_per_function": 5,
+    "boolean_operators": 2,
+    "ternary_nesting": 0
+  },
+  "linter_delegation": {
+    "LIMIT-DO-001": "qualityflow thresholds",
+    "LIMIT-DO-002": "qualityflow thresholds",
+    "RULE-DO-002": "Ruff"
+  }
+}

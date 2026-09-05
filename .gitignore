@@ -1,0 +1,17 @@
+.venv/
+node_modules/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+.env
+cdk.out/
+dist/
+reports/
+test-results/
+playwright-report/
+.dev-standard/**/node_modules/
+.dev-standard/python/runtime/
+.dev-standard/quint/runtime/
+*.egg-info/

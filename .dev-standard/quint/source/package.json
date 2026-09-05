@@ -1,0 +1,12 @@
+{
+  "name": "dev-standard-formal-specs",
+  "private": true,
+  "scripts": {
+    "quint:check": "python tools/quintflow.py check",
+    "quint:test": "python tools/quintflow.py test",
+    "quint:verify": "python tools/quintflow.py verify"
+  },
+  "devDependencies": {
+    "@informalsystems/quint": "0.32.0"
+  }
+}

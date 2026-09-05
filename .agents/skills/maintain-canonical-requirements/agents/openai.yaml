@@ -1,0 +1,4 @@
+interface:
+  display_name: "永続要件の発見・保守"
+  short_description: "対話から原子的な要件deltaを作り、正本と生成docsを維持する"
+  default_prompt: "Use $maintain-canonical-requirements to initialize or update the Quint authority from durable atomic obligations, regenerate JSON and human documentation, trace only existing downstream artifacts, and hand future trace work to implementation."

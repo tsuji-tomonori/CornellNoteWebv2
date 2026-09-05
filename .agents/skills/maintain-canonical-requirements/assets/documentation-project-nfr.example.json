@@ -1,0 +1,40 @@
+{
+  "acceptance_criteria": [
+    {
+      "given": "a persistent project document is required",
+      "id": "AC-PROJECT-DOC-001-1",
+      "then": "the requirement defines audience, purpose, authority, update trigger, verification, maintenance rule, and retirement condition",
+      "when": "the documentation requirement is reviewed"
+    }
+  ],
+  "action": "maintain",
+  "category": "nonfunctional",
+  "id": "REQ-PROJECT-DOC-001",
+  "last_changed_by": "example",
+  "object": "audience, purpose, authority, update trigger, verification, maintenance rule, and retirement condition for each persistent document",
+  "rationale": "A document is maintainable only when its intended outcome and lifecycle are explicit rather than implied by the file's existence.",
+  "retirement_reason": "",
+  "revision": 1,
+  "scope": "project",
+  "source_refs": [
+    "SWEBOK-V4A",
+    "docs/standards/REQUIREMENT-CLASSIFICATION.md"
+  ],
+  "status": "active",
+  "subject": "project documentation process",
+  "superseded_by": "",
+  "title": "Persistent documentation lifecycle",
+  "traces": {
+    "design": [],
+    "implementation": [],
+    "standards": [
+      "SWEBOK-V4A"
+    ],
+    "tests": []
+  },
+  "type": "quality",
+  "verification": {
+    "evidence": "repository contract test and requirement trace inspection",
+    "method": "automated inspection"
+  }
+}

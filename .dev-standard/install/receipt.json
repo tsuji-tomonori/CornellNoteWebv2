@@ -1,0 +1,160 @@
+{
+  "assets": [
+    {
+      "path": ".agents/skills/chat-first-development/SKILL.md",
+      "sha256": "ec7f3c38d70316c50acc9ac47ec9231ef6368707d585861d0614b3b0084ef737"
+    },
+    {
+      "path": ".agents/skills/chat-first-development/agents/openai.yaml",
+      "sha256": "fb458bd3bba0d3d1ee4cd64f42523207190dd082f61b7b93cebd0697654a470d"
+    },
+    {
+      "path": ".agents/skills/chat-first-development/references/bootstrap-and-conversation.md",
+      "sha256": "97787ea7fdbce267064f752d43917b65764d2a8ba8507ebb06795463ed7ae178"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/SKILL.md",
+      "sha256": "8c23db15fb1f490699f2cc8a518acc16b962990a4b26716e185d17857b6e9019"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/agents/openai.yaml",
+      "sha256": "2d53132a9471f1f73d6578654fd68cb4141b62c915e7d1ace402385808ef9f42"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/assets/as-built-thresholds.json",
+      "sha256": "88c3df0fef483d4020e68aa40a1879686cdd899804792672f3d672fa58a47bda"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/references/cdk-contract.md",
+      "sha256": "7278505ff8d96ccb668b6e817951720f130c7a55cd666ed96032ca7e1124f279"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/references/fastapi-contract.md",
+      "sha256": "ca31156471ef3e24ff72f496eba1138fcd878d342d926945975460dbdef7d11a"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/requirements.txt",
+      "sha256": "2735518be92dad878de593e813e0b463374d583c028d3be66b6a93d19e3b8fde"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/scripts/designflow.py",
+      "sha256": "20364cbcd904a4e7d7adc5189f8ca01070a86a6408557e33dc6cc417c5b8ef23"
+    },
+    {
+      "path": ".agents/skills/generate-implementation-design/scripts/qualityflow.py",
+      "sha256": "86311d724c9496d071a329b2989f6b284ba7cf9becef8906429eedc7d5a0b7e8"
+    },
+    {
+      "path": ".agents/skills/inspect-quality-gates/SKILL.md",
+      "sha256": "260f8c42941524ac5561d9cf601f1e822cd996e09bc33f9c529cd2ef70977d38"
+    },
+    {
+      "path": ".agents/skills/inspect-quality-gates/agents/openai.yaml",
+      "sha256": "073b20f8a4c4f30a38fac5fb4ae66a56ee7e97caf4cb96beeea189b26e391fd1"
+    },
+    {
+      "path": ".agents/skills/inspect-quality-gates/references/gate-rules.md",
+      "sha256": "ff46d6b4f78d10a6bf42b89be57b0f0307cda794f26d07c4e0dbd77cb8086380"
+    },
+    {
+      "path": ".agents/skills/inspect-quality-gates/references/runner-contract.md",
+      "sha256": "f7945cb0a096f1b8fc25d83173737fb0a874f6d0327c190d9cf0378fe8340535"
+    },
+    {
+      "path": ".agents/skills/inspect-quality-gates/scripts/inspect.py",
+      "sha256": "c696ec80a04006c07e0d7b5e82954822240c5e6ac62ad6d22c0f24a5846c820f"
+    },
+    {
+      "path": ".agents/skills/japanese-git-commit-gitmoji/SKILL.md",
+      "sha256": "a7e392674dcb8069a99b93e628224260a5b692c616730d6a88e7092513f4947d"
+    },
+    {
+      "path": ".agents/skills/japanese-git-commit-gitmoji/agents/openai.yaml",
+      "sha256": "3cd81796135cb9dceb62bfdd67ea29d90f7114d9c2e9458e1d848abbbcc82423"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/SKILL.md",
+      "sha256": "d6f858d06f085a391314ce95200403e37551af325cb0cb5b72d8022b4e0ec6b9"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/agents/openai.yaml",
+      "sha256": "b01e1f0024fed3697ccf71d93c9111cd47755cf531217ecbf61dfb66ec7b6a89"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/assets/documentation-project-nfr.example.json",
+      "sha256": "567fa2f3e74abbfe58c46bef8c7fe7ddc803cc5de4873f0aea6559fbe37dd6b0"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/assets/requirements.schema.json",
+      "sha256": "6490588144d58337fa441b15e86ce6e2d1fd8d1b82610c919aba08f073c15c35"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/assets/requirements.template.qnt",
+      "sha256": "71374458a4495ade3a6ab15295314aa04273234e7293a84e110eb54c843ed1bc"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/references/research-basis.md",
+      "sha256": "682f1d222de51d5f903f981d7acab8b09cb6e5e23c401af1c473a51c61c9e57c"
+    },
+    {
+      "path": ".agents/skills/maintain-canonical-requirements/scripts/specflow.py",
+      "sha256": "0d128303aea90e065ba9f5a5286ed6fd7c173e8c18f9c4d0750c43809120ecad"
+    },
+    {
+      "path": ".dev-standard/quint/source/package-lock.json",
+      "sha256": "b109877938d7e55e0dfb231dd95d70ab5287a2b203457344080ddcdeb66427a5"
+    },
+    {
+      "path": ".dev-standard/quint/source/package.json",
+      "sha256": "8f9fe3e07d67abf6ac43f6ff46d6b5cc50400fb6f38a5e09fc6a605334d97248"
+    },
+    {
+      "path": "spec/skills/skills.json",
+      "sha256": "a8978028430a4d7e1d731f6c2673cfa25ad3224b51d3482d61e9882c824da764"
+    },
+    {
+      "path": "spec/skills/skills.qnt",
+      "sha256": "0d8b73c5510358f14468106ad0e102e038af2842e4247a1d99be36724920ceef"
+    },
+    {
+      "path": "tools/portable_python.py",
+      "sha256": "56fc2a48e16754c9be7d9b00670632cfc78e60f118d83de6c0995165ed3181d8"
+    },
+    {
+      "path": "tools/quintflow.py",
+      "sha256": "402028bc7d1f87632e77bb961df96ddda8513105d2ea40281f26e8703b2c248e"
+    },
+    {
+      "path": "tools/render_requirements.py",
+      "sha256": "957f7832815edfd4b07ae20d3dcd58ac4b06edacf91d8f8b67287f2e9013476b"
+    },
+    {
+      "path": "tools/render_skills.py",
+      "sha256": "3ffc6a9c85c0e86783197b397a87ebef8896127cb3bb63a5c56a2c3f76e1cfbb"
+    },
+    {
+      "path": "tools/safe_io.py",
+      "sha256": "8f9dd9ba7dabd47f3c9192adf5b9c31add66a8077ab636daac060298178aa620"
+    },
+    {
+      "path": "tools/spec_mapping.py",
+      "sha256": "a6b123572cb206d0eddcb62312b6b2e1b0f5dbc4908fd2ed5fd9afb624ed0aea"
+    }
+  ],
+  "host": "codex",
+  "interface_policy": "required",
+  "managed_by": "dev-standard-reference-installer",
+  "profiles": [
+    "commit-style",
+    "default"
+  ],
+  "quint_version": "0.32.0",
+  "schema_version": 2,
+  "skills": [
+    "chat-first-development",
+    "generate-implementation-design",
+    "inspect-quality-gates",
+    "japanese-git-commit-gitmoji",
+    "maintain-canonical-requirements"
+  ]
+}

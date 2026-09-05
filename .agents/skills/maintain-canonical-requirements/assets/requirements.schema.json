@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Quint-derived structurally complete durable requirements catalog",
+  "$comment": "Quint and specflow.py are authoritative for global uniqueness, canonical regular-file traces, ordered acyclic supersession chains ending at an active requirement, and lifecycle transitions. JSON Schema enforces the locally expressible typed shape. Whether one ID expresses exactly one semantic obligation is a human semantic-review responsibility.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "catalog_revision",
+    "product",
+    "updated_at",
+    "requirements"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "catalog_revision": {"type": "integer", "minimum": 1},
+    "product": {"type": "string", "minLength": 1},
+    "updated_at": {"type": "string", "minLength": 1},
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/requirement"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonemptyString": {"type": "string", "minLength": 1},
+    "stringList": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/nonemptyString"},
+      "uniqueItems": true
+    },
+    "criterion": {
+      "type": "object",
+      "required": ["id", "given", "when", "then"],
+      "properties": {
+        "id": {"$ref": "#/$defs/nonemptyString"},
+        "given": {"$ref": "#/$defs/nonemptyString"},
+        "when": {"$ref": "#/$defs/nonemptyString"},
+        "then": {"$ref": "#/$defs/nonemptyString"}
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "required": ["method", "evidence"],
+      "properties": {
+        "method": {"$ref": "#/$defs/nonemptyString"},
+        "evidence": {"$ref": "#/$defs/nonemptyString"}
+      },
+      "additionalProperties": false
+    },
+    "traces": {
+      "type": "object",
+      "required": ["design", "implementation", "tests", "standards"],
+      "properties": {
+        "design": {"$ref": "#/$defs/stringList"},
+        "implementation": {"$ref": "#/$defs/stringList"},
+        "tests": {"$ref": "#/$defs/stringList"},
+        "standards": {"$ref": "#/$defs/stringList"}
+      },
+      "additionalProperties": false
+    },
+    "requirement": {
+      "type": "object",
+      "required": [
+        "id",
+        "revision",
+        "status",
+        "type",
+        "title",
+        "subject",
+        "action",
+        "object",
+        "rationale",
+        "source_refs",
+        "acceptance_criteria",
+        "verification",
+        "traces",
+        "last_changed_by",
+        "retirement_reason",
+        "superseded_by",
+        "scope",
+        "category"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/nonemptyString"},
+        "revision": {"type": "integer", "minimum": 1},
+        "status": {"enum": ["active", "retired"]},
+        "type": {
+          "enum": ["functional", "quality", "constraint", "interface", "data", "operational"]
+        },
+        "title": {"$ref": "#/$defs/nonemptyString"},
+        "subject": {"$ref": "#/$defs/nonemptyString"},
+        "action": {
+          "enum": [
+            "constrain",
+            "derive",
+            "detect",
+            "discover",
+            "enable",
+            "enforce",
+            "estimate",
+            "expand",
+            "formalize",
+            "generate",
+            "maintain",
+            "measure",
+            "parse",
+            "preserve",
+            "provide",
+            "route",
+            "select",
+            "separate",
+            "stage",
+            "stop",
+            "structure",
+            "validate",
+            "verify"
+          ]
+        },
+        "object": {"$ref": "#/$defs/nonemptyString"},
+        "rationale": {"$ref": "#/$defs/nonemptyString"},
+        "source_refs": {
+          "allOf": [
+            {"$ref": "#/$defs/stringList"},
+            {"minItems": 1}
+          ]
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/criterion"}
+        },
+        "verification": {"$ref": "#/$defs/verification"},
+        "traces": {"$ref": "#/$defs/traces"},
+        "last_changed_by": {"$ref": "#/$defs/nonemptyString"},
+        "retirement_reason": {"type": "string"},
+        "superseded_by": {"type": "string"},
+        "scope": {"enum": ["", "product", "project"]},
+        "category": {"enum": ["", "functional", "nonfunctional"]}
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "active"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "retirement_reason": {"const": ""},
+              "superseded_by": {"const": ""}
+            }
+          },
+          "else": {"properties": {"retirement_reason": {"minLength": 1}}}
+        },
+        {
+          "oneOf": [
+            {"properties": {"scope": {"const": ""}, "category": {"const": ""}}},
+            {
+              "properties": {
+                "scope": {"enum": ["product", "project"]},
+                "category": {"enum": ["functional", "nonfunctional"]}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

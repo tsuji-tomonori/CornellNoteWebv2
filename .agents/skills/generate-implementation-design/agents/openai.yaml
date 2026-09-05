@@ -1,0 +1,4 @@
+interface:
+  display_name: "実装と1対1の詳細設計生成"
+  short_description: "FastAPI/CDKの実装artifactからdrift検査可能な設計docsを生成する"
+  default_prompt: "Use $generate-implementation-design only for supported artifacts, resolve scripts through the installed host-native Skill path, run its pinned isolated Python runtime without changing the target venv, exactly match explicit applicable active requirement traces to real test nodes, report unsupported surfaces or bounded fail-closed diagnostics, and detect drift."

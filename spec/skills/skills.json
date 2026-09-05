@@ -1,0 +1,1153 @@
+{
+  "contracts": [
+    {
+      "activationContexts": [
+        "explicit-review-request"
+      ],
+      "applicability": "when-explicitly-requested",
+      "authority": "artifact-authority",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "report-bounded",
+      "guardrail": false,
+      "inputs": [
+        "artifact",
+        "authority",
+        "review-scope"
+      ],
+      "interfaceSha256": "2a288a121591cb1bd3c950bc18615d267d1edf0f28331f2157aa7296ef9ef856",
+      "manualBodySha256": "fa3eb9831cca4a171bbabce33e3b2f843e65edbaedbb1e54948e6cad4641e369",
+      "name": "adversarial-review",
+      "obligationIds": [
+        "reconstruct-independent-authority",
+        "seek-falsifying-evidence",
+        "allow-evidence-supported-no-finding-result",
+        "report-bounded-findings"
+      ],
+      "outputs": [
+        "review-result",
+        "optional-findings",
+        "residual-uncertainty",
+        "conditional-repair-handoff"
+      ],
+      "payloadSha256": "9ad70d5f3a5dda494f0249985dfdea45c00bb217418a8be95476324f243dff99",
+      "pillar": "auxiliary",
+      "postcondition": "a bounded review report, including an explicit no-finding result when appropriate, is returned without mutating the artifact",
+      "precondition": "falsifiable claims and an authority are available",
+      "prohibitions": [
+        "do not mutate the reviewed artifact",
+        "do not claim proof from a finite review",
+        "do not invent requirements"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/challenge-playbook.md",
+        "references/report-template.md",
+        "references/research-basis.md"
+      ],
+      "requirementIds": [],
+      "role": "independent-review",
+      "sideEffect": "none"
+    },
+    {
+      "activationContexts": [
+        "concrete-regulated-duty"
+      ],
+      "applicability": "when-concrete-duty-exists",
+      "authority": "concrete-duty-or-user",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "no-op-unless-triggered",
+      "guardrail": false,
+      "inputs": [
+        "regulated-duty",
+        "retention-rule"
+      ],
+      "interfaceSha256": "3cd8efe2ae6065ac22af9c9bf7414b8636403dc0754994c260d7881f42eab195",
+      "manualBodySha256": "765c6dd2bef4bef23a2e6ab691664e828ba5ce6b60c8d6416aa12d1f1c0f3e4b",
+      "name": "author-lifecycle-docs",
+      "obligationIds": [
+        "select-minimum-regulated-evidence",
+        "define-purpose-and-retention",
+        "separate-authority-evidence-and-temporary-state"
+      ],
+      "outputs": [
+        "regulated-evidence",
+        "retention-disposition"
+      ],
+      "payloadSha256": "ef45fe345793aaccce17c13d1658556d6af7e926c2bed273b26f5a0edfaf3e9d",
+      "pillar": "auxiliary",
+      "postcondition": "only required lifecycle evidence is retained",
+      "precondition": "a concrete regulated retention duty exists",
+      "prohibitions": [
+        "do not create lifecycle documents for ordinary changes",
+        "do not retain raw logs or duplicated generated facts",
+        "do not impose repository policy"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "assets/template-map.json",
+        "references/document-rules.md"
+      ],
+      "requirementIds": [],
+      "role": "regulated-documentation",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "external-authority-boundary",
+        "concrete-regulated-duty"
+      ],
+      "applicability": "when-external-authority-boundary-exists",
+      "authority": "explicit-user-authorization",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "stop-at-authority-boundary",
+      "guardrail": false,
+      "inputs": [
+        "requested-result",
+        "external-effects",
+        "rollback",
+        "current-explicit-authority-evidence"
+      ],
+      "interfaceSha256": "38025d9d84a0db4183ca9f2d785e80fd3ffc4a239c0554567f99c6cae4129905",
+      "manualBodySha256": "986d3bea3e4df940623100315b1a565a8de37fb36e36222076c569dfc04d52f1",
+      "name": "authorize-autonomous-execution",
+      "obligationIds": [
+        "bind-approval-to-result-and-effects",
+        "record-stop-and-rollback-boundary",
+        "reuse-current-approval-within-boundary",
+        "reject-self-issued-authorization"
+      ],
+      "outputs": [
+        "authorization-decision",
+        "authority-evidence-reference"
+      ],
+      "payloadSha256": "fe706945e0261d253d3ab98aefcacc8b5905d2bc94e7ea4b243b6f376a0d3eed",
+      "pillar": "auxiliary",
+      "postcondition": "authorization scope and stop conditions are explicit and backed by current authority-owned evidence",
+      "precondition": "an external or irreversible authority boundary exists",
+      "prohibitions": [
+        "do not infer approval from silence or unrelated history",
+        "do not self-mint or rewrite authority evidence",
+        "do not require a work item for ordinary external operations",
+        "do not freeze reversible implementation details"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/authorization-boundary.md"
+      ],
+      "requirementIds": [
+        "REQ-PORTABLE-003"
+      ],
+      "role": "authority-boundary",
+      "sideEffect": "none"
+    },
+    {
+      "activationContexts": [
+        "material-ambiguity"
+      ],
+      "applicability": "when-ambiguity-changes-result",
+      "authority": "user-intent",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "return-for-clarification",
+      "guardrail": false,
+      "inputs": [
+        "request",
+        "constraints"
+      ],
+      "interfaceSha256": "f2f0ae44b737d2fb39e6e5bfe2e771b3ed2430e6653f5d742e4d730eceee72d7",
+      "manualBodySha256": "949651687839e31fde3609d337def4d3ad3927e7029087853db63f85f6ce4333",
+      "name": "calibrated-collaborative-listening",
+      "obligationIds": [
+        "separate-evidence-from-inference",
+        "preserve-semantic-units",
+        "ask-only-consequential-questions"
+      ],
+      "outputs": [
+        "correctable-goal",
+        "decision"
+      ],
+      "payloadSha256": "ac238a57de0efa49e9bf667ff5fb564ba14551d45f2062ed4ada2ce19afe8450",
+      "pillar": "auxiliary",
+      "postcondition": "a correctable goal and decision are available",
+      "precondition": "multiple interpretations materially change the result",
+      "prohibitions": [
+        "do not present inferred motives as facts",
+        "do not turn clarification into delay",
+        "do not remove conditions or uncertainty when compressing"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/evaluation-rubric.md",
+        "references/evidence-map.md",
+        "references/japanese-response-patterns.md",
+        "references/semantic-articulation-protocol.md"
+      ],
+      "requirementIds": [
+        "REQ-DISC-001"
+      ],
+      "role": "intent-clarification",
+      "sideEffect": "none"
+    },
+    {
+      "activationContexts": [
+        "development-request"
+      ],
+      "applicability": "when-development-is-requested",
+      "authority": "user-and-target-repository",
+      "defaultPortable": true,
+      "dependencies": [
+        "maintain-canonical-requirements",
+        "generate-implementation-design",
+        "inspect-quality-gates"
+      ],
+      "externalEffect": true,
+      "failureState": "report-bounded",
+      "guardrail": false,
+      "inputs": [
+        "request",
+        "target-repository-rules",
+        "authority-boundary"
+      ],
+      "interfaceSha256": "fb458bd3bba0d3d1ee4cd64f42523207190dd082f61b7b93cebd0697654a470d",
+      "manualBodySha256": "0d682adbd481318858b0f8000b91ff96cec0b359d7b1fff7ab0e5ee997533796",
+      "name": "chat-first-development",
+      "obligationIds": [
+        "classify-durable-requirement-impact",
+        "generate-supported-as-built-design",
+        "run-only-selected-checks",
+        "bind-external-effects-to-authority",
+        "perform-pr-operation-only-when-requested"
+      ],
+      "outputs": [
+        "change",
+        "verification-summary",
+        "external-operation-result"
+      ],
+      "payloadSha256": "23e2400ebf4e7aad2ff46da62f6a61ad8b0899c21a60ded4d246706395f6ff2c",
+      "pillar": "auxiliary",
+      "postcondition": "the requested outcome and only applicable pillars are complete, and every external effect remains within explicit authority",
+      "precondition": "a development outcome is requested",
+      "prohibitions": [
+        "do not impose CI branch or merge policy",
+        "do not create per-change bureaucracy",
+        "do not create update comment or merge a PR unless requested"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/bootstrap-and-conversation.md"
+      ],
+      "requirementIds": [
+        "REQ-DISC-005",
+        "REQ-PORTABLE-001",
+        "REQ-PORTABLE-003"
+      ],
+      "role": "orchestrator",
+      "sideEffect": "repository-and-authorized-external-write"
+    },
+    {
+      "activationContexts": [
+        "frontend-design"
+      ],
+      "applicability": "when-frontend-design-is-needed",
+      "authority": "approved-requirements",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "return-to-requirements",
+      "guardrail": false,
+      "inputs": [
+        "requirements",
+        "design-context",
+        "existing-design-system",
+        "selected-check"
+      ],
+      "interfaceSha256": "dbcd41c79681072af7015a3476e9a45f6f851dac7c1b6ec072d0abb47f46c99c",
+      "manualBodySha256": "e8424b4f8afd3b16fb9f5bf47550da8d9a4403ba0ed03c570283588d95d0e006",
+      "name": "design-frontend-experience",
+      "obligationIds": [
+        "derive-minimum-implementation-decisions",
+        "cover-applicable-interaction-states",
+        "handoff-verification-hooks"
+      ],
+      "outputs": [
+        "design-decisions",
+        "verification-hooks",
+        "selected-check-handoff"
+      ],
+      "payloadSha256": "3a6c7028166026088e59394ecd91218e663b05a032da8a2835f9da66893ad812",
+      "pillar": "auxiliary",
+      "postcondition": "minimum implementation decisions and selected-check handoff are explicit",
+      "precondition": "frontend outcomes and constraints are known",
+      "prohibitions": [
+        "do not duplicate implementation-derived inventories",
+        "do not persist local design detail as ADR",
+        "do not require a generator for unsupported artifacts"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/evidence-map.md"
+      ],
+      "requirementIds": [],
+      "role": "frontend-design",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "frontend-requirements"
+      ],
+      "applicability": "when-frontend-requirements-are-needed",
+      "authority": "user-intent",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "return-for-clarification",
+      "guardrail": false,
+      "inputs": [
+        "user-task",
+        "context",
+        "failure-impact"
+      ],
+      "interfaceSha256": "01653ab1c807a2841aa48a2eeea4a8da57eaf31227066664929c8dea2cfc4e1b",
+      "manualBodySha256": "a101def52f60a99c54016e90898a32d917e5dd8667b09be5c8c2fafd9d4b0f4b",
+      "name": "elicit-frontend-requirements",
+      "obligationIds": [
+        "separate-user-problem-from-solution",
+        "maintain-durable-obligations",
+        "handoff-context-and-selected-checks"
+      ],
+      "outputs": [
+        "canonical-requirement-delta",
+        "design-context",
+        "selected-check"
+      ],
+      "payloadSha256": "9e4bcabfece7a6685a9cb07399e6c8a10ee7a72c760dbbd1b20f91df671f4bb4",
+      "pillar": "auxiliary",
+      "postcondition": "durable observable obligations are maintained in canonical requirements and design context is handed forward",
+      "precondition": "a frontend outcome is requested",
+      "prohibitions": [
+        "do not persist temporary interview notes",
+        "do not create per-change requirement reports",
+        "do not impose repository policy"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/evidence-map.md"
+      ],
+      "requirementIds": [
+        "REQ-DISC-005"
+      ],
+      "role": "frontend-requirements",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "supported-as-built-surface"
+      ],
+      "applicability": "when-a-declared-generator-supports-the-change",
+      "authority": "implementation",
+      "defaultPortable": true,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "fail-on-drift",
+      "guardrail": true,
+      "inputs": [
+        "implementation",
+        "generator-contract",
+        "pinned-isolated-python-runtime",
+        "canonical-requirements-json",
+        "explicit-applicable-requirement-ids",
+        "explicit-artifact-trace",
+        "test-source"
+      ],
+      "interfaceSha256": "2d53132a9471f1f73d6578654fd68cb4141b62c915e7d1ace402385808ef9f42",
+      "manualBodySha256": "21b5e9950c216b93732ee9e3b2dc7857978c309c5d31f9db62518c6e36650580",
+      "name": "generate-implementation-design",
+      "obligationIds": [
+        "run-with-pinned-isolated-runtime",
+        "generate-deterministic-as-built",
+        "verify-isolation-and-drift",
+        "match-explicit-applicable-active-set-exactly",
+        "reject-unknown-inactive-missing-or-excess-trace"
+      ],
+      "outputs": [
+        "generated-design",
+        "drift-result",
+        "exact-requirement-artifact-test-trace",
+        "structured-unsupported-surface-or-bounded-fail-closed-diagnostic"
+      ],
+      "payloadSha256": "972bf2d4303a151c201084447052731f0142c1c73de031a3451c31a9f0f20c68",
+      "pillar": "design",
+      "postcondition": "generated design is deterministic and isolated, matches implementation, and maps exactly the declared applicable active requirement set through operations or resources to existing test nodes",
+      "precondition": "a declared generator supports the changed surface and explicit trace JSON declares applicable_requirement_ids for that supported surface",
+      "prohibitions": [
+        "do not modify the target repository virtual environment",
+        "do not edit generated design directly",
+        "do not infer requirement satisfaction from implementation",
+        "do not require a generator or CI for unsupported artifacts"
+      ],
+      "repositoryBlocking": true,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "assets/as-built-thresholds.json",
+        "references/cdk-contract.md",
+        "references/fastapi-contract.md",
+        "requirements.txt",
+        "scripts/designflow.py",
+        "scripts/qualityflow.py"
+      ],
+      "requirementIds": [
+        "REQ-ASBUILT-001",
+        "REQ-ASBUILT-002",
+        "REQ-ASBUILT-003",
+        "REQ-ASBUILT-004",
+        "REQ-ASBUILT-005",
+        "REQ-ASBUILT-006",
+        "REQ-ASBUILT-007",
+        "REQ-ASBUILT-008",
+        "REQ-ASBUILT-009",
+        "REQ-ASBUILT-010",
+        "REQ-ASBUILT-011",
+        "REQ-ASBUILT-012",
+        "REQ-ASBUILT-013",
+        "REQ-ASBUILT-014",
+        "REQ-ASBUILT-015",
+        "REQ-ASBUILT-016",
+        "REQ-ASBUILT-018",
+        "REQ-ASBUILT-020",
+        "REQ-DESIGN-001",
+        "REQ-DESIGN-002",
+        "REQ-DESIGN-003",
+        "REQ-DESIGN-004",
+        "REQ-DESIGN-005",
+        "REQ-DESIGN-006"
+      ],
+      "role": "as-built-design",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "concrete-regulated-duty"
+      ],
+      "applicability": "when-concrete-duty-exists",
+      "authority": "concrete-duty-or-user",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "stop-at-authority-boundary",
+      "guardrail": false,
+      "inputs": [
+        "concrete-duty-kind",
+        "concrete-duty-reference",
+        "bounded-obligation",
+        "authority-boundary",
+        "retention-rule",
+        "pre-existing-target-owned-authority-evidence"
+      ],
+      "interfaceSha256": "9bef3e4b8a30e1c39effdddb1f0101f892ce21ec8a2b468de3bf43f6af507d30",
+      "manualBodySha256": "bf4f083149b4e0304fad22e317ed28bf8ad564a78066a1e3a4fe455f143a28fa",
+      "name": "govern-development-request",
+      "obligationIds": [
+        "bind-regulated-work-to-concrete-duty",
+        "consume-and-bind-pre-existing-target-owned-authority-evidence",
+        "bind-authorization-to-authority-result-effects-rollback-and-stop",
+        "strictly-replay-init-authorize-verify-close",
+        "handoff-required-external-anchor"
+      ],
+      "outputs": [
+        "strict-replay-regulated-record",
+        "local-anchor",
+        "external-anchor-handoff"
+      ],
+      "payloadSha256": "c5906a3efc5407865ee4b2d825332b46a61541613fb33253d573d9d8fe10e1ae",
+      "pillar": "auxiliary",
+      "postcondition": "regulated evidence strictly binds unchanged pre-existing target-owned authority evidence within that duty and any required external anchor is returned as a handoff",
+      "precondition": "a concrete regulated lifecycle duty exists",
+      "prohibitions": [
+        "do not activate from a technology or risk label alone",
+        "do not apply lifecycle evidence to ordinary work",
+        "do not self-mint or rewrite authority evidence",
+        "do not write external audit records",
+        "do not retain secrets PII or raw production logs"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/work-item-contract.md",
+        "scripts/regulatedflow.py",
+        "scripts/start.py"
+      ],
+      "requirementIds": [],
+      "role": "regulated-orchestration",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "frontend-implementation"
+      ],
+      "applicability": "when-frontend-implementation-is-requested",
+      "authority": "requirements-and-design",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "return-to-design",
+      "guardrail": false,
+      "inputs": [
+        "requirements",
+        "design-decisions",
+        "existing-frontend",
+        "selected-check"
+      ],
+      "interfaceSha256": "d43aeb305cf1db96d64568e1d231ad529686b1ef3b92c86d8a2c4e0df7f2bb50",
+      "manualBodySha256": "713ec708fe88eabdb3bf0408c0e1c1a4074b71c46df9b1cab8234799f26d2b1a",
+      "name": "implement-frontend-experience",
+      "obligationIds": [
+        "implement-complete-user-task-states",
+        "preserve-semantics-and-supported-context",
+        "handoff-as-built-and-check-evidence"
+      ],
+      "outputs": [
+        "frontend-change",
+        "tests",
+        "as-built-design",
+        "selected-check-result"
+      ],
+      "payloadSha256": "b6ac505f0c8ee8554d0ffc8d330739f636f4363265dd3d6ef23656a67236c911",
+      "pillar": "auxiliary",
+      "postcondition": "the user task works in supported states and implementation evidence is handed to testing",
+      "precondition": "frontend requirements and decisions are ready",
+      "prohibitions": [
+        "do not invent product requirements during implementation",
+        "do not weaken type test or accessibility constraints",
+        "do not force an unsupported generator"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/evidence-map.md"
+      ],
+      "requirementIds": [],
+      "role": "frontend-implementation",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "selected-checks"
+      ],
+      "applicability": "when-change-relevant-checks-exist",
+      "authority": "target-repository-and-selected-checks",
+      "defaultPortable": true,
+      "dependencies": [],
+      "externalEffect": true,
+      "failureState": "report-bounded",
+      "guardrail": true,
+      "inputs": [
+        "change",
+        "acceptance",
+        "target-owned-checks",
+        "optional-target-owned-command-registry",
+        "declared-command-effects",
+        "external-authority-if-applicable"
+      ],
+      "interfaceSha256": "073b20f8a4c4f30a38fac5fb4ae66a56ee7e97caf4cb96beeea189b26e391fd1",
+      "manualBodySha256": "90812190a17d4d86f3610a4a85d312e96478ccf5df930d9d262f4c383871f829",
+      "name": "inspect-quality-gates",
+      "obligationIds": [
+        "select-minimum-relevant-checks",
+        "validate-registry-command-and-declared-effect-when-runner-is-used",
+        "execute-selected-checks",
+        "report-process-effect-isolation-uncertainty-for-every-command",
+        "bound-verdict-to-observed-evidence"
+      ],
+      "outputs": [
+        "selected-check-results",
+        "declared-effect-report",
+        "residual-risk",
+        "repair-handoff"
+      ],
+      "payloadSha256": "a474c9650ac451e4cebd1d40df9a5bad8acc631c962eced70c6b828f4de77408",
+      "pillar": "checks",
+      "postcondition": "selected blockers pass or a bounded failure is reported with declared command effects and a process-effect-not-isolated residual for every command, without claiming unselected coverage or isolation",
+      "precondition": "changed artifacts, applicable risks, target-owned checks, declared command effects, and any required external authority are known",
+      "prohibitions": [
+        "do not modify source to hide failures",
+        "do not claim external-effect absence process isolation or unselected coverage",
+        "do not execute a declared external effect without explicit authority",
+        "do not create CI or merge policy"
+      ],
+      "repositoryBlocking": true,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/gate-rules.md",
+        "references/runner-contract.md",
+        "scripts/inspect.py"
+      ],
+      "requirementIds": [
+        "REQ-ASBUILT-019",
+        "REQ-QUALITY-002"
+      ],
+      "role": "selected-checks",
+      "sideEffect": "target-command-effects"
+    },
+    {
+      "activationContexts": [
+        "target-commit-style"
+      ],
+      "applicability": "when-user-or-target-selects-style",
+      "authority": "explicit-user-or-target-repository-style",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "no-op-unless-selected",
+      "guardrail": false,
+      "inputs": [
+        "diff",
+        "verification-summary"
+      ],
+      "interfaceSha256": "3cd81796135cb9dceb62bfdd67ea29d90f7114d9c2e9458e1d848abbbcc82423",
+      "manualBodySha256": "740237d898f1b183deb594df8e310e271abd2e82dd841037bd4a0c62b054e802",
+      "name": "japanese-git-commit-gitmoji",
+      "obligationIds": [
+        "derive-message-from-actual-diff",
+        "report-verification-truthfully",
+        "prefer-target-repository-style"
+      ],
+      "outputs": [
+        "commit-message"
+      ],
+      "payloadSha256": "74dea666a7d9914d3c92f5bf16d74ae0b6ae1207a68d4da377e74541ed0ff08c",
+      "pillar": "auxiliary",
+      "postcondition": "a Japanese structured commit message is proposed",
+      "precondition": "the user explicitly requests this style or the target repository already selects it",
+      "prohibitions": [
+        "do not make this style a portable gate",
+        "do not report unexecuted checks as passing",
+        "do not require a particular merge method"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [],
+      "requirementIds": [],
+      "role": "commit-message",
+      "sideEffect": "none"
+    },
+    {
+      "activationContexts": [
+        "durable-requirement-change"
+      ],
+      "applicability": "when-durable-obligation-changes-or-authority-is-initialized",
+      "authority": "quint-requirements",
+      "defaultPortable": true,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "fail-on-invalid-catalog",
+      "guardrail": true,
+      "inputs": [
+        "initialization-or-delta",
+        "source",
+        "acceptance"
+      ],
+      "interfaceSha256": "b01e1f0024fed3697ccf71d93c9111cd47755cf531217ecbf61dfb66ec7b6a89",
+      "manualBodySha256": "384c51bbc94169ba05caa0c5c4dc60a864c0f471a10dd10467daa9ec543151e8",
+      "name": "maintain-canonical-requirements",
+      "obligationIds": [
+        "maintain-quint-as-sole-requirements-authority",
+        "atomize-and-classify-durable-obligations",
+        "generate-json-then-human-documentation",
+        "handoff-future-downstream-trace-without-blocking-requirement-update"
+      ],
+      "outputs": [
+        "requirements-qnt",
+        "requirements-json",
+        "requirements-doc",
+        "existing-requirement-trace",
+        "downstream-trace-handoff"
+      ],
+      "payloadSha256": "7f497d1fa2d81cfa91cbdab77b3aebb4e4d73bb88008579984370931661fcc43",
+      "pillar": "requirements",
+      "postcondition": "Quint source, verification, derived JSON, and generated docs agree, while only already-existing downstream artifacts require current traces and future trace work is handed downstream",
+      "precondition": "a requirements authority is initialized or a durable observable obligation changes",
+      "prohibitions": [
+        "do not edit generated requirement views",
+        "do not persist reversible implementation choices as requirements",
+        "do not require CI branch or merge policy"
+      ],
+      "repositoryBlocking": true,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "assets/documentation-project-nfr.example.json",
+        "assets/requirements.schema.json",
+        "assets/requirements.template.qnt",
+        "references/research-basis.md",
+        "scripts/specflow.py"
+      ],
+      "requirementIds": [
+        "REQ-DISC-001",
+        "REQ-DISC-002",
+        "REQ-DISC-003",
+        "REQ-DISC-004",
+        "REQ-DISC-005",
+        "REQ-DOCS-001",
+        "REQ-FRAME-001",
+        "REQ-QUINT-002"
+      ],
+      "role": "canonical-requirements",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "reference-maintenance"
+      ],
+      "applicability": "when-reference-assets-change",
+      "authority": "reference-repository",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "report-bounded",
+      "guardrail": false,
+      "inputs": [
+        "reference-change",
+        "distribution-boundary"
+      ],
+      "interfaceSha256": "3d060df2a991b7e9c891bcc86678132f72fdae5435b644b3c9a8c8b242f72f6c",
+      "manualBodySha256": "bc32c8ece88b4d744bc8395f421d2b3e06f3c6e751223815e69d185c706d27ca",
+      "name": "maintain-reference-repository",
+      "obligationIds": [
+        "separate-portable-and-reference-only-assets",
+        "keep-default-portable-set-to-entry-and-three-pillars",
+        "verify-portable-dependency-closure"
+      ],
+      "outputs": [
+        "portable-assets",
+        "compatibility-result"
+      ],
+      "payloadSha256": "a326bcc3756108c0dc1a8d07cb16a5bd85d63a7f4fb0aee45f7a5bed6b8656d4",
+      "pillar": "auxiliary",
+      "postcondition": "portable and repository-specific assets remain separated",
+      "precondition": "dev-standard or its portable-collection fork changes portable assets",
+      "prohibitions": [
+        "do not invoke for ordinary target-product changes",
+        "do not export reference-repository policy",
+        "do not edit generated views directly"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [],
+      "requirementIds": [],
+      "role": "reference-maintenance",
+      "sideEffect": "repository-write"
+    },
+    {
+      "activationContexts": [
+        "evidenced-systemic-failure"
+      ],
+      "applicability": "when-evidenced-systemic-trigger-exists",
+      "authority": "observed-defect",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "no-op-unless-triggered",
+      "guardrail": false,
+      "inputs": [
+        "defect-incident-rollback-or-recurring-cost-evidence",
+        "impact"
+      ],
+      "interfaceSha256": "b6e41b56a6ba2fe48c3ce901f0d83eac72ad651d9bea2224946efcdacd9eece3",
+      "manualBodySha256": "0cb999de00126d6fcee37d346a91cd58c2ce3965552f3d394fbc34793052f428",
+      "name": "retrospect-and-improve",
+      "obligationIds": [
+        "require-evidenced-systemic-trigger",
+        "compare-lighter-alternatives",
+        "define-evaluation-rollback-and-sunset"
+      ],
+      "outputs": [
+        "bounded-candidate-or-not-triggered",
+        "optional-temporary-json-result"
+      ],
+      "payloadSha256": "8bddd1c183b216d2ff52bc8a016b430b202df65b8f7e1b1177fec4bbf7a1a629",
+      "pillar": "auxiliary",
+      "postcondition": "a bounded evaluable improvement is proposed but not automatically applied",
+      "precondition": "an evidenced escaped defect, incident, rollback, or recurring cost exists",
+      "prohibitions": [
+        "do not trigger from one transient check failure",
+        "do not auto-promote a proposal to a blocking rule",
+        "do not mix unrelated improvement into the active change"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/improvement-policy.md",
+        "scripts/retrospect.py"
+      ],
+      "requirementIds": [],
+      "role": "retrospective",
+      "sideEffect": "repository-confined-temporary-write"
+    },
+    {
+      "activationContexts": [
+        "execution-sizing"
+      ],
+      "applicability": "when-execution-sizing-is-needed",
+      "authority": "change-risk",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "report-bounded",
+      "guardrail": false,
+      "inputs": [
+        "execution-context",
+        "change-risk",
+        "artifacts",
+        "acceptance",
+        "target-owned-gates",
+        "available-evidence"
+      ],
+      "interfaceSha256": "0da8298df4216322130c6c5eed94f9b98fa68557b8e2a24378f84e572a1b20a8",
+      "manualBodySha256": "f5d3ddb338b6fea71326b34c8cc9468d3df92a175b1b2ff88755478a5d494c3a",
+      "name": "right-size-execution",
+      "obligationIds": [
+        "assess-independent-execution-axes",
+        "derive-exact-verification-projection",
+        "expand-one-evidence-backed-axis",
+        "stop-after-decisive-success",
+        "preserve-tamper-evident-state"
+      ],
+      "outputs": [
+        "execution-profile",
+        "selected-verification",
+        "optional-diagnostics",
+        "stopping-evidence"
+      ],
+      "payloadSha256": "4c1b2d00f7d4597070f1d8bd6c8d032f3712e64ccaa8b08f86a32afd02bb3ea5",
+      "pillar": "auxiliary",
+      "postcondition": "minimum sufficient checks are selected; measured execution additionally has an exact verification projection, bounded diagnostics, and tamper-evident stopping evidence",
+      "precondition": "execution sizing is needed; exact profile and stopping evidence apply only when measured execution is selected",
+      "prohibitions": [
+        "do not infer repository policy from execution sizing",
+        "do not fabricate evidence or bypass a risk floor",
+        "do not continue unbounded exploration after success"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "assets/behavior-constraints.json",
+        "assets/benchmark-cases.json",
+        "assets/execution-policy.json",
+        "assets/execution-policy.schema.json",
+        "assets/execution-profile.schema.json",
+        "references/execution-dimensions.md",
+        "references/expansion-contract.md",
+        "references/measurement-contract.md",
+        "references/stopping-contract.md",
+        "scripts/executionflow.py"
+      ],
+      "requirementIds": [
+        "REQ-EXEC-001",
+        "REQ-EXEC-002",
+        "REQ-EXEC-003",
+        "REQ-EXEC-004",
+        "REQ-EXEC-005",
+        "REQ-EXEC-006",
+        "REQ-EXEC-007",
+        "REQ-EXEC-008",
+        "REQ-EXEC-009",
+        "REQ-EXEC-010",
+        "REQ-SKILL-001",
+        "REQ-SKILL-002"
+      ],
+      "role": "execution-sizing",
+      "sideEffect": "repository-confined-temporary-write"
+    },
+    {
+      "activationContexts": [
+        "frontend-testing"
+      ],
+      "applicability": "when-frontend-testing-is-requested",
+      "authority": "frontend-requirements-and-approved-design",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": true,
+      "failureState": "report-bounded",
+      "guardrail": false,
+      "inputs": [
+        "requirements",
+        "design-decisions",
+        "implementation",
+        "as-built-design",
+        "supported-environment",
+        "selected-check",
+        "declared-test-command-effects",
+        "external-authority-if-applicable"
+      ],
+      "interfaceSha256": "75a61d820c9f0f7aeca8315708801ba28ce17a3850b1372b6ec45f9962c9c6d4",
+      "manualBodySha256": "0df812138601c4432c5d650acb027955b5146aa75dd76413b175188f63619a6e",
+      "name": "test-frontend-experience",
+      "obligationIds": [
+        "derive-tests-from-authority-order",
+        "select-only-applicable-test-dimensions",
+        "exercise-applicable-task-and-failure-states",
+        "bind-declared-external-effects-to-authority",
+        "bound-verdict-to-supported-environment"
+      ],
+      "outputs": [
+        "test-results",
+        "selected-check-result",
+        "declared-effect-report",
+        "residual-risk",
+        "repair-handoff"
+      ],
+      "payloadSha256": "ae93336d0c22d3524dc0615c389b1cec418b953875d59fb7ffd1f943abb2d0a6",
+      "pillar": "auxiliary",
+      "postcondition": "tests selected only for applicable dimensions pass or a bounded repair handoff is returned, and claims stay within executed scope",
+      "precondition": "frontend requirements, approved design, implementation, and selected checks are available",
+      "prohibitions": [
+        "do not mutate production artifacts while reviewing",
+        "do not let implementation override requirements",
+        "do not claim process isolation or unexecuted coverage"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "references/evidence-map.md"
+      ],
+      "requirementIds": [],
+      "role": "frontend-testing",
+      "sideEffect": "target-command-effects"
+    },
+    {
+      "activationContexts": [
+        "relevant-standard"
+      ],
+      "applicability": "when-a-relevant-standard-is-selected",
+      "authority": "canonical-requirements-target-policy-and-selected-official-standards",
+      "defaultPortable": false,
+      "dependencies": [],
+      "externalEffect": false,
+      "failureState": "report-bounded",
+      "guardrail": false,
+      "inputs": [
+        "change",
+        "requirements",
+        "target-policy",
+        "skill-default-standards-registry",
+        "source-context",
+        "optional-repository-output"
+      ],
+      "interfaceSha256": "4849946704e4fff8bf109eb0ad4eff8513f9e717cd21e00f79893f68cdb9cd89",
+      "manualBodySha256": "e9dca0bd1c9c450fe0aba6cffa4621b85037ab06e32ebbd7058b7ab7b98398f9",
+      "name": "verify-against-engineering-standards",
+      "obligationIds": [
+        "select-only-relevant-official-controls",
+        "preserve-standard-version-and-freshness",
+        "derive-verdict-from-direct-evidence",
+        "confine-generated-output-to-target-repository"
+      ],
+      "outputs": [
+        "selected-standards",
+        "selected-controls",
+        "standard-findings",
+        "residual-risk",
+        "requirement-handoff",
+        "generated-sources-doc-when-requested"
+      ],
+      "payloadSha256": "1ee8c37168749ce8fb21781a9b4fcf2a794fc7d9216a8ea8c3f9f08391f18f4e",
+      "pillar": "auxiliary",
+      "postcondition": "only applicable controls have evidence-bounded findings without overriding canonical authority, and any requested generated source document stays repository-confined",
+      "precondition": "a relevant standard is selected for the change",
+      "prohibitions": [
+        "do not override canonical requirements with external standards",
+        "do not claim certification or exhaustive compliance",
+        "do not write outside the target repository or create CI or merge policy"
+      ],
+      "repositoryBlocking": false,
+      "repositoryPolicy": {
+        "branchProtection": false,
+        "ciWorkflow": false,
+        "commitFormat": false,
+        "mergeStrategy": false,
+        "prTemplate": false,
+        "requiredCheck": false,
+        "ruleset": false
+      },
+      "requiredAssets": [
+        "assets/standards.registry.json",
+        "references/as-built-design-check-selection.md",
+        "references/source-policy.md",
+        "scripts/standardsflow.py"
+      ],
+      "requirementIds": [
+        "REQ-ASBUILT-012",
+        "REQ-ASBUILT-013",
+        "REQ-ASBUILT-014",
+        "REQ-ASBUILT-015",
+        "REQ-DOCS-001",
+        "REQ-QUALITY-001",
+        "REQ-QUALITY-003"
+      ],
+      "role": "standards-lens",
+      "sideEffect": "repository-write"
+    }
+  ],
+  "invariants": [
+    "contractsAreComplete",
+    "threePillarsOnly",
+    "repositoryPolicyIsHostOwned",
+    "defaultPortableSetIsMinimal",
+    "dependenciesAreClosed",
+    "runnerConformanceIsExplicit",
+    "workflowOrderIsConsistent",
+    "portablePolicyIsUntouched"
+  ],
+  "quint_version": "0.32.0",
+  "schema_version": 1,
+  "source": "spec/skills/skills.qnt"
+}

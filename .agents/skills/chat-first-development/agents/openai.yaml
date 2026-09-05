@@ -1,0 +1,4 @@
+interface:
+  display_name: "チャットだけで自律開発"
+  short_description: "Complete a development request with three lightweight pillars"
+  default_prompt: "Use $chat-first-development to classify durable requirements, implement and verify the requested change with the three lightweight pillars, and create, update, comment on, review, or merge a PR only when that exact external action is explicitly requested and authorized."

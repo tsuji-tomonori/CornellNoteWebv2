@@ -1,0 +1,4 @@
+interface:
+  display_name: "品質ゲート検査"
+  short_description: "Inspect only selected checks and current evidence"
+  default_prompt: "Use $inspect-quality-gates to run change-relevant checks, report actual results and unverified scope, and preserve existing policy and authority. Read the optional runner contract only when using a target-owned command registry."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "日本語Gitmoji commit"
+  short_description: "選択済みのrepository形式で日本語commit messageを作る"
+  default_prompt: "Use $japanese-git-commit-gitmoji only when I or the target repository selected this style, and propose a truthful Japanese Gitmoji Conventional Commit message from the actual diff and verification."
