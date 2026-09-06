@@ -7,13 +7,13 @@
 | action | maintain |
 | category | nonfunctional |
 | id | REQ-REPORT |
-| last_changed_by | initial-implementation |
-| object | 全Given When Thenと右側スクリーンショットおよび品質・coverageをPagesで初期展開表示する |
+| last_changed_by | report-navigation |
+| object | 品質トップからE2E・静的解析・単体結合テスト・カバレッジへ移動でき、E2Eは左の実行環境・ファイル・ケース階層一覧と常時展開したGiven When Thenだけの右側画像を表示し、画像クリックで拡大、Escと閉じる操作で復帰する |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 1 |
+| revision | 2 |
 | scope | project |
-| source_refs | user:2026-09-05-cornellnoteweb |
+| source_refs | user:2026-09-05-cornellnoteweb, user:2026-09-06-report-navigation |
 | status | active |
 | subject | CornellNoteWebv2 |
 | superseded_by |  |
@@ -25,13 +25,13 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-REPORT | devに変更が統合される | ActionsがE2Eを実行する | 全Given When Thenと右側スクリーンショットおよび品質・coverageをPagesで初期展開表示する |
+| AC-REPORT | devに変更が統合される | ActionsがE2Eを実行する | 品質トップからE2E・静的解析・単体結合テスト・カバレッジへ移動でき、E2Eは左の実行環境・ファイル・ケース階層一覧と常時展開したGiven When Thenだけの右側画像を表示し、画像クリックで拡大、Escと閉じる操作で復帰する |
 
 ## トレーサビリティ
 
 | 種類 | 正本の参照 |
 | --- | --- |
-| design | [docs/generated/README.gen.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/README.gen.md) |
-| implementation | [tools/report.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/report.py) |
+| design | [docs/design/DESIGN_GUIDE.manual.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/design/DESIGN_GUIDE.manual.md) |
+| implementation | [tools/report.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/report.py), [tools/report_assets/report.js](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/report_assets/report.js), [tools/report_assets/report.css](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/report_assets/report.css) |
 | standards | [AGENTS.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/AGENTS.md) |
-| tests | [.github/workflows/verify.yml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/.github/workflows/verify.yml) |
+| tests | [tests/test_report.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_report.py), [frontend/report-tests/report.spec.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/report-tests/report.spec.ts), [.github/workflows/verify.yml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/.github/workflows/verify.yml) |

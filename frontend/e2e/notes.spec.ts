@@ -7,13 +7,18 @@ async function step(
   work: () => Promise<void>,
 ) {
   await test.step(`${kind}: ${text}`, async () => {
-    await work();
-    const filename = info.outputPath(`${kind}-${Date.now()}.png`);
-    await page.screenshot({ path: filename, fullPage: true });
-    await info.attach(`${kind}: ${text}`, {
-      path: filename,
-      contentType: "image/png",
-    });
+    try {
+      await work();
+    } finally {
+      if (!page.isClosed()) {
+        const filename = info.outputPath(`${kind}-${Date.now()}.png`);
+        await page.screenshot({ path: filename, fullPage: true });
+        await info.attach(`${kind}: ${text}`, {
+          path: filename,
+          contentType: "image/png",
+        });
+      }
+    }
   });
 }
 async function login(page: Page) {

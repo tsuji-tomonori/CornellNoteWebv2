@@ -41,15 +41,15 @@ npm --prefix frontend run e2e
 python tools/report.py
 ```
 
-`reports/index.html` が統合レポートです。日本語Given/When/Thenの各段階に実画像を右側表示し、全ケースを常時展開します。PythonとTypeScriptのコード行カバレッジ、静的解析、フォーマッター、CDK nag、snapshotも確認できます。CIの画面は合成画像ではなく実行時のスクリーンショットです。
+`reports/index.html` は品質サマリーです。E2E・静的解析・単体／結合テスト・カバレッジ・設計書へ移動できます。`e2e.html` は左側に実行環境→ファイル→ケースの階層一覧を表示し、日本語Given/When/Thenの各段階に実画像を右側表示して、全ケースを常時展開します。画像はクリックで拡大でき、Escまたは閉じる操作で元の位置に戻れます。終了時の自動画像は表示せず、失敗時も該当するGiven/When/Thenで撮影します。PythonとTypeScriptのコード行カバレッジ、静的解析、フォーマッター、CDK nag、snapshotも確認できます。CIの画面は合成画像ではなく実行時のスクリーンショットです。
 
 ## 検証状況
 
-2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Pythonテスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像と終了時12画像、計44画像を生成。
+2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Pythonテスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像を生成。終了時画像は廃止し、レポートUIもPC／モバイル計6ケースで検証します。
 
 作業環境でもChromiumとローカルAPI・PostgreSQL互換PGliteで10ケースが成功。DockerがないためComposeそのものの検証はActionsで実施。通常のローカル手順は上記Composeを使用してください。
 
-Pagesは環境保護ルールのdev許可後に再公開が成功。https://tsuji-tomonori.github.io/CornellNoteWebv2/ で公開HTMLと44画像の参照を確認済み。
+Pagesは環境保護ルールのdev許可後に再公開が成功。https://tsuji-tomonori.github.io/CornellNoteWebv2/ で公開します。
 
 ## AWS構成
 

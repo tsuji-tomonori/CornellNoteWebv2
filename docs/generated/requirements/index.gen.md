@@ -4,7 +4,7 @@
 
 正本: [spec/requirements/requirements.qnt](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/spec/requirements/requirements.qnt)
 
-カタログ版: 4 / 製品: CornellNoteWebv2
+カタログ版: 5 / 製品: CornellNoteWebv2
 
 Quintの型・不変条件・traceを検証し、メモリ上で直列化したJSONから生成する。
 
