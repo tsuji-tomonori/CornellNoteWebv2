@@ -4,29 +4,43 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
 
 処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
 
-## insert_note
+## 001_insert_note.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
 
 所有者に紐づく新しいノートを保存する
 
-正本: [backend/src/app/apis/notes/create_note/sql/001_insert_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/001_insert_note.sql) / 生成: [backend/src/app/apis/notes/create_note/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| content | str |
-| cue | str |
-| group_name | str |
-| id | UUID |
-| owner_id | str |
-| summary | str |
-| tasks | str |
-| title | str |
-| updated_at | datetime |
+`notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
+| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
+| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### 戻り値
 
 該当なし。
+
+### SQL
 
 ```sql
 -- 所有者に紐づく新しいノートを保存する
@@ -45,3 +59,5 @@ INSERT INTO notes (
     %(updated_at)s
 );
 ```
+
+正本: [backend/src/app/apis/notes/create_note/sql/001_insert_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/001_insert_note.sql)

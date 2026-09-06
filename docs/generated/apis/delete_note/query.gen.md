@@ -4,25 +4,41 @@
 
 `DELETE /api/notes/{note_id}` / operationId: `delete_note`
 
-ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L13)
 
 処理: [backend/src/app/apis/notes/delete_note/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L8)
 
-## delete_note
+## 001_delete_note.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
 
 所有者に一致するノートだけを削除する
 
-正本: [backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql) / 生成: [backend/src/app/apis/notes/delete_note/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| id | UUID |
-| owner_id | str |
+`notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+
+### 戻り値
 
 該当なし。
+
+### SQL
 
 ```sql
 -- 所有者に一致するノートだけを削除する
 DELETE FROM notes
 WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
+
+正本: [backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql)

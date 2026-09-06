@@ -72,3 +72,90 @@ test("画像を拡大してEscと閉じる操作で元に戻れる", async ({ pa
   await expect(dialog).not.toBeVisible();
   await expect(shot).toBeFocused();
 });
+
+test("C0とC1の実測値と日本語の個別テスト結果を確認できる", async ({ page }) => {
+  await page.goto("/coverage.html");
+  await expect(
+    page.getByRole("cell", { name: "TypeScript C0（命令）", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("cell", { name: "TypeScript C1（分岐）", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("row").filter({ hasText: "TypeScript C0" }),
+  ).toContainText(/\d+\.\d+% \(\d+\/\d+\)/);
+  await page.goto("/tests.html");
+  await expect(
+    page.getByRole("heading", { name: "日本語のテスト一覧" }),
+  ).toBeVisible();
+  await expect(page.locator(".unit-suite")).not.toHaveCount(0);
+  await expect(
+    page.getByRole("cell", {
+      name: "ローカルログインで選択した本人の一覧を表示する",
+      exact: true,
+    }),
+  ).toBeVisible();
+});
+
+test("設計書はHTMLで読めて内部のCRUD図とAPIシーケンスが描画される", async ({
+  page,
+}) => {
+  const base = process.env.DOCS_BASE || "/design";
+  await page.goto(base + "/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "自動生成ドキュメント",
+  );
+  for (const [path, title] of [
+    ["database/crud/", "CRUD"],
+    ["database/er/", "ER"],
+    ["apis/update_note/sequence/", "シーケンス"],
+    ["infrastructure/topology/", "CDK"],
+  ]) {
+    await page.goto(base + "/" + path);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(title);
+    await expect(page.locator(".mermaid svg").first()).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("Syntax error");
+  }
+  await page.goto(base + "/infrastructure/");
+  await expect(
+    page.getByRole("link", { name: "設定・参照関係", exact: true }).first(),
+  ).toBeVisible();
+  await page.goto(base + "/apis/list_notes/detail-design/");
+  await expect(
+    page.getByRole("heading", { name: "4. 正常系レスポンス", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("main")).toContainText("DB: notes.title");
+});
+
+test("日本語の全文検索から設計書へ移動できる", async ({ page }) => {
+  const base = process.env.DOCS_BASE || "/design";
+  await page.goto(base + "/");
+  await page.getByRole("button", { name: "検索", exact: true }).click();
+  const input = page.getByRole("textbox", { name: "検索", exact: true });
+  await expect(input).toBeVisible();
+  await input.fill("正常系リソース変更");
+  const hit = page.locator(".pagefind-ui__result-link").first();
+  await expect(hit).toBeVisible({ timeout: 15000 });
+  await hit.click();
+  await expect(page).toHaveURL(new RegExp("/apis/.+/detail-design/"));
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "詳細設計",
+  );
+});
+
+test("全APIのシーケンス図を構文エラーなく描画する", async ({ page }) => {
+  test.setTimeout(90000);
+  const base = process.env.DOCS_BASE || "/design";
+  await page.goto(base + "/");
+  const urls = await page
+    .locator('main a[href$="/sequence/"]')
+    .evaluateAll((links) =>
+      links.map((link) => (link as HTMLAnchorElement).href),
+    );
+  expect(urls).toHaveLength(10);
+  for (const url of urls) {
+    await page.goto(url);
+    await expect(page.locator(".mermaid svg").first()).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("Syntax error");
+  }
+});

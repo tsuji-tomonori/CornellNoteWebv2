@@ -4,40 +4,54 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
 
 処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
 
-## update_note
+## 001_update_note.sql
+
+### SQL種別
+
+`UPDATE`
+
+### SQLの概要
 
 所有者と版が一致するノートを更新する
 
-正本: [backend/src/app/apis/notes/update_note/sql/001_update_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/001_update_note.sql) / 生成: [backend/src/app/apis/notes/update_note/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| content | str |
-| cue | str |
-| group_name | str |
-| id | UUID |
-| owner_id | str |
-| summary | str |
-| tasks | str |
-| title | str |
-| updated_at | datetime |
-| version | int |
+`notes`
 
-| 戻り列 | Python型 |
-| --- | --- |
-| id | UUID |
-| title | str |
-| group_name | str |
-| cue | str |
-| content | str |
-| summary | str |
-| tasks | str |
-| version | int |
-| updated_at | datetime |
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
+| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
+| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
+| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
+| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
+| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### SQL
 
 ```sql
 -- 所有者と版が一致するノートを更新する
@@ -54,23 +68,41 @@ WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s RETURNIN
     id, title, group_name, cue, content, summary, tasks, version, updated_at;
 ```
 
-## select_owned_note
+正本: [backend/src/app/apis/notes/update_note/sql/001_update_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/001_update_note.sql)
+
+## 002_select_owned_note.sql
+
+### SQL種別
+
+`SELECT`
+
+### SQLの概要
 
 更新失敗が権限不足か版競合かを区別する
 
-正本: [backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql) / 生成: [backend/src/app/apis/notes/update_note/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| id | UUID |
-| owner_id | str |
+`notes`
 
-| 戻り列 | Python型 |
-| --- | --- |
-| id | UUID |
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+
+### SQL
 
 ```sql
 -- 更新失敗が権限不足か版競合かを区別する
 SELECT id FROM notes
 WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
+
+正本: [backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql)

@@ -1,7 +1,7 @@
 from tools.verified_revision import matches
 
 
-def test_deploy_proof_requires_exact_source_commit_and_tree():
+def test_検証済みコミットとツリーが一致するときだけデプロイする():
     source, commit, tree = "a" * 40, "b" * 40, "c" * 40
     proof = f"{source}\n{commit}\n{tree}\n"
     assert matches(proof, source=source, commit=commit, tree=tree)

@@ -4,69 +4,124 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
 
 処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
 
-所有者と版を確認し、競合時は変更せず返す。
+## 1. 正常系入力
 
-## 入出力
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| path | note_id | Note Id | True |
+| header | Authorization | Bearer JWT | True |
+| body | application/json | NoteUpdate | True |
 
-```python
-def execute(note_id: UUID, data: NoteUpdate, owner: str, repo: Database) -> Note:
-```
+| 入力項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| $ | object | 必須 |  | additionalProperties: False |
+| $.title | string | 必須 | ノートのタイトル | maxLength: 200; minLength: 1; pattern: \S |
+| $.group | string | 省略可 | 科目やコレクションの分類名 | default: 未分類; maxLength: 80; minLength: 1; pattern: \S |
+| $.cue | string | 省略可 | 問い・キーワード欄 | default: ; maxLength: 20000 |
+| $.content | string | 省略可 | ノート本文 | default: ; maxLength: 80000 |
+| $.summary | string | 省略可 | 学びを要約するまとめ欄 | default: ; maxLength: 20000 |
+| $.tasks | array | 省略可 | チェックリストのアクション一覧 | maxItems: 100 |
+| $.tasks[] | object | 省略可 |  |  |
+| $.tasks[].id | string | 必須 | 項目を一意に識別するUUID | format: uuid |
+| $.tasks[].text | string | 必須 | アクションの内容 | maxLength: 500; minLength: 1 |
+| $.tasks[].done | boolean | 省略可 | アクションの完了状態 | default: False |
+| $.tasks[].due | union | 省略可 | アクションの期日。未指定はnull |  |
+| $.tasks[].due (候補1) | string | 省略可 |  | format: date |
+| $.tasks[].due (候補2) | null | 省略可 |  |  |
+| $.version | integer | 必須 | 更新前の版番号。競合検知に使用する | minimum: 1.0 |
 
-## 条件分岐
+## 2. 正常系前提と分岐
 
-| 行 | 条件式 |
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
+
+| 条件・例外 | 分岐時の応答 |
 | --- | --- |
-| 30 | not rows |
-| 35 | not owned |
+| ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
+| 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
+| 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| ノートが見つかりません | HTTP 404: application/json: {detail: "ノートが見つかりません"} |
+| 別の画面で更新されています。入力を控えて再読み込みしてください | HTTP 409: application/json: {detail: "別の画面で更新されています。入力を控えて再読み込みしてください"} |
+| 更新が競合しました。再読み込みしてください | HTTP 409: application/json: {detail: "更新が競合しました。再読み込みしてください"} |
+| パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-## 呼出先と引数
+### 所有者と版が一致するノートを更新する
 
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 15 | queries.UpdateNoteParams |  |
-| 23 | json.dumps | [t.model_dump(mode='json') for t in data.tasks] |
-| 23 | t.model_dump |  |
-| 24 | datetime.now | UTC |
-| 28 | repo.transaction |  |
-| 29 | queries.update_note | session, params |
-| 31 | repo.transaction |  |
-| 32 | queries.select_owned_note | session, queries.SelectOwnedNoteParams(id=note_id, owner_id=owner) |
-| 33 | queries.SelectOwnedNoteParams |  |
-| 36 | HTTPException | 404, 'ノートが見つかりません' |
-| 37 | HTTPException | 409, '別の画面で更新されています。入力を控えて再読み込みしてください' |
-| 40 | decode | rows[0] |
-| 42 | HTTPException | 409, '更新が競合しました。再読み込みしてください' |
+テーブル: `notes` / 操作: `UPDATE`
 
-## 要件との直接対応
+対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s`
 
-| 要件 | タイトル | 検証方法 |
-| --- | --- | --- |
-| REQ-EDIT | コーネル式の三欄を編集する | automated-tests-and-review |
-| REQ-CONFLICT | 同時更新の上書きを防ぐ | automated-tests-and-review |
-| REQ-SQL | API単位のSQLから型付きクエリを生成し静的解析する | automated-tests |
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | パス引数: note_id |
+| owner_id | 認証JWT: sub（所有者） |
+| title | リクエスト: title |
+| group_name | リクエスト: group |
+| cue | リクエスト: cue |
+| content | リクエスト: content |
+| summary | リクエスト: summary |
+| tasks | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
+| updated_at | datetime.now(UTC) |
+| version | リクエスト: version |
 
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
+### 更新失敗が権限不足か版競合かを区別する
 
-## 処理本体（AST由来）
+テーブル: `notes` / 操作: `SELECT`
 
-```python
-def execute(note_id: UUID, data: NoteUpdate, owner: str, repo: Database) -> Note:
-    """所有者と版を確認し、競合時は変更せず返す。"""
-    params = queries.UpdateNoteParams(id=note_id, owner_id=owner, title=data.title, group_name=data.group, cue=data.cue, content=data.content, summary=data.summary, tasks=json.dumps([t.model_dump(mode='json') for t in data.tasks]), updated_at=datetime.now(UTC), version=data.version)
-    try:
-        with repo.transaction() as session:
-            rows = queries.update_note(session, params)
-        if not rows:
-            with repo.transaction() as session:
-                owned = queries.select_owned_note(session, queries.SelectOwnedNoteParams(id=note_id, owner_id=owner))
-            if not owned:
-                raise HTTPException(404, 'ノートが見つかりません')
-            raise HTTPException(409, '別の画面で更新されています。入力を控えて再読み込みしてください')
-        return decode(rows[0])
-    except UpdateConflict as exc:
-        raise HTTPException(409, '更新が競合しました。再読み込みしてください') from exc
-```
+対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | パス引数: note_id |
+| owner_id | 認証JWT: sub（所有者） |
+
+## 3. 正常系リソース変更
+
+| テーブル | 操作 | カラム | 日本語説明 | 値の取得元 |
+| --- | --- | --- | --- | --- |
+| notes | UPDATE | title | ノートの題名 | リクエスト: title |
+| notes | UPDATE | group_name | 科目またはプロジェクトの分類名 | リクエスト: group |
+| notes | UPDATE | cue | 問い・キーワード | リクエスト: cue |
+| notes | UPDATE | content | 自由記述の記録本文 | リクエスト: content |
+| notes | UPDATE | summary | 自分の言葉による要約 | リクエスト: summary |
+| notes | UPDATE | tasks | チェック項目・完了状態・期日のJSON配列 | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
+| notes | UPDATE | version | 同時更新検知の連番 | SQL式: version + 1 |
+| notes | UPDATE | updated_at | 最終更新日時（UTC） | datetime.now(UTC) |
+
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Note |
+
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | object |  | 配列・オブジェクトの入れ物 |
+| $.title | string | ノートのタイトル | DB: notes.title |
+| $.group | string | 科目やコレクションの分類名 | DB: notes.group_name |
+| $.cue | string | 問い・キーワード欄 | DB: notes.cue |
+| $.content | string | ノート本文 | DB: notes.content |
+| $.summary | string | 学びを要約するまとめ欄 | DB: notes.summary |
+| $.tasks | array | チェックリストのアクション一覧 | DB: notes.tasks（JSONから復元） |
+| $.tasks[] | object |  | DB: notes.tasks（JSONから復元） |
+| $.tasks[].id | string | 項目を一意に識別するUUID | DB: notes.tasks（JSONから復元） |
+| $.tasks[].text | string | アクションの内容 | DB: notes.tasks（JSONから復元） |
+| $.tasks[].done | boolean | アクションの完了状態 | DB: notes.tasks（JSONから復元） |
+| $.tasks[].due | union | アクションの期日。未指定はnull | DB: notes.tasks（JSONから復元） |
+| $.tasks[].due (候補1) | string |  | DB: notes.tasks（JSONから復元） |
+| $.tasks[].due (候補2) | null |  | DB: notes.tasks（JSONから復元） |
+| $.id | string | 項目を一意に識別するUUID | DB: notes.id |
+| $.version | integer | 保存されたノートの版番号 | DB: notes.version |
+| $.updated_at | string | 最終更新日時 | DB: notes.updated_at |
+
+## 5. 要件との直接対応
+
+| 要件 | タイトル |
+| --- | --- |
+| REQ-EDIT | コーネル式の三欄を編集する |
+| REQ-CONFLICT | 同時更新の上書きを防ぐ |
+| REQ-SQL | API単位のSQLから型付きクエリを生成し静的解析する |

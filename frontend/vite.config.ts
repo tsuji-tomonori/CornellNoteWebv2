@@ -11,13 +11,18 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
+    environment: "jsdom",
+    setupFiles: ["./test-setup.ts"],
+    reporters: ["default", "json"],
+    outputFile: { json: "../reports/vitest.json" },
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json", "json-summary"],
       reportsDirectory: "../reports/frontend-coverage",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.ts"],
+      exclude: ["src/**/*.test.{ts,tsx}"],
+      thresholds: { statements: 85, branches: 80, lines: 85, functions: 80 },
     },
   },
 });

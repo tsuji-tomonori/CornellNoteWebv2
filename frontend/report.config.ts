@@ -19,8 +19,7 @@ export default defineConfig({
       : {}),
   },
   webServer: {
-    command:
-      "python3 -m http.server 4175 --bind 127.0.0.1 --directory ../reports",
+    command: "python3 ../tools/report_server.py",
     url: "http://127.0.0.1:4175/index.html",
     reuseExistingServer: false,
   },

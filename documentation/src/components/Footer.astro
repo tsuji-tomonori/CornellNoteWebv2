@@ -1,0 +1,21 @@
+---
+import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
+---
+<DefaultFooter><slot /></DefaultFooter>
+<script>
+ async function diagrams(){
+  const nodes:Array<HTMLElement>=[];
+  document.querySelectorAll('pre[data-language="mermaid"], pre:has(code.language-mermaid)').forEach(pre=>{
+   const diagram=document.createElement('div');diagram.className='mermaid';
+   const lines=Array.from(pre.querySelectorAll('.ec-line .code'));
+   diagram.textContent=lines.length?lines.map(line=>line.textContent).join('\n'):pre.querySelector('code')?.textContent || pre.textContent;
+   const wrapper=pre.closest('.expressive-code') || pre;wrapper.replaceWith(diagram);nodes.push(diagram);
+  });
+  if(nodes.length){
+   const {default:mermaid}=await import('mermaid');
+   mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:'neutral',fontFamily:'system-ui, sans-serif'});
+   await mermaid.run({nodes});
+  }
+ }
+ diagrams().catch(error=>{ console.error('Diagram rendering failed',error); });
+</script>

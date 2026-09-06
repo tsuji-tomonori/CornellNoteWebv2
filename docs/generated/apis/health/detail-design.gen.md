@@ -4,38 +4,36 @@
 
 `GET /api/health` / operationId: `health`
 
-ハンドラ: [backend/src/app/apis/system/router.py:9](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L9)
+ハンドラ: [backend/src/app/apis/system/router.py:10](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L10)
 
-処理: [backend/src/app/apis/system/router.py:9](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L9)
+処理: [backend/src/app/apis/system/router.py:10](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L10)
 
-
-
-## 入出力
-
-```python
-@router.get('/health', operation_id='health')
-```
-
-## 条件分岐
+## 1. 正常系入力
 
 該当なし。
 
-## 呼出先と引数
+## 2. 正常系前提と分岐
 
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 8 | router.get | '/health' |
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
 
-## 要件との直接対応
+| 条件・例外 | 分岐時の応答 |
+| --- | --- |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
+
+## 3. 正常系リソース変更
+
+正常系で作成・更新・削除するリソースはない。
+
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Response Health |
+
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | object |  | 配列・オブジェクトの入れ物 |
+
+## 5. 要件との直接対応
 
 該当なし。
-
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
-
-## 処理本体（AST由来）
-
-```python
-@router.get('/health', operation_id='health')
-def health() -> dict[str, str]:
-    return {'status': 'ok'}
-```

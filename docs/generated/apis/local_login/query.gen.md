@@ -4,7 +4,7 @@
 
 `POST /api/auth/local` / operationId: `local_login`
 
-ハンドラ: [backend/src/app/apis/system/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L14)
+ハンドラ: [backend/src/app/apis/system/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L15)
 
 処理: [backend/src/app/auth.py:65](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L65)
 

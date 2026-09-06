@@ -4,7 +4,7 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
 
 処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
 

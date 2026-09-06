@@ -4,59 +4,64 @@
 
 `POST /api/notes/{note_id}/share` / operationId: `create_share`
 
-ハンドラ: [backend/src/app/apis/notes/create_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/create_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L14)
 
 処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
 
-生トークンを保存せず、7日間の閲覧リンクを発行する。
+## 1. 正常系入力
 
-## 入出力
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| path | note_id | Note Id | True |
+| header | Authorization | Bearer JWT | True |
 
-```python
-def execute(note_id: UUID, owner: str, repo: Database) -> Share:
-```
+## 2. 正常系前提と分岐
 
-## 条件分岐
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
 
-| 行 | 条件式 |
+| 条件・例外 | 分岐時の応答 |
 | --- | --- |
-| 25 | not rows |
+| ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
+| 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
+| 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| ノートが見つかりません | HTTP 404: application/json: {detail: "ノートが見つかりません"} |
+| パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-## 呼出先と引数
+### 所有者のノートに期限付き共有を発行する
 
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 15 | secrets.token_urlsafe | 32 |
-| 16 | datetime.now | UTC |
-| 16 | timedelta |  |
-| 17 | queries.UpdateShareParams |  |
-| 20 | hashlib.sha256 | token.encode() |
-| 20 | hashlib.sha256(token.encode()).hexdigest |  |
-| 20 | token.encode |  |
-| 23 | repo.transaction |  |
-| 24 | queries.update_share | session, params |
-| 26 | HTTPException | 404, 'ノートが見つかりません' |
-| 27 | Share |  |
+テーブル: `notes` / 操作: `UPDATE`
 
-## 要件との直接対応
+対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s`
 
-| 要件 | タイトル | 検証方法 |
-| --- | --- | --- |
-| REQ-SHARE | 閲覧リンクを発行する | automated-tests-and-review |
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | パス引数: note_id |
+| owner_id | 認証JWT: sub（所有者） |
+| share_hash | hashlib.sha256(token.encode()).hexdigest() |
+| share_expires | datetime.now(UTC) + timedelta(days=7) |
 
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
+## 3. 正常系リソース変更
 
-## 処理本体（AST由来）
+| テーブル | 操作 | カラム | 日本語説明 | 値の取得元 |
+| --- | --- | --- | --- | --- |
+| notes | UPDATE | share_hash | 共有トークンのSHA256（生トークンは保存しない） | hashlib.sha256(token.encode()).hexdigest() |
+| notes | UPDATE | share_expires | 共有リンクの有効期限 | datetime.now(UTC) + timedelta(days=7) |
 
-```python
-def execute(note_id: UUID, owner: str, repo: Database) -> Share:
-    """生トークンを保存せず、7日間の閲覧リンクを発行する。"""
-    token = secrets.token_urlsafe(32)
-    expires = datetime.now(UTC) + timedelta(days=7)
-    params = queries.UpdateShareParams(id=note_id, owner_id=owner, share_hash=hashlib.sha256(token.encode()).hexdigest(), share_expires=expires)
-    with repo.transaction() as session:
-        rows = queries.update_share(session, params)
-    if not rows:
-        raise HTTPException(404, 'ノートが見つかりません')
-    return Share(token=token, expires_at=expires)
-```
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Share |
+
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | object |  | 配列・オブジェクトの入れ物 |
+| $.token | string | 期限付き共有リンクのトークン。DBにはハッシュのみ保存する | secrets.token_urlsafe(32) |
+| $.expires_at | string | 共有リンクの有効期限 | datetime.now(UTC) + timedelta(days=7) |
+
+## 5. 要件との直接対応
+
+| 要件 | タイトル |
+| --- | --- |
+| REQ-SHARE | 閲覧リンクを発行する |

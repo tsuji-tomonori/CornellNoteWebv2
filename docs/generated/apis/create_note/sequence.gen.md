@@ -4,7 +4,7 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
 
 処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
 

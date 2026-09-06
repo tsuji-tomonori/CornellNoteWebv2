@@ -7,11 +7,11 @@
 | action | maintain |
 | category | nonfunctional |
 | id | REQ-TEST |
-| last_changed_by | initial-implementation |
-| object | pytest・TS単体・静的解析・CDK nag・アサーション・snapshotを検査する |
+| last_changed_by | searchable-design-and-coverage |
+| object | pytestとVitestで日本語のテスト名を持ち、画面と通信と認証の成功失敗を検証する。TypeScriptのC0命令網羅85%以上・C1分岐網羅80%以上をCIで維持し、CDK nag・スナップショット・最小権限アサーションも実行する |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 1 |
+| revision | 2 |
 | scope | project |
 | source_refs | user:2026-09-05-cornellnoteweb |
 | status | active |
@@ -25,13 +25,13 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-TEST | 変更が作成される | 品質検査を実行する | pytest・TS単体・静的解析・CDK nag・アサーション・snapshotを検査する |
+| AC-TEST | 変更が作成される | 品質検査を実行する | pytestとVitestで日本語のテスト名を持ち、画面と通信と認証の成功失敗を検証する。TypeScriptのC0命令網羅85%以上・C1分岐網羅80%以上をCIで維持し、CDK nag・スナップショット・最小権限アサーションも実行する |
 
 ## トレーサビリティ
 
 | 種類 | 正本の参照 |
 | --- | --- |
 | design | [docs/generated/README.gen.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/README.gen.md) |
-| implementation | [tools/quality.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/quality.py) |
+| implementation | [frontend/vite.config.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/vite.config.ts), [tools/quality.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/quality.py) |
 | standards | [AGENTS.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/AGENTS.md) |
-| tests | [.github/workflows/verify.yml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/.github/workflows/verify.yml) |
+| tests | [frontend/src/App.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/App.test.tsx), [frontend/src/Editor.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx), [frontend/src/api.test.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/api.test.ts), [infra/tests/test_stack.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/infra/tests/test_stack.py) |

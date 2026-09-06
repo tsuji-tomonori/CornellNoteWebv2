@@ -26,7 +26,7 @@ def headers(client, user="alice"):
     return {"Authorization": "Bearer " + token}
 
 
-def test_note_lifecycle_and_owner_isolation(client):
+def test_ノートの作成更新削除と所有者分離を確認する(client):
     alice, bob = headers(client), headers(client, "bob")
     created = client.post(
         "/api/notes", headers=alice, json={"title": "講義 " + str(uuid4()), "group": "情報工学"}
@@ -58,7 +58,7 @@ def test_note_lifecycle_and_owner_isolation(client):
     assert client.get(url, headers=alice).status_code == 404
 
 
-def test_share_expiration_rotation_and_revocation(client):
+def test_共有の期限と再発行と解除を確認する(client):
     alice, bob = headers(client), headers(client, "bob")
     note = client.post("/api/notes", headers=alice, json={"title": "共有の学習"}).json()
     url = "/api/notes/" + note["id"]
@@ -82,7 +82,7 @@ def test_share_expiration_rotation_and_revocation(client):
     client.delete(url, headers=alice)
 
 
-def test_migrations_are_repeatable_and_document_columns(client):
+def test_再マイグレーションでデータを保ち日本語カラム説明を保持する(client):
     migrate()
     migrate()
     with connect() as conn:
@@ -94,7 +94,7 @@ def test_migrations_are_repeatable_and_document_columns(client):
         assert all(row["description"] for row in rows)
 
 
-def test_bound_sql_preserves_quotes_as_data(client):
+def test_引用符を含む入力をSQL構文ではなくデータとして保存する(client):
     alice = headers(client)
     title = "講義'; DROP TABLE notes; --"
     note = client.post("/api/notes", headers=alice, json={"title": title}).json()

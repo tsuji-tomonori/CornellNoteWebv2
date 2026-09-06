@@ -45,7 +45,7 @@ python tools/report.py
 
 ## 検証状況
 
-2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Pythonテスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像を生成。終了時画像は廃止し、レポートUIもPC／モバイル計6ケースで検証します。
+2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Pythonテスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像を生成。終了時画像は廃止し、検索・図を含むレポートUIもPC／モバイル計14ケースで検証します。
 
 作業環境でもChromiumとローカルAPI・PostgreSQL互換PGliteで10ケースが成功。DockerがないためComposeそのものの検証はActionsで実施。通常のローカル手順は上記Composeを使用してください。
 
@@ -108,3 +108,11 @@ uv run python tools/generate_queries.py --check
 SQLFluffでは既存のPostgreSQLカラム `content/summary/tasks/version` を許可し、適用済みmigrationの1スペース字下げをそのまま検査します。
 
 SQLFluffのJSON診断、生成差分・境界検査、型検査、既存API結合テストをCIの品質レポートに掲載します。未対応のJOIN・副問合せ・計算結果列は型を推測して通さず、ジェネレーターが明示エラーにします。適用済みmigrationはchecksumを保持するため整形し直さず、新しい変更は追加ファイルで扱います。
+
+## 検索できる設計書とカバレッジ
+
+`npm ci --prefix documentation` を実行し、`uv run python tools/design.py` → `uv run python tools/report.py` → `DOCS_BASE=/design uv run python tools/docs_site.py` で品質レポートとStarlightを生成します。`DOCS_BASE=/design npm --prefix frontend run test:report` で検索・内部リンク・図・画像拡大を検証します。公開URLは `/CornellNoteWebv2/design/`、CIが同じPages内にHTMLと検索インデックスを構築します。生成Markdownへのダウンロードリンクに置き換える方式ではありません。
+
+APIの6文書は [lazunex list_apis](https://github.com/tsuji-tomonori/lazunex/tree/main/docs/spec/40.apis/apis/list_apis)、インフラ台帳は [rag-assist](https://github.com/tsuji-tomonori/rag-assist/blob/main/docs/generated/infra-inventory.md) の構成を参照しました。詳細設計は入力・前提・DB変更と値の出所・正常応答を説明します。ログ台帳は`ObservedRoute`の構造化ログ定義、CRUD図はSQL AST、インフラ台帳と種類別設定・参照関係はPython CDKのsynth結果から生成します。AWS上の実リソース調査やデプロイ完了を意味しません。
+
+C0は命令網羅、C1は分岐網羅です。Pythonはcoverage.pyの実行可能行、TypeScriptはV8/Istanbulの命令を測定単位とし、分母・分子を表示します。以前TSの行カバレッジが10.27%だったのは画面とAPI通信の単体テストがなかったためです。測定対象を除外せず、画面・エディター・通信・認証のテストを追加しました。Vitestの閾値C0 85%／C1 80%をCIで検査します。日本語のテスト一覧はテストソースおよびJUnit/Vitestの実行結果から生成します。

@@ -4,7 +4,7 @@
 
 `POST /api/notes/{note_id}/share` / operationId: `create_share`
 
-ハンドラ: [backend/src/app/apis/notes/create_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/create_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L14)
 
 処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
 

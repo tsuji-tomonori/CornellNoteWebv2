@@ -1,8 +1,9 @@
 from app.auth import local_login
 from app.models import Login, Token
+from app.observability import ObservedRoute
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", route_class=ObservedRoute)
 
 
 @router.get("/health", operation_id="health")

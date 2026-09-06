@@ -4,7 +4,7 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
 
 処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
 

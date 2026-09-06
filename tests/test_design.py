@@ -2,7 +2,7 @@ import subprocess
 import sys
 
 
-def test_generation_is_deterministic():
+def test_設計Markdownの再生成で差分が出ない():
     result = subprocess.run(
         [sys.executable, "tools/design.py", "--check"],
         text=True,
@@ -11,7 +11,7 @@ def test_generation_is_deterministic():
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-def test_markdown_check_is_read_only_and_removes_only_owned_orphans(tmp_path):
+def test_生成差分検査は読み取り専用で管理対象の旧文書だけ削除する(tmp_path):
     import pytest
 
     from tools.design import page, publish
@@ -32,7 +32,7 @@ def test_markdown_check_is_read_only_and_removes_only_owned_orphans(tmp_path):
     assert orphan.read_text() == "manual notes"
 
 
-def test_markdown_rejects_json_escape_and_symlink(tmp_path):
+def test_Markdown生成でJSONとパス逸脱とシンボリックリンクを拒否する(tmp_path):
     import pytest
 
     from tools.design import publish
@@ -48,7 +48,7 @@ def test_markdown_rejects_json_escape_and_symlink(tmp_path):
     assert target.read_text() == "keep"
 
 
-def test_sequence_preserves_http_branches_and_hides_implementation_details():
+def test_シーケンスにHTTP分岐を残して内部実装を省く():
     import ast
 
     import pytest
@@ -87,7 +87,7 @@ def execute():
         sequence(node, [], request="GET /example", definition=definition)
 
 
-def test_ddl_and_openapi_emit_actual_comments_constraints_and_all_operations():
+def test_DDLとOpenAPIの実際の説明と制約を全API文書に出す():
     from tools.design import OUT, ROOT, api_docs, cell, database_docs, fields
     from tools.generate_queries import collect
 
@@ -109,7 +109,7 @@ def test_ddl_and_openapi_emit_actual_comments_constraints_and_all_operations():
     assert fields({"type": "string", "maxLength": 17}, {})[0][-1] == {"maxLength": 17}
 
 
-def test_sequence_records_tables_inputs_success_empty_responses_and_failure_codes():
+def test_シーケンスにテーブルと入力と全HTTP応答を記録する():
     from tools.design import api_docs
     from tools.generate_queries import collect
 
@@ -135,7 +135,7 @@ def test_sequence_records_tables_inputs_success_empty_responses_and_failure_code
     assert "HTTP 404" in update and "HTTP 409" in update
 
 
-def test_custom_framework_handlers_fail_closed():
+def test_未対応の例外ハンドラー変更を検出する():
     import pytest
     from app.main import create_app
 

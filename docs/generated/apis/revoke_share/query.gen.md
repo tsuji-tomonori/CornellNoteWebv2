@@ -4,25 +4,41 @@
 
 `DELETE /api/notes/{note_id}/share` / operationId: `revoke_share`
 
-ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L13)
 
 処理: [backend/src/app/apis/notes/revoke_share/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/functions.py#L8)
 
-## revoke_share
+## 001_revoke_share.sql
+
+### SQL種別
+
+`UPDATE`
+
+### SQLの概要
 
 所有者のノートの共有を失効させる
 
-正本: [backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql) / 生成: [backend/src/app/apis/notes/revoke_share/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| id | UUID |
-| owner_id | str |
+`notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+
+### 戻り値
 
 該当なし。
+
+### SQL
 
 ```sql
 -- 所有者のノートの共有を失効させる
 UPDATE notes SET share_hash = NULL, share_expires = NULL
 WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
+
+正本: [backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql)

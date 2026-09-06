@@ -16,7 +16,7 @@ def project(tmp_path):
     return tmp_path
 
 
-def test_query_generation_is_deterministic_and_check_never_writes(project):
+def test_SQL生成が決定的で差分検査が書き込まない(project):
     first = render(project)
     assert first == render(project)
     write_outputs(first, check=False, root=project)
@@ -43,14 +43,14 @@ def test_query_generation_is_deterministic_and_check_never_writes(project):
         ("SELECT n.id FROM notes n JOIN notes b ON n.id=b.id", "one known table"),
     ],
 )
-def test_invalid_sql_fails_closed(tmp_path, sql, message):
+def test_未対応または不正なSQLを明示的に拒否する(tmp_path, sql, message):
     path = tmp_path / "001_invalid.sql"
     path.write_text("-- 不正なSQLの検知\n" + sql + ";\n")
     with pytest.raises(ValueError, match=message):
         analyze(path, schema(ROOT))
 
 
-def test_architecture_rejects_inline_sql_and_router_query_import(project):
+def test_インラインSQLとルーターからの直接クエリ利用を拒否する(project):
     operation = project / "backend/src/app/apis/notes/get_note"
     function = operation / "functions.py"
     function.write_text('statement = "SELECT id FROM notes"\n')
@@ -62,7 +62,7 @@ def test_architecture_rejects_inline_sql_and_router_query_import(project):
         check_architecture(project)
 
 
-def test_generated_output_cannot_follow_a_symlink(project, tmp_path):
+def test_生成SQLの出力でシンボリックリンクを辿らない(project, tmp_path):
     target = tmp_path / "outside.txt"
     target.write_text("unchanged")
     output = project / "backend/src/app/apis/notes/get_note/generated/queries.py"

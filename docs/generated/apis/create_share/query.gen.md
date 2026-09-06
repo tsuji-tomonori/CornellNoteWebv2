@@ -4,29 +4,45 @@
 
 `POST /api/notes/{note_id}/share` / operationId: `create_share`
 
-ハンドラ: [backend/src/app/apis/notes/create_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/create_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L14)
 
 処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
 
-## update_share
+## 001_update_share.sql
+
+### SQL種別
+
+`UPDATE`
+
+### SQLの概要
 
 所有者のノートに期限付き共有を発行する
 
-正本: [backend/src/app/apis/notes/create_share/sql/001_update_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/sql/001_update_share.sql) / 生成: [backend/src/app/apis/notes/create_share/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| id | UUID |
-| owner_id | str |
-| share_expires | datetime \| None |
-| share_hash | str \| None |
+`notes`
 
-| 戻り列 | Python型 |
-| --- | --- |
-| id | UUID |
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+| notes | share_expires | share_expires | 共有リンクの有効期限 | TIMESTAMPTZ | datetime \| None | 可 |
+| notes | share_hash | share_hash | 共有トークンのSHA256（生トークンは保存しない） | VARCHAR(64) | str \| None | 可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+
+### SQL
 
 ```sql
 -- 所有者のノートに期限付き共有を発行する
 UPDATE notes SET share_hash = %(share_hash)s, share_expires = %(share_expires)s
 WHERE id = %(id)s AND owner_id = %(owner_id)s RETURNING id;
 ```
+
+正本: [backend/src/app/apis/notes/create_share/sql/001_update_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/sql/001_update_share.sql)

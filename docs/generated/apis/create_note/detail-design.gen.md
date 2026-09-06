@@ -4,51 +4,105 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
 
 処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
 
-初版のノートを保存する。
+## 1. 正常系入力
 
-## 入出力
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| header | Authorization | Bearer JWT | True |
+| body | application/json | NoteInput | True |
 
-```python
-def execute(data: NoteInput, owner: str, repo: Database) -> Note:
-```
+| 入力項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| $ | object | 必須 |  | additionalProperties: False |
+| $.title | string | 必須 | ノートのタイトル | maxLength: 200; minLength: 1; pattern: \S |
+| $.group | string | 省略可 | 科目やコレクションの分類名 | default: 未分類; maxLength: 80; minLength: 1; pattern: \S |
+| $.cue | string | 省略可 | 問い・キーワード欄 | default: ; maxLength: 20000 |
+| $.content | string | 省略可 | ノート本文 | default: ; maxLength: 80000 |
+| $.summary | string | 省略可 | 学びを要約するまとめ欄 | default: ; maxLength: 20000 |
+| $.tasks | array | 省略可 | チェックリストのアクション一覧 | maxItems: 100 |
+| $.tasks[] | object | 省略可 |  |  |
+| $.tasks[].id | string | 必須 | 項目を一意に識別するUUID | format: uuid |
+| $.tasks[].text | string | 必須 | アクションの内容 | maxLength: 500; minLength: 1 |
+| $.tasks[].done | boolean | 省略可 | アクションの完了状態 | default: False |
+| $.tasks[].due | union | 省略可 | アクションの期日。未指定はnull |  |
+| $.tasks[].due (候補1) | string | 省略可 |  | format: date |
+| $.tasks[].due (候補2) | null | 省略可 |  |  |
 
-## 条件分岐
+## 2. 正常系前提と分岐
+
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
+
+| 条件・例外 | 分岐時の応答 |
+| --- | --- |
+| ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
+| 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
+| 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
+
+### 所有者に紐づく新しいノートを保存する
+
+テーブル: `notes` / 操作: `INSERT`
+
+対象条件: `条件なし`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | uuid4() |
+| owner_id | 認証JWT: sub（所有者） |
+| title | リクエスト: title |
+| group_name | リクエスト: group |
+| cue | リクエスト: cue |
+| content | リクエスト: content |
+| summary | リクエスト: summary |
+| tasks | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
+| updated_at | datetime.now(UTC) |
+
+## 3. 正常系リソース変更
+
+| テーブル | 操作 | カラム | 日本語説明 | 値の取得元 |
+| --- | --- | --- | --- | --- |
+| notes | INSERT | id | ノート識別子（ランダムUUID） | uuid4() |
+| notes | INSERT | owner_id | 所有者のCognito sub | 認証JWT: sub（所有者） |
+| notes | INSERT | title | ノートの題名 | リクエスト: title |
+| notes | INSERT | group_name | 科目またはプロジェクトの分類名 | リクエスト: group |
+| notes | INSERT | cue | 問い・キーワード | リクエスト: cue |
+| notes | INSERT | content | 自由記述の記録本文 | リクエスト: content |
+| notes | INSERT | summary | 自分の言葉による要約 | リクエスト: summary |
+| notes | INSERT | tasks | チェック項目・完了状態・期日のJSON配列 | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
+| notes | INSERT | version | 同時更新検知の連番 | SQL式: 1 |
+| notes | INSERT | updated_at | 最終更新日時（UTC） | datetime.now(UTC) |
+
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 201 | API | 正常終了 | application/json: Note |
+
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | object |  | 配列・オブジェクトの入れ物 |
+| $.title | string | ノートのタイトル | リクエスト: title |
+| $.group | string | 科目やコレクションの分類名 | リクエスト: group |
+| $.cue | string | 問い・キーワード欄 | リクエスト: cue |
+| $.content | string | ノート本文 | リクエスト: content |
+| $.summary | string | 学びを要約するまとめ欄 | リクエスト: summary |
+| $.tasks | array | チェックリストのアクション一覧 | リクエスト: tasks |
+| $.tasks[] | object |  | リクエスト: tasks |
+| $.tasks[].id | string | 項目を一意に識別するUUID | リクエスト: tasks |
+| $.tasks[].text | string | アクションの内容 | リクエスト: tasks |
+| $.tasks[].done | boolean | アクションの完了状態 | リクエスト: tasks |
+| $.tasks[].due | union | アクションの期日。未指定はnull | リクエスト: tasks |
+| $.tasks[].due (候補1) | string |  | リクエスト: tasks |
+| $.tasks[].due (候補2) | null |  | リクエスト: tasks |
+| $.id | string | 項目を一意に識別するUUID | uuid4() |
+| $.version | integer | 保存されたノートの版番号 | 固定値: 1 |
+| $.updated_at | string | 最終更新日時 | datetime.now(UTC) |
+
+## 5. 要件との直接対応
 
 該当なし。
-
-## 呼出先と引数
-
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 13 | uuid4 |  |
-| 14 | datetime.now | UTC |
-| 15 | queries.InsertNoteParams |  |
-| 23 | json.dumps | [t.model_dump(mode='json') for t in data.tasks] |
-| 23 | t.model_dump |  |
-| 26 | repo.transaction |  |
-| 27 | queries.insert_note | session, params |
-| 28 | Note |  |
-| 28 | data.model_dump |  |
-
-## 要件との直接対応
-
-該当なし。
-
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
-
-## 処理本体（AST由来）
-
-```python
-def execute(data: NoteInput, owner: str, repo: Database) -> Note:
-    """初版のノートを保存する。"""
-    note_id = uuid4()
-    now = datetime.now(UTC)
-    params = queries.InsertNoteParams(id=note_id, owner_id=owner, title=data.title, group_name=data.group, cue=data.cue, content=data.content, summary=data.summary, tasks=json.dumps([t.model_dump(mode='json') for t in data.tasks]), updated_at=now)
-    with repo.transaction() as session:
-        queries.insert_note(session, params)
-    return Note(**data.model_dump(), id=note_id, version=1, updated_at=now)
-```

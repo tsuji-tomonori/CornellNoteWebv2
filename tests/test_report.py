@@ -43,7 +43,7 @@ def evidence(tmp_path, *, missing=False):
     }
 
 
-def test_report_keeps_only_gwt_evidence_and_escapes_case_hierarchy(tmp_path):
+def test_GWT証跡だけ掲載してケース名を安全に表示する(tmp_path):
     reports = tmp_path / "reports"
     (reports / "screenshots").mkdir(parents=True)
     (reports / "screenshots/obsolete.png").write_bytes(b"old")
@@ -59,7 +59,7 @@ def test_report_keeps_only_gwt_evidence_and_escapes_case_hierarchy(tmp_path):
     assert [s["kind"] for s in cases[0]["steps"]] == ["Given", "When", "Then"]
 
 
-def test_report_does_not_present_missing_or_flaky_evidence_as_success(tmp_path):
+def test_画像不足と再試行成功を通常成功として表示しない(tmp_path):
     data = evidence(tmp_path, missing=True)
     cases, _ = collect_cases(data, tmp_path, tmp_path / "reports")
     assert cases[0]["status"] == "missing"
@@ -72,7 +72,7 @@ def test_report_does_not_present_missing_or_flaky_evidence_as_success(tmp_path):
     assert count == 2
 
 
-def test_report_records_failed_step_even_if_page_closed(tmp_path):
+def test_画面が閉じても失敗したGWT段階を記録する(tmp_path):
     data = evidence(tmp_path, missing=True)
     result = data["suites"][0]["suites"][0]["specs"][0]["tests"][0]["results"][0]
     result.update(status="failed", steps=[{"title": "Then: ページが閉じられた"}])
@@ -85,10 +85,10 @@ def test_report_records_failed_step_even_if_page_closed(tmp_path):
         collect_cases(data, tmp_path, tmp_path / "reports")
 
 
-def test_coverage_distinguishes_unmeasured_and_measured_zero(tmp_path):
+def test_未計測カバレッジと実測ゼロを区別する(tmp_path):
     assert all(value == "未計測" for _, value, _ in coverage_values(tmp_path))
     (tmp_path / "frontend-coverage").mkdir()
     (tmp_path / "frontend-coverage/coverage-summary.json").write_text(
-        json.dumps({"total": {"lines": {"covered": 0, "total": 8}}})
+        json.dumps({"total": {"statements": {"covered": 0, "total": 8}}})
     )
     assert coverage_values(tmp_path)[2][1] == "0.0% (0/8)"

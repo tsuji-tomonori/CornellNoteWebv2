@@ -4,7 +4,7 @@
 
 `DELETE /api/notes/{note_id}` / operationId: `delete_note`
 
-ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L13)
 
 処理: [backend/src/app/apis/notes/delete_note/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L8)
 
@@ -12,11 +12,21 @@
 
 Bearer JWT。Depends(authenticate)でCognitoまたはローカルJWTを検証する。
 
-## Path / Query / Header
+## Headers
 
-| 位置 | 名前 | 必須 | スキーマ |
-| --- | --- | --- | --- |
-| path | note_id | True | format: uuid; title: Note Id; type: string |
+| 項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| Authorization | Bearer JWT | True | 本人のCognitoまたはローカルJWT | 署名・有効期限・subを検証する |
+
+## Path Parameters
+
+| 項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| note_id | Note Id | True |  | format: uuid; title: Note Id; type: string |
+
+## Query Parameters
+
+該当なし。
 
 ## Response 204
 

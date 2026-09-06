@@ -12,18 +12,18 @@ from fastapi.testclient import TestClient
 client = TestClient(app)
 
 
-def test_health():
+def test_ヘルスチェックが正常応答する():
     assert client.get("/api/health").json() == {"status": "ok"}
 
 
-def test_login_rejects_bad_password():
+def test_誤ったパスワードを拒否する():
     assert (
         client.post("/api/auth/local", json={"username": "alice", "password": "wrong"}).status_code
         == 401
     )
 
 
-def test_login_issues_signed_expiring_subject():
+def test_署名と有効期限と本人情報を持つJWTを発行する():
     response = client.post(
         "/api/auth/local", json={"username": "alice", "password": "cornell-local"}
     )
@@ -37,7 +37,7 @@ def test_login_issues_signed_expiring_subject():
     assert claims["exp"] > datetime.now(UTC).timestamp()
 
 
-def test_private_routes_reject_missing_and_expired_tokens():
+def test_未認証と期限切れのノート操作を拒否する():
     assert client.get("/api/notes").status_code == 401
     token = jwt.encode(
         {"sub": "alice", "aud": "cornell-local", "exp": datetime.now(UTC) - timedelta(seconds=1)},
@@ -48,13 +48,13 @@ def test_private_routes_reject_missing_and_expired_tokens():
     assert client.get("/api/notes", headers={"Authorization": "Bearer forged"}).status_code == 401
 
 
-def test_lambda_refuses_local_auth(monkeypatch):
+def test_Lambdaではローカル認証を起動しない(monkeypatch):
     monkeypatch.setenv("AWS_LAMBDA_FUNCTION_NAME", "production")
     with pytest.raises(RuntimeError, match="forbidden"):
         Settings().validate()
 
 
-def test_input_limits():
+def test_入力長と余分な項目を検証する():
     with pytest.raises(ValueError):
         NoteInput(title="")
     with pytest.raises(ValueError):

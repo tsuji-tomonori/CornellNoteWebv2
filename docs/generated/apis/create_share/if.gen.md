@@ -4,7 +4,7 @@
 
 `POST /api/notes/{note_id}/share` / operationId: `create_share`
 
-ハンドラ: [backend/src/app/apis/notes/create_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/create_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L14)
 
 処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
 
@@ -12,11 +12,21 @@
 
 Bearer JWT。Depends(authenticate)でCognitoまたはローカルJWTを検証する。
 
-## Path / Query / Header
+## Headers
 
-| 位置 | 名前 | 必須 | スキーマ |
-| --- | --- | --- | --- |
-| path | note_id | True | format: uuid; title: Note Id; type: string |
+| 項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| Authorization | Bearer JWT | True | 本人のCognitoまたはローカルJWT | 署名・有効期限・subを検証する |
+
+## Path Parameters
+
+| 項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| note_id | Note Id | True |  | format: uuid; title: Note Id; type: string |
+
+## Query Parameters
+
+該当なし。
 
 ## Response 200
 
@@ -27,8 +37,8 @@ application/json
 | 項目 | 型 | 必須 | 説明 | 制約 |
 | --- | --- | --- | --- | --- |
 | $ | object | 必須 |  |  |
-| $.token | string | 必須 |  |  |
-| $.expires_at | string | 必須 |  | format: date-time |
+| $.token | string | 必須 | 期限付き共有リンクのトークン。DBにはハッシュのみ保存する |  |
+| $.expires_at | string | 必須 | 共有リンクの有効期限 | format: date-time |
 
 ## Response 422
 

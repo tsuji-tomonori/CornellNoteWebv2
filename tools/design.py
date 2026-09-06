@@ -12,10 +12,12 @@ from pathlib import Path
 
 import sqlglot
 from app.main import app
+from app.observability import ObservedRoute
 from fastapi.routing import APIRoute, iter_route_contexts
 from sqlglot import exp
 
 try:
+    from tools.api_design import detail_design, message_design, query_design, unit_factors
     from tools.api_sequence import (
         response_cases,
         routing_cases,
@@ -24,11 +26,16 @@ try:
         verify_framework,
     )
     from tools.generate_queries import check_architecture, collect
+    from tools.infra_design import infrastructure_docs
     from tools.requirements_view import derive
+    from tools.test_catalog import collect_tests
 except ModuleNotFoundError:
+    from api_design import detail_design, message_design, query_design, unit_factors
     from api_sequence import response_cases, routing_cases, schema_name, sequence, verify_framework
     from generate_queries import check_architecture, collect
+    from infra_design import infrastructure_docs
     from requirements_view import derive
+    from test_catalog import collect_tests
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs/generated"
@@ -222,9 +229,46 @@ def database_docs(queries):
         + "\n".join(er)
         + "\n```",
     )
+    operations = {"INSERT": "C", "SELECT": "R", "UPDATE": "U", "DELETE": "D"}
+    names = sorted(tables)
+    apis = sorted({q["api"] for q in queries})
+    matrix = [
+        (
+            api,
+            *[
+                " / ".join(
+                    sorted(
+                        {
+                            operations[q["operation"]]
+                            for q in queries
+                            if q["api"] == api and q["table"] == name
+                        }
+                    )
+                )
+                or "—"
+                for name in names
+            ],
+        )
+        for api in apis
+    ]
+    diagrams = ""
+    for name in names:
+        for operation, code in operations.items():
+            relevant = sorted(
+                {q["api"] for q in queries if q["table"] == name and q["operation"] == operation}
+            )
+            if relevant:
+                diagram = 'flowchart TD\n  DB["' + name + '"]'
+                for i, api in enumerate(relevant):
+                    diagram += f'\n  A{i}["{api}"] -->|{code}| DB'
+                diagrams += f"## {name} {operation}\n\n```mermaid\n{diagram}\n```\n\n"
     files["database/crud.gen.md"] = page(
-        "テーブル × API CRUD",
-        table(
+        "テーブル × API CRUD図",
+        "C=作成 / R=参照 / U=更新 / D=削除。SQL文種別に基づく対応で、UPDATE・DELETEのWHERE判定は別のRとして加算しない。schema_migrationsはAPIから直接操作せずmigrationで管理する。\n\n"
+        + table(["API", *names], matrix)
+        + diagrams
+        + "## SQL・カラム詳細\n\n"
+        + table(
             ["テーブル", "API", "SQL操作", "参照列", "書込列", "正本"], (crud(q) for q in queries)
         ),
     )
@@ -288,6 +332,8 @@ def api_docs(queries, catalog):
         if len(matching) != 1:
             raise ValueError("OpenAPI and effective route must be one-to-one")
         route = matching[0]
+        if not isinstance(route.original_route, ObservedRoute):
+            raise ValueError("Log catalog requires ObservedRoute: " + d["operationId"])
         op = d["operationId"]
         handler_path = Path(inspect.getfile(route.endpoint))
         handler = function_at(handler_path, route.endpoint.__name__)
@@ -337,13 +383,36 @@ def api_docs(queries, catalog):
                 else "OpenAPI上の認証依存なし。実装中のモード制限・入力判定はmessagesを参照。\n\n"
             )
         )
-        body += "## Path / Query / Header\n\n" + table(
-            ["位置", "名前", "必須", "スキーマ"],
-            ((p["in"], p["name"], p.get("required", False), p["schema"]) for p in params),
-        )
+        for location, title in [
+            ("header", "Headers"),
+            ("path", "Path Parameters"),
+            ("query", "Query Parameters"),
+        ]:
+            selected_params = [p for p in params if p["in"] == location]
+            rows = [
+                (
+                    p["name"],
+                    schema_name(p["schema"]),
+                    p.get("required", False),
+                    p.get("description", ""),
+                    p["schema"],
+                )
+                for p in selected_params
+            ]
+            if location == "header" and authenticated:
+                rows.append(
+                    (
+                        "Authorization",
+                        "Bearer JWT",
+                        True,
+                        "本人のCognitoまたはローカルJWT",
+                        "署名・有効期限・subを検証する",
+                    )
+                )
+            body += f"## {title}\n\n" + table(["項目", "型", "必須", "説明", "制約"], rows)
         for media, content in d.get("requestBody", {}).get("content", {}).items():
             body += (
-                "## Request "
+                "## Data / Request "
                 + media
                 + "\n\n"
                 + table(["項目", "型", "必須", "説明", "制約"], fields(content["schema"], schemas))
@@ -419,57 +488,29 @@ def api_docs(queries, catalog):
         )
         body += "## 共通処理を含む応答一覧\n\n" + response_table + common_table
         files[base + "if.gen.md"] = page(op + " IF仕様", body)
-        branches = [
-            (n.lineno, ast.unparse(n.test)) for n in ast.walk(function) if isinstance(n, ast.If)
-        ]
-        calls = [
-            (n.lineno, ast.unparse(n.func), [ast.unparse(a) for a in n.args])
-            for n in ast.walk(function)
-            if isinstance(n, ast.Call)
-        ]
-        detail = (
-            intro
-            + (ast.get_docstring(function) or "")
-            + "\n\n## 入出力\n\n```python\n"
-            + ast.unparse(function).split("\n")[0]
-            + "\n```\n\n## 条件分岐\n\n"
-            + table(["行", "条件式"], sorted(branches))
+        detail = intro + detail_design(
+            root=ROOT,
+            function=function,
+            definition=d,
+            queries=qs,
+            incoming=incoming,
+            responses=response_cases(d, err),
+            fields=fields,
+            schemas=schemas,
+            table=table,
         )
-        detail += "## 呼出先と引数\n\n" + table(["行", "関数", "引数"], sorted(calls))
-        detail += "## 要件との直接対応\n\n" + table(
-            ["要件", "タイトル", "検証方法"],
-            ((r["id"], r["title"], r["verification"]["method"]) for r in reqs),
-        )
-        detail += (
-            "ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。\n\n## 処理本体（AST由来）\n\n```python\n"
-            + ast.unparse(function)
-            + "\n```\n"
+        detail += "## 5. 要件との直接対応\n\n" + table(
+            ["要件", "タイトル"], ((r["id"], r["title"]) for r in reqs)
         )
         files[base + "detail-design.gen.md"] = page(op + " 詳細設計", detail)
         files[base + "messages.gen.md"] = page(
-            op + " メッセージ",
-            intro
-            + table(["HTTP", "detail", "実装"], sorted(set(err)))
-            + "HTTPExceptionはFastAPI標準のdetail文字列として返す。OpenAPI由来の422検証エラーはIF仕様に記載する。\n",
+            op + " ログ・メッセージ台帳",
+            intro + message_design(op, response_cases(d, err), table, source),
         )
-        query_text = intro
-        for q in qs:
-            query_text += f"## {q['name']}\n\n{q['summary']}\n\n正本: {source(q['source'])} / 生成: {source(q['generated'])}\n\n"
-            query_text += table(["引数", "Python型"], q["params"].items()) + table(
-                ["戻り列", "Python型"], q["rows"].items()
-            )
-            query_text += "```sql\n" + (ROOT / q["source"]).read_text().rstrip() + "\n```\n\n"
         files[base + "query.gen.md"] = page(
-            op + " SQL仕様", query_text + ("SQL呼出なし。\n" if not qs else "")
+            op + " SQL仕様", intro + query_design(ROOT, qs, table, source)
         )
-        factors = (
-            intro
-            + "## 分岐から導出した確認観点\n\n実行済みテストを意味しない。分岐の真偽と返却条件をテスト設計の入力とする。\n\n"
-            + table(
-                ["条件", "観点"],
-                ((cond, "真／偽の各経路と更新有無を確認") for _, cond in sorted(branches)),
-            )
-        )
+        factors = intro + unit_factors(function, response_cases(d, err), table)
         factors += "## 入力スキーマの制約\n\n" + table(
             ["場所", "スキーマ"],
             [("parameters", params), ("requestBody", d.get("requestBody", {}))],
@@ -638,6 +679,19 @@ def additional_docs(catalog):
     files["infrastructure/outputs.gen.md"] = page(
         "デプロイ出力", table(["名前", "定義"], sorted(template.get("Outputs", {}).items()))
     )
+    files.update(infrastructure_docs(template, page, table))
+    cases = collect_tests(ROOT)
+    files["tests/unit.gen.md"] = page(
+        "日本語の単体・結合テスト一覧",
+        "テスト定義の名前・検証式をソースから抽出する。件数は静的な定義数であり、パラメーター展開後の実行件数・成否は品質レポートで確認する。\n\n"
+        + table(
+            ["実行系", "テスト", "正本", "検証式"],
+            (
+                (c["runner"], c["title"], source(c["file"], c["line"]), c["assertions"])
+                for c in cases
+            ),
+        ),
+    )
     return files
 
 
@@ -655,7 +709,15 @@ def input_paths():
         *ROOT.glob("infra/**/*.py"),
         *ROOT.glob("tests/*.py"),
         *ROOT.glob("tools/*.py"),
-        ROOT / "tools/frontend_design.mjs",
+        *ROOT.glob("documentation/*.mjs"),
+        *ROOT.glob("documentation/src/**/*.ts"),
+        *ROOT.glob("documentation/src/**/*.astro"),
+        *ROOT.glob("documentation/src/**/*.css"),
+        *ROOT.glob("documentation/public/*"),
+        ROOT / "documentation/package.json",
+        ROOT / "documentation/package-lock.json",
+        *ROOT.glob("tools/*.mjs"),
+        ROOT / "frontend/package.json",
         ROOT / "frontend/src/style.css",
         ROOT / "uv.lock",
         ROOT / "frontend/package-lock.json",
@@ -711,7 +773,7 @@ def render():
         + table(
             ["分類", "文書"],
             (
-                (name.split("/")[0], f"[{name}]({name})")
+                (name.split("/")[0], f"[{files[name].splitlines()[0].removeprefix('# ')}]({name})")
                 for name in names
                 if name != "README.gen.md"
             ),

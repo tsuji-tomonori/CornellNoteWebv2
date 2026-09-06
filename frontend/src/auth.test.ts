@@ -76,3 +76,34 @@ test("キャンセルされたログインをエラーとして返す", async ()
   await expect(completeLogin()).rejects.toThrow("キャンセル");
   expect(replaceState).toHaveBeenCalledWith(null, "", "/");
 });
+
+test("設定不足ではCognitoへ遷移せずコールバックなしは何もしない", async () => {
+  vi.stubEnv("VITE_COGNITO_DOMAIN", "");
+  const { loginCognito, completeLogin } = await import("./auth");
+  await expect(loginCognito()).rejects.toThrow("ログイン設定");
+  await completeLogin();
+  expect(fetch).not.toHaveBeenCalled();
+});
+test("トークン交換の失敗を表示して保存しない", async () => {
+  location.search = "?code=code&state=expected";
+  memory.set("pkce", "verifier");
+  memory.set("oauth_state", "expected");
+  vi.mocked(fetch).mockResolvedValue(new Response("{}", { status: 400 }));
+  const { completeLogin } = await import("./auth");
+  await expect(completeLogin()).rejects.toThrow("ログインに失敗");
+  expect(memory.has("access_token")).toBe(false);
+});
+test("Cognitoログアウトではトークンを消してHosted UIへ遷移する", async () => {
+  vi.stubEnv("VITE_AUTH_MODE", "cognito");
+  memory.set("access_token", "jwt");
+  const { logout } = await import("./auth");
+  logout();
+  expect(memory.has("access_token")).toBe(false);
+  expect(assign).toHaveBeenCalledWith(expect.stringContaining("/logout?"));
+});
+test("ローカルログアウトはトップへ戻る", async () => {
+  vi.stubEnv("VITE_AUTH_MODE", "local");
+  const { logout } = await import("./auth");
+  logout();
+  expect(assign).toHaveBeenCalledWith("/");
+});

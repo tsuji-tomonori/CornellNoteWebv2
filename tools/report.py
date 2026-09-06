@@ -7,6 +7,11 @@ import struct
 from collections import Counter
 from pathlib import Path
 
+try:
+    from tools.test_results import render_results
+except ModuleNotFoundError:
+    from test_results import render_results
+
 ROOT = Path(__file__).resolve().parents[1]
 esc = html.escape
 GWT = re.compile(r"^(Given|When|Then):\s*(.+)$", re.DOTALL)
@@ -16,7 +21,7 @@ NAV = [
     ("static.html", "静的解析"),
     ("tests.html", "単体・結合テスト"),
     ("coverage.html", "カバレッジ"),
-    ("docs.html", "設計書"),
+    ("design/", "設計書"),
 ]
 LABELS = {
     "passed": "成功",
@@ -212,12 +217,12 @@ def coverage_values(reports):
 
     return [
         (
-            "Python 行",
+            "Python C0（実行可能行）",
             fraction(py["covered_lines"], py["num_statements"]) if py else "未計測",
             "python-coverage/index.html",
         ),
         (
-            "Python 分岐",
+            "Python C1（分岐）",
             fraction(py.get("covered_branches", 0), py.get("num_branches", 0)) if py else "未計測",
             "python-coverage/index.html",
         ),
@@ -227,7 +232,12 @@ def coverage_values(reports):
                 fraction(ts[key]["covered"], ts[key]["total"]) if key in ts else "未計測",
                 "frontend-coverage/index.html",
             )
-            for key, label in [("lines", "行"), ("branches", "分岐"), ("functions", "関数")]
+            for key, label in [
+                ("statements", "C0（命令）"),
+                ("branches", "C1（分岐）"),
+                ("lines", "行"),
+                ("functions", "関数"),
+            ]
         ],
     ]
 
@@ -284,11 +294,11 @@ def generate(root=ROOT):
         )
         + card(
             "カバレッジ",
-            "行・分岐・関数",
-            "Python行 " + coverage[0][1] + " / TypeScript行 " + coverage[2][1],
+            "C0・C1",
+            "Python C0 " + coverage[0][1] + " / TypeScript C0 " + coverage[2][1],
             "coverage.html",
         )
-        + card("自動生成設計書", "Markdown", "API・DB・画面・インフラ・要件の仕様", "docs.html")
+        + card("自動生成設計書", "Markdown", "API・DB・画面・インフラ・要件の仕様", "design/")
         + "</section>"
     )
     run_errors = data.get("errors", [])
@@ -310,6 +320,8 @@ def generate(root=ROOT):
         "tests.html": (
             "単体・結合テスト",
             '<h1>単体・結合テスト</h1><p>実行コマンドの成否と検証結果です。コード行の実測値は<a href="coverage.html">カバレッジ</a>から確認できます。</p>'
+            + render_results(reports)
+            + "<h2>検査コマンドの結果</h2>"
             + check_details(unit),
             False,
         ),
@@ -326,7 +338,7 @@ def generate(root=ROOT):
     )
     pages["coverage.html"] = (
         "カバレッジ",
-        '<h1>コードから確認するカバレッジ</h1><p>単体・結合テストで計測した値です。未計測を0%や成功として扱いません。</p><div class="table-wrap"><table><thead><tr><th>対象</th><th>カバレッジ</th><th>詳細</th></tr></thead><tbody>'
+        '<h1>コードから確認するカバレッジ</h1><p>C0は命令網羅、C1は分岐網羅です。Pythonのcoverage.pyは実行可能な文を行単位、TypeScriptのV8/Istanbulは命令単位で計測します。C1は分岐の実行数／総分岐数です。単体・結合テストの実測値でありE2E実行数ではありません。未計測を0%や成功として扱いません。</p><div class="table-wrap"><table><thead><tr><th>対象</th><th>カバレッジ</th><th>詳細</th></tr></thead><tbody>'
         + coverage_rows
         + "</tbody></table></div>",
         False,
@@ -353,20 +365,9 @@ def generate(root=ROOT):
         + ("".join(sql_sections) or '<p class="notice">未実行です。</p>'),
         False,
     )
-    documentation = root / "docs/generated"
-    doclinks = []
-    if documentation.exists():
-        shutil.copytree(documentation, reports / "docs", dirs_exist_ok=True)
-        for path in sorted(documentation.rglob("*.md")):
-            name = path.relative_to(documentation).as_posix()
-            doclinks.append(
-                f'<li><a href="https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/{esc(name)}">{esc(name)}</a> · <a href="docs/{esc(name)}">Markdown</a></li>'
-            )
     pages["docs.html"] = (
-        "自動生成仕様書",
-        '<h1>実装・要件から自動生成した仕様書</h1><p>文書名はGitHub表示、Markdownはこの実行時点の生成物です。</p><ul class="summary-list">'
-        + "".join(doclinks)
-        + "</ul>",
+        "設計書サイト",
+        '<h1>設計書サイト</h1><p><a href="design/">検索できる設計書を開く →</a></p>',
         False,
     )
     for filename, (title, body, wide) in pages.items():

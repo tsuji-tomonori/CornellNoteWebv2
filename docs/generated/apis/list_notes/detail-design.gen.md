@@ -4,43 +4,68 @@
 
 `GET /api/notes` / operationId: `list_notes`
 
-ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L12)
 
 処理: [backend/src/app/apis/notes/list_notes/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L8)
 
-本人のノート一覧を取得する。
+## 1. 正常系入力
 
-## 入出力
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| header | Authorization | Bearer JWT | True |
 
-```python
-def execute(owner: str, repo: Database) -> list[Note]:
-```
+## 2. 正常系前提と分岐
 
-## 条件分岐
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
+
+| 条件・例外 | 分岐時の応答 |
+| --- | --- |
+| ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
+| 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
+| 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
+
+### 所有者のノートを更新日時順に取得する
+
+テーブル: `notes` / 操作: `SELECT`
+
+対象条件: `WHERE owner_id = %(owner_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| owner_id | 認証JWT: sub（所有者） |
+
+## 3. 正常系リソース変更
+
+正常系で作成・更新・削除するリソースはない。
+
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Note[] |
+
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | array |  | 配列・オブジェクトの入れ物 |
+| $[] | object |  | 配列・オブジェクトの入れ物 |
+| $[].title | string | ノートのタイトル | DB: notes.title |
+| $[].group | string | 科目やコレクションの分類名 | DB: notes.group_name |
+| $[].cue | string | 問い・キーワード欄 | DB: notes.cue |
+| $[].content | string | ノート本文 | DB: notes.content |
+| $[].summary | string | 学びを要約するまとめ欄 | DB: notes.summary |
+| $[].tasks | array | チェックリストのアクション一覧 | DB: notes.tasks（JSONから復元） |
+| $[].tasks[] | object |  | DB: notes.tasks（JSONから復元） |
+| $[].tasks[].id | string | 項目を一意に識別するUUID | DB: notes.tasks（JSONから復元） |
+| $[].tasks[].text | string | アクションの内容 | DB: notes.tasks（JSONから復元） |
+| $[].tasks[].done | boolean | アクションの完了状態 | DB: notes.tasks（JSONから復元） |
+| $[].tasks[].due | union | アクションの期日。未指定はnull | DB: notes.tasks（JSONから復元） |
+| $[].tasks[].due (候補1) | string |  | DB: notes.tasks（JSONから復元） |
+| $[].tasks[].due (候補2) | null |  | DB: notes.tasks（JSONから復元） |
+| $[].id | string | 項目を一意に識別するUUID | DB: notes.id |
+| $[].version | integer | 保存されたノートの版番号 | DB: notes.version |
+| $[].updated_at | string | 最終更新日時 | DB: notes.updated_at |
+
+## 5. 要件との直接対応
 
 該当なし。
-
-## 呼出先と引数
-
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 10 | repo.transaction |  |
-| 11 | queries.SelectNotesParams |  |
-| 11 | queries.select_notes | session, queries.SelectNotesParams(owner_id=owner) |
-| 12 | decode | row |
-
-## 要件との直接対応
-
-該当なし。
-
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
-
-## 処理本体（AST由来）
-
-```python
-def execute(owner: str, repo: Database) -> list[Note]:
-    """本人のノート一覧を取得する。"""
-    with repo.transaction() as session:
-        rows = queries.select_notes(session, queries.SelectNotesParams(owner_id=owner))
-    return [decode(row) for row in rows]
-```

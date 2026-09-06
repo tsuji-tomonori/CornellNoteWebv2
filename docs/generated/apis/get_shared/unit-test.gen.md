@@ -4,17 +4,34 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
 
 処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
 
-## 分岐から導出した確認観点
+## 0. Router層の暗黙処理
 
-実行済みテストを意味しない。分岐の真偽と返却条件をテスト設計の入力とする。
+| HTTP | 処理 | 条件 | 期待応答 |
+| --- | --- | --- | --- |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
-| 条件 | 観点 |
-| --- | --- |
-| not rows | 真／偽の各経路と更新有無を確認 |
+## 1. 要因ごとの要素
+
+| 要因 | 要素 | 期待観点 |
+| --- | --- | --- |
+| not rows | 成立 | HTTP 404: '共有リンクが無効または期限切れです' |
+| not rows | 不成立 | 後続処理または正常応答へ進む |
+
+## 2. HTTP経路のテストケース一覧
+
+到達不能な条件の直積は作らず、実装にある応答経路を列挙する。この表はテスト観点であり実行済みの証跡ではない。
+
+| Case ID | HTTP | 前提・操作 | 期待結果 |
+| --- | --- | --- | --- |
+| TC001 | 200 | 正常終了 | application/json: Note |
+| TC002 | 404 | 共有リンクが無効または期限切れです | application/json: {detail: "共有リンクが無効または期限切れです"} |
+| TC003 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC004 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 

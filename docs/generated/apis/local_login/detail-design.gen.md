@@ -4,55 +4,50 @@
 
 `POST /api/auth/local` / operationId: `local_login`
 
-ハンドラ: [backend/src/app/apis/system/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L14)
+ハンドラ: [backend/src/app/apis/system/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L15)
 
 処理: [backend/src/app/auth.py:65](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L65)
 
+## 1. 正常系入力
 
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| body | application/json | Login | True |
 
-## 入出力
+| 入力項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| $ | object | 必須 |  |  |
+| $.username | string | 必須 | ローカル検証用のユーザー名 | pattern: ^(alice\|bob)$ |
+| $.password | string | 必須 | ローカル検証用のパスワード |  |
 
-```python
-def local_login(data: Login) -> Token:
-```
+## 2. 正常系前提と分岐
 
-## 条件分岐
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
 
-| 行 | 条件式 |
+| 条件・例外 | 分岐時の応答 |
 | --- | --- |
-| 67 | cfg.auth_mode != 'local' |
-| 69 | not hmac.compare_digest(data.password, cfg.local_password) |
+| ユーザー名またはパスワードが違います | HTTP 401: application/json: {detail: "ユーザー名またはパスワードが違います"} |
+| Not found | HTTP 404: application/json: {detail: "Not found"} |
+| パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-## 呼出先と引数
+## 3. 正常系リソース変更
 
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 66 | settings |  |
-| 68 | HTTPException | 404, 'Not found' |
-| 69 | hmac.compare_digest | data.password, cfg.local_password |
-| 70 | HTTPException | 401, 'ユーザー名またはパスワードが違います' |
-| 71 | jwt.encode | {'sub': data.username, 'aud': 'cornell-local', 'exp': datetime.now(UTC) + timedelta(hours=1)}, cfg.local_secret |
-| 75 | datetime.now | UTC |
-| 75 | timedelta |  |
-| 80 | Token |  |
+正常系で作成・更新・削除するリソースはない。
 
-## 要件との直接対応
+## 4. 正常系レスポンス
 
-| 要件 | タイトル | 検証方法 |
-| --- | --- | --- |
-| REQ-AUTH | 本人のノートにログインする | automated-tests-and-review |
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Token |
 
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | object |  | 配列・オブジェクトの入れ物 |
+| $.access_token | string | 署名付きアクセストークン | jwt.encode({'sub': data.username, 'aud': 'cornell-local', 'exp': datetime.now(UTC) + timedelta(hours=1)}, cfg.local_secret, algorithm='HS256') |
 
-## 処理本体（AST由来）
+## 5. 要件との直接対応
 
-```python
-def local_login(data: Login) -> Token:
-    cfg = settings()
-    if cfg.auth_mode != 'local':
-        raise HTTPException(404, 'Not found')
-    if not hmac.compare_digest(data.password, cfg.local_password):
-        raise HTTPException(401, 'ユーザー名またはパスワードが違います')
-    token = jwt.encode({'sub': data.username, 'aud': 'cornell-local', 'exp': datetime.now(UTC) + timedelta(hours=1)}, cfg.local_secret, algorithm='HS256')
-    return Token(access_token=token)
-```
+| 要件 | タイトル |
+| --- | --- |
+| REQ-AUTH | 本人のノートにログインする |

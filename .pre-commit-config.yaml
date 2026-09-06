@@ -40,4 +40,4 @@ repos:
         entry: uv run python tools/design.py --check
         language: system
         pass_filenames: false
-        files: ^(docs/generated/|spec/requirements/requirements.qnt|tools/(design|requirements_view|frontend_design)\.|backend/.*\.(py|sql)|frontend/(src|e2e)/|infra/)
+        files: ^(docs/generated/|spec/requirements/requirements.qnt|tools/(design|api_design|infra_design|test_catalog|docs_site|requirements_view|frontend_design)\.|backend/.*\.(py|sql)|frontend/(src|e2e|report-tests)/|documentation/(src|public|astro)|infra/)

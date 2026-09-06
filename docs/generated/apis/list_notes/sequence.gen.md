@@ -4,7 +4,7 @@
 
 `GET /api/notes` / operationId: `list_notes`
 
-ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L12)
 
 処理: [backend/src/app/apis/notes/list_notes/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L8)
 

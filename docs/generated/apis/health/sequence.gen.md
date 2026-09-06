@@ -4,9 +4,9 @@
 
 `GET /api/health` / operationId: `health`
 
-ハンドラ: [backend/src/app/apis/system/router.py:9](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L9)
+ハンドラ: [backend/src/app/apis/system/router.py:10](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L10)
 
-処理: [backend/src/app/apis/system/router.py:9](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L9)
+処理: [backend/src/app/apis/system/router.py:10](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L10)
 
 ## 入力
 

@@ -4,15 +4,36 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
 
 処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
 
-## 分岐から導出した確認観点
+## 0. Router層の暗黙処理
 
-実行済みテストを意味しない。分岐の真偽と返却条件をテスト設計の入力とする。
+| HTTP | 処理 | 条件 | 期待応答 |
+| --- | --- | --- | --- |
+| 401 | API / 認証 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
+| 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
+| 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+
+## 1. 要因ごとの要素
 
 該当なし。
+
+## 2. HTTP経路のテストケース一覧
+
+到達不能な条件の直積は作らず、実装にある応答経路を列挙する。この表はテスト観点であり実行済みの証跡ではない。
+
+| Case ID | HTTP | 前提・操作 | 期待結果 |
+| --- | --- | --- | --- |
+| TC001 | 201 | 正常終了 | application/json: Note |
+| TC002 | 401 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
+| TC003 | 401 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
+| TC004 | 401 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| TC005 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC006 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 

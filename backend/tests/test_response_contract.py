@@ -44,7 +44,7 @@ def setup_client():
     return client_for
 
 
-def test_list_empty_is_200_and_db_failure_is_plain_text_500(setup_client):
+def test_空一覧は200でDB障害は本文を漏らさず500にする(setup_client):
     repo = StubDatabase()
     response = setup_client(repo).get("/api/notes")
     assert response.status_code == 200
@@ -59,7 +59,7 @@ def test_list_empty_is_200_and_db_failure_is_plain_text_500(setup_client):
     assert "private" not in response.text
 
 
-def test_routing_and_input_errors_are_distinct_and_do_not_access_db(setup_client):
+def test_ルート不一致と不正入力を区別してDBにアクセスしない(setup_client):
     repo = StubDatabase()
     client = setup_client(repo)
     response = client.get("/api/unknown-endpoint")
@@ -82,7 +82,7 @@ def test_routing_and_input_errors_are_distinct_and_do_not_access_db(setup_client
     assert repo.calls == 0
 
 
-def test_explicit_not_found_conflict_and_implicit_204(setup_client):
+def test_存在しないノートと更新競合と本文なし応答を区別する(setup_client):
     identifier = str(uuid4())
     client = setup_client(StubDatabase())
     response = client.get("/api/notes/" + identifier)

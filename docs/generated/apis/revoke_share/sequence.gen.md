@@ -4,7 +4,7 @@
 
 `DELETE /api/notes/{note_id}/share` / operationId: `revoke_share`
 
-ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L13)
 
 処理: [backend/src/app/apis/notes/revoke_share/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/functions.py#L8)
 

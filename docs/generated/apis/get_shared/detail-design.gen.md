@@ -4,55 +4,69 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L11)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
 
 処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
 
-期限内の共有ノートを閲覧用に返す。
+## 1. 正常系入力
 
-## 入出力
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| path | token | Token | True |
 
-```python
-def execute(token: str, repo: Database) -> Note:
-```
+## 2. 正常系前提と分岐
 
-## 条件分岐
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
 
-| 行 | 条件式 |
+| 条件・例外 | 分岐時の応答 |
 | --- | --- |
-| 19 | not rows |
+| 共有リンクが無効または期限切れです | HTTP 404: application/json: {detail: "共有リンクが無効または期限切れです"} |
+| パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-## 呼出先と引数
+### ハッシュと期限が一致する共有ノートを取得する
 
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 14 | queries.SelectSharedNoteParams |  |
-| 15 | datetime.now | UTC |
-| 15 | hashlib.sha256 | token.encode() |
-| 15 | hashlib.sha256(token.encode()).hexdigest |  |
-| 15 | token.encode |  |
-| 17 | repo.transaction |  |
-| 18 | queries.select_shared_note | session, params |
-| 20 | HTTPException | 404, '共有リンクが無効または期限切れです' |
-| 21 | decode | rows[0] |
+テーブル: `notes` / 操作: `SELECT`
 
-## 要件との直接対応
+対象条件: `WHERE share_hash = %(share_hash)s AND share_expires > %(share_expires)s`
 
-| 要件 | タイトル | 検証方法 |
-| --- | --- | --- |
-| REQ-EXPIRY | 共有リンクの期限を守る | automated-tests-and-review |
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| share_hash | hashlib.sha256(token.encode()).hexdigest() |
+| share_expires | datetime.now(UTC) |
 
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
+## 3. 正常系リソース変更
 
-## 処理本体（AST由来）
+正常系で作成・更新・削除するリソースはない。
 
-```python
-def execute(token: str, repo: Database) -> Note:
-    """期限内の共有ノートを閲覧用に返す。"""
-    params = queries.SelectSharedNoteParams(share_hash=hashlib.sha256(token.encode()).hexdigest(), share_expires=datetime.now(UTC))
-    with repo.transaction() as session:
-        rows = queries.select_shared_note(session, params)
-    if not rows:
-        raise HTTPException(404, '共有リンクが無効または期限切れです')
-    return decode(rows[0])
-```
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Note |
+
+| 項目 | 型 | 説明 | 値の取得元 |
+| --- | --- | --- | --- |
+| $ | object |  | 配列・オブジェクトの入れ物 |
+| $.title | string | ノートのタイトル | DB: notes.title |
+| $.group | string | 科目やコレクションの分類名 | DB: notes.group_name |
+| $.cue | string | 問い・キーワード欄 | DB: notes.cue |
+| $.content | string | ノート本文 | DB: notes.content |
+| $.summary | string | 学びを要約するまとめ欄 | DB: notes.summary |
+| $.tasks | array | チェックリストのアクション一覧 | DB: notes.tasks（JSONから復元） |
+| $.tasks[] | object |  | DB: notes.tasks（JSONから復元） |
+| $.tasks[].id | string | 項目を一意に識別するUUID | DB: notes.tasks（JSONから復元） |
+| $.tasks[].text | string | アクションの内容 | DB: notes.tasks（JSONから復元） |
+| $.tasks[].done | boolean | アクションの完了状態 | DB: notes.tasks（JSONから復元） |
+| $.tasks[].due | union | アクションの期日。未指定はnull | DB: notes.tasks（JSONから復元） |
+| $.tasks[].due (候補1) | string |  | DB: notes.tasks（JSONから復元） |
+| $.tasks[].due (候補2) | null |  | DB: notes.tasks（JSONから復元） |
+| $.id | string | 項目を一意に識別するUUID | DB: notes.id |
+| $.version | integer | 保存されたノートの版番号 | DB: notes.version |
+| $.updated_at | string | 最終更新日時 | DB: notes.updated_at |
+
+## 5. 要件との直接対応
+
+| 要件 | タイトル |
+| --- | --- |
+| REQ-EXPIRY | 共有リンクの期限を守る |

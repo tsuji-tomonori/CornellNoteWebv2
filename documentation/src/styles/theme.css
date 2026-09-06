@@ -1,0 +1,5 @@
+:root {--sl-color-accent-low:#153a2f;--sl-color-accent:#4bb697;--sl-color-accent-high:#c1ecdd;--sl-content-width:62rem;}
+:root[data-theme='light'] {--sl-color-accent-low:#e0f2e9;--sl-color-accent:#287d66;--sl-color-accent-high:#154737;}
+.mermaid {overflow:auto;background:white;border:1px solid #dce7e2;border-radius:10px;padding:1rem;margin:1.5rem 0;}
+.mermaid svg {max-width:100%;height:auto;}
+.sl-markdown-content table {font-size:.85rem;}

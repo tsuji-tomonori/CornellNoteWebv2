@@ -4,32 +4,46 @@
 
 `GET /api/notes/{note_id}` / operationId: `get_note`
 
-ハンドラ: [backend/src/app/apis/notes/get_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/get_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/router.py#L14)
 
 処理: [backend/src/app/apis/notes/get_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L11)
 
-## select_note
+## 001_select_note.sql
+
+### SQL種別
+
+`SELECT`
+
+### SQLの概要
 
 所有者とIDでノートを取得する
 
-正本: [backend/src/app/apis/notes/get_note/sql/001_select_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/sql/001_select_note.sql) / 生成: [backend/src/app/apis/notes/get_note/generated/queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/generated/queries.py)
+### 利用するテーブル
 
-| 引数 | Python型 |
-| --- | --- |
-| id | UUID |
-| owner_id | str |
+`notes`
 
-| 戻り列 | Python型 |
-| --- | --- |
-| id | UUID |
-| title | str |
-| group_name | str |
-| cue | str |
-| content | str |
-| summary | str |
-| tasks | str |
-| version | int |
-| updated_at | datetime |
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
+| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
+| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
+| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### SQL
 
 ```sql
 -- 所有者とIDでノートを取得する
@@ -46,3 +60,5 @@ SELECT
 FROM notes
 WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
+
+正本: [backend/src/app/apis/notes/get_note/sql/001_select_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/sql/001_select_note.sql)

@@ -7,11 +7,11 @@
 | action | maintain |
 | category | nonfunctional |
 | id | REQ-DESIGN |
-| last_changed_by | user-api-sequence-abstraction |
-| object | 要件・API別6文書・テーブル別仕様・ER図・画面・インフラをMarkdownのみで決定的に生成し、CIで再生成・検証・dev反映する。シーケンスは呼び出し元・API・DBの3者とif・try/catchを中心に、入力・アクセス先テーブル・実装および共通処理由来のHTTP応答を記載する |
+| last_changed_by | searchable-design-and-coverage |
+| object | APIのIF・詳細設計・シーケンス・ログ台帳・SQL仕様・テスト観点をlazunexの構成に沿って実装から生成し、正常入力・DB操作と値の出所・全応答を説明する。CRUD図とCDKリソース種類別台帳をMarkdownで自動更新する |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 3 |
+| revision | 4 |
 | scope | project |
 | source_refs | user:2026-09-05-cornellnoteweb |
 | status | active |
@@ -25,13 +25,13 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-DESIGN | 実装が更新される | 設計生成とdrift検査を実行する | 要件・API別6文書・テーブル別仕様・ER図・画面・インフラをMarkdownのみで決定的に生成し、CIで再生成・検証・dev反映する。シーケンスは呼び出し元・API・DBの3者とif・try/catchを中心に、入力・アクセス先テーブル・実装および共通処理由来のHTTP応答を記載する |
+| AC-DESIGN | 実装が更新される | 設計生成とdrift検査を実行する | APIのIF・詳細設計・シーケンス・ログ台帳・SQL仕様・テスト観点をlazunexの構成に沿って実装から生成し、正常入力・DB操作と値の出所・全応答を説明する。CRUD図とCDKリソース種類別台帳をMarkdownで自動更新する |
 
 ## トレーサビリティ
 
 | 種類 | 正本の参照 |
 | --- | --- |
 | design | [docs/generated/README.gen.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/README.gen.md) |
-| implementation | [tools/design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/design.py), [tools/frontend_design.mjs](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/frontend_design.mjs), [tools/requirements_view.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/requirements_view.py), [tools/api_sequence.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/api_sequence.py), [.github/workflows/verify.yml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/.github/workflows/verify.yml) |
+| implementation | [tools/design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/design.py), [tools/api_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/api_design.py), [tools/infra_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/infra_design.py), [backend/src/app/observability.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/observability.py) |
 | standards | [AGENTS.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/AGENTS.md) |
-| tests | [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py), [backend/tests/test_response_contract.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_response_contract.py) |
+| tests | [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py), [tests/test_docs_site.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_docs_site.py), [backend/tests/test_observability.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_observability.py) |

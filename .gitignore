@@ -22,3 +22,7 @@ build/
 spec/requirements/requirements.json
 docs/design/generated/
 docs/requirements/REQUIREMENTS.md
+
+# Starlight sources are materialized from the generated Markdown.
+documentation/src/content/docs/
+documentation/.astro/

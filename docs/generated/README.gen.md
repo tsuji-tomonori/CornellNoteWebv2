@@ -6,107 +6,130 @@
 
 | 分類 | 文書 |
 | --- | --- |
-| apis | [apis/create_note/detail-design.gen.md](apis/create_note/detail-design.gen.md) |
-| apis | [apis/create_note/if.gen.md](apis/create_note/if.gen.md) |
-| apis | [apis/create_note/messages.gen.md](apis/create_note/messages.gen.md) |
-| apis | [apis/create_note/query.gen.md](apis/create_note/query.gen.md) |
-| apis | [apis/create_note/sequence.gen.md](apis/create_note/sequence.gen.md) |
-| apis | [apis/create_note/unit-test.gen.md](apis/create_note/unit-test.gen.md) |
-| apis | [apis/create_share/detail-design.gen.md](apis/create_share/detail-design.gen.md) |
-| apis | [apis/create_share/if.gen.md](apis/create_share/if.gen.md) |
-| apis | [apis/create_share/messages.gen.md](apis/create_share/messages.gen.md) |
-| apis | [apis/create_share/query.gen.md](apis/create_share/query.gen.md) |
-| apis | [apis/create_share/sequence.gen.md](apis/create_share/sequence.gen.md) |
-| apis | [apis/create_share/unit-test.gen.md](apis/create_share/unit-test.gen.md) |
-| apis | [apis/delete_note/detail-design.gen.md](apis/delete_note/detail-design.gen.md) |
-| apis | [apis/delete_note/if.gen.md](apis/delete_note/if.gen.md) |
-| apis | [apis/delete_note/messages.gen.md](apis/delete_note/messages.gen.md) |
-| apis | [apis/delete_note/query.gen.md](apis/delete_note/query.gen.md) |
-| apis | [apis/delete_note/sequence.gen.md](apis/delete_note/sequence.gen.md) |
-| apis | [apis/delete_note/unit-test.gen.md](apis/delete_note/unit-test.gen.md) |
-| apis | [apis/get_note/detail-design.gen.md](apis/get_note/detail-design.gen.md) |
-| apis | [apis/get_note/if.gen.md](apis/get_note/if.gen.md) |
-| apis | [apis/get_note/messages.gen.md](apis/get_note/messages.gen.md) |
-| apis | [apis/get_note/query.gen.md](apis/get_note/query.gen.md) |
-| apis | [apis/get_note/sequence.gen.md](apis/get_note/sequence.gen.md) |
-| apis | [apis/get_note/unit-test.gen.md](apis/get_note/unit-test.gen.md) |
-| apis | [apis/get_shared/detail-design.gen.md](apis/get_shared/detail-design.gen.md) |
-| apis | [apis/get_shared/if.gen.md](apis/get_shared/if.gen.md) |
-| apis | [apis/get_shared/messages.gen.md](apis/get_shared/messages.gen.md) |
-| apis | [apis/get_shared/query.gen.md](apis/get_shared/query.gen.md) |
-| apis | [apis/get_shared/sequence.gen.md](apis/get_shared/sequence.gen.md) |
-| apis | [apis/get_shared/unit-test.gen.md](apis/get_shared/unit-test.gen.md) |
-| apis | [apis/health/detail-design.gen.md](apis/health/detail-design.gen.md) |
-| apis | [apis/health/if.gen.md](apis/health/if.gen.md) |
-| apis | [apis/health/messages.gen.md](apis/health/messages.gen.md) |
-| apis | [apis/health/query.gen.md](apis/health/query.gen.md) |
-| apis | [apis/health/sequence.gen.md](apis/health/sequence.gen.md) |
-| apis | [apis/health/unit-test.gen.md](apis/health/unit-test.gen.md) |
-| apis | [apis/index.gen.md](apis/index.gen.md) |
-| apis | [apis/list_notes/detail-design.gen.md](apis/list_notes/detail-design.gen.md) |
-| apis | [apis/list_notes/if.gen.md](apis/list_notes/if.gen.md) |
-| apis | [apis/list_notes/messages.gen.md](apis/list_notes/messages.gen.md) |
-| apis | [apis/list_notes/query.gen.md](apis/list_notes/query.gen.md) |
-| apis | [apis/list_notes/sequence.gen.md](apis/list_notes/sequence.gen.md) |
-| apis | [apis/list_notes/unit-test.gen.md](apis/list_notes/unit-test.gen.md) |
-| apis | [apis/local_login/detail-design.gen.md](apis/local_login/detail-design.gen.md) |
-| apis | [apis/local_login/if.gen.md](apis/local_login/if.gen.md) |
-| apis | [apis/local_login/messages.gen.md](apis/local_login/messages.gen.md) |
-| apis | [apis/local_login/query.gen.md](apis/local_login/query.gen.md) |
-| apis | [apis/local_login/sequence.gen.md](apis/local_login/sequence.gen.md) |
-| apis | [apis/local_login/unit-test.gen.md](apis/local_login/unit-test.gen.md) |
-| apis | [apis/revoke_share/detail-design.gen.md](apis/revoke_share/detail-design.gen.md) |
-| apis | [apis/revoke_share/if.gen.md](apis/revoke_share/if.gen.md) |
-| apis | [apis/revoke_share/messages.gen.md](apis/revoke_share/messages.gen.md) |
-| apis | [apis/revoke_share/query.gen.md](apis/revoke_share/query.gen.md) |
-| apis | [apis/revoke_share/sequence.gen.md](apis/revoke_share/sequence.gen.md) |
-| apis | [apis/revoke_share/unit-test.gen.md](apis/revoke_share/unit-test.gen.md) |
-| apis | [apis/update_note/detail-design.gen.md](apis/update_note/detail-design.gen.md) |
-| apis | [apis/update_note/if.gen.md](apis/update_note/if.gen.md) |
-| apis | [apis/update_note/messages.gen.md](apis/update_note/messages.gen.md) |
-| apis | [apis/update_note/query.gen.md](apis/update_note/query.gen.md) |
-| apis | [apis/update_note/sequence.gen.md](apis/update_note/sequence.gen.md) |
-| apis | [apis/update_note/unit-test.gen.md](apis/update_note/unit-test.gen.md) |
-| database | [database/crud.gen.md](database/crud.gen.md) |
-| database | [database/er.gen.md](database/er.gen.md) |
-| database | [database/index.gen.md](database/index.gen.md) |
-| database | [database/migrations.gen.md](database/migrations.gen.md) |
-| database | [database/tables/notes.gen.md](database/tables/notes.gen.md) |
-| database | [database/tables/schema_migrations.gen.md](database/tables/schema_migrations.gen.md) |
-| frontend | [frontend/App.gen.md](frontend/App.gen.md) |
-| frontend | [frontend/Editor.gen.md](frontend/Editor.gen.md) |
-| frontend | [frontend/api.gen.md](frontend/api.gen.md) |
-| frontend | [frontend/auth.gen.md](frontend/auth.gen.md) |
-| frontend | [frontend/domain.gen.md](frontend/domain.gen.md) |
-| frontend | [frontend/main.gen.md](frontend/main.gen.md) |
-| infrastructure | [infrastructure/iam.gen.md](infrastructure/iam.gen.md) |
-| infrastructure | [infrastructure/nag.gen.md](infrastructure/nag.gen.md) |
-| infrastructure | [infrastructure/outputs.gen.md](infrastructure/outputs.gen.md) |
-| infrastructure | [infrastructure/resources.gen.md](infrastructure/resources.gen.md) |
-| manifest.gen.md | [manifest.gen.md](manifest.gen.md) |
-| queries.gen.md | [queries.gen.md](queries.gen.md) |
-| requirements | [requirements/REQ-AUTH.gen.md](requirements/REQ-AUTH.gen.md) |
-| requirements | [requirements/REQ-AWS.gen.md](requirements/REQ-AWS.gen.md) |
-| requirements | [requirements/REQ-COMPOSE.gen.md](requirements/REQ-COMPOSE.gen.md) |
-| requirements | [requirements/REQ-CONFLICT.gen.md](requirements/REQ-CONFLICT.gen.md) |
-| requirements | [requirements/REQ-COST.gen.md](requirements/REQ-COST.gen.md) |
-| requirements | [requirements/REQ-DEPLOY.gen.md](requirements/REQ-DEPLOY.gen.md) |
-| requirements | [requirements/REQ-DESIGN.gen.md](requirements/REQ-DESIGN.gen.md) |
-| requirements | [requirements/REQ-EDIT.gen.md](requirements/REQ-EDIT.gen.md) |
-| requirements | [requirements/REQ-EXPIRY.gen.md](requirements/REQ-EXPIRY.gen.md) |
-| requirements | [requirements/REQ-LIST.gen.md](requirements/REQ-LIST.gen.md) |
-| requirements | [requirements/REQ-MIGRATION.gen.md](requirements/REQ-MIGRATION.gen.md) |
-| requirements | [requirements/REQ-MOBILE.gen.md](requirements/REQ-MOBILE.gen.md) |
-| requirements | [requirements/REQ-OWNER.gen.md](requirements/REQ-OWNER.gen.md) |
-| requirements | [requirements/REQ-REPORT.gen.md](requirements/REQ-REPORT.gen.md) |
-| requirements | [requirements/REQ-REVOKE.gen.md](requirements/REQ-REVOKE.gen.md) |
-| requirements | [requirements/REQ-SEARCH.gen.md](requirements/REQ-SEARCH.gen.md) |
-| requirements | [requirements/REQ-SHARE.gen.md](requirements/REQ-SHARE.gen.md) |
-| requirements | [requirements/REQ-SQL.gen.md](requirements/REQ-SQL.gen.md) |
-| requirements | [requirements/REQ-TASK.gen.md](requirements/REQ-TASK.gen.md) |
-| requirements | [requirements/REQ-TEST.gen.md](requirements/REQ-TEST.gen.md) |
-| requirements | [requirements/REQ-UI.gen.md](requirements/REQ-UI.gen.md) |
-| requirements | [requirements/index.gen.md](requirements/index.gen.md) |
-| requirements | [requirements/trace.gen.md](requirements/trace.gen.md) |
-| tests | [tests/e2e.gen.md](tests/e2e.gen.md) |
-| tests | [tests/pytest.gen.md](tests/pytest.gen.md) |
+| apis | [create_note 詳細設計](apis/create_note/detail-design.gen.md) |
+| apis | [create_note IF仕様](apis/create_note/if.gen.md) |
+| apis | [create_note ログ・メッセージ台帳](apis/create_note/messages.gen.md) |
+| apis | [create_note SQL仕様](apis/create_note/query.gen.md) |
+| apis | [create_note シーケンス](apis/create_note/sequence.gen.md) |
+| apis | [create_note テスト観点](apis/create_note/unit-test.gen.md) |
+| apis | [create_share 詳細設計](apis/create_share/detail-design.gen.md) |
+| apis | [create_share IF仕様](apis/create_share/if.gen.md) |
+| apis | [create_share ログ・メッセージ台帳](apis/create_share/messages.gen.md) |
+| apis | [create_share SQL仕様](apis/create_share/query.gen.md) |
+| apis | [create_share シーケンス](apis/create_share/sequence.gen.md) |
+| apis | [create_share テスト観点](apis/create_share/unit-test.gen.md) |
+| apis | [delete_note 詳細設計](apis/delete_note/detail-design.gen.md) |
+| apis | [delete_note IF仕様](apis/delete_note/if.gen.md) |
+| apis | [delete_note ログ・メッセージ台帳](apis/delete_note/messages.gen.md) |
+| apis | [delete_note SQL仕様](apis/delete_note/query.gen.md) |
+| apis | [delete_note シーケンス](apis/delete_note/sequence.gen.md) |
+| apis | [delete_note テスト観点](apis/delete_note/unit-test.gen.md) |
+| apis | [get_note 詳細設計](apis/get_note/detail-design.gen.md) |
+| apis | [get_note IF仕様](apis/get_note/if.gen.md) |
+| apis | [get_note ログ・メッセージ台帳](apis/get_note/messages.gen.md) |
+| apis | [get_note SQL仕様](apis/get_note/query.gen.md) |
+| apis | [get_note シーケンス](apis/get_note/sequence.gen.md) |
+| apis | [get_note テスト観点](apis/get_note/unit-test.gen.md) |
+| apis | [get_shared 詳細設計](apis/get_shared/detail-design.gen.md) |
+| apis | [get_shared IF仕様](apis/get_shared/if.gen.md) |
+| apis | [get_shared ログ・メッセージ台帳](apis/get_shared/messages.gen.md) |
+| apis | [get_shared SQL仕様](apis/get_shared/query.gen.md) |
+| apis | [get_shared シーケンス](apis/get_shared/sequence.gen.md) |
+| apis | [get_shared テスト観点](apis/get_shared/unit-test.gen.md) |
+| apis | [health 詳細設計](apis/health/detail-design.gen.md) |
+| apis | [health IF仕様](apis/health/if.gen.md) |
+| apis | [health ログ・メッセージ台帳](apis/health/messages.gen.md) |
+| apis | [health SQL仕様](apis/health/query.gen.md) |
+| apis | [health シーケンス](apis/health/sequence.gen.md) |
+| apis | [health テスト観点](apis/health/unit-test.gen.md) |
+| apis | [API一覧](apis/index.gen.md) |
+| apis | [list_notes 詳細設計](apis/list_notes/detail-design.gen.md) |
+| apis | [list_notes IF仕様](apis/list_notes/if.gen.md) |
+| apis | [list_notes ログ・メッセージ台帳](apis/list_notes/messages.gen.md) |
+| apis | [list_notes SQL仕様](apis/list_notes/query.gen.md) |
+| apis | [list_notes シーケンス](apis/list_notes/sequence.gen.md) |
+| apis | [list_notes テスト観点](apis/list_notes/unit-test.gen.md) |
+| apis | [local_login 詳細設計](apis/local_login/detail-design.gen.md) |
+| apis | [local_login IF仕様](apis/local_login/if.gen.md) |
+| apis | [local_login ログ・メッセージ台帳](apis/local_login/messages.gen.md) |
+| apis | [local_login SQL仕様](apis/local_login/query.gen.md) |
+| apis | [local_login シーケンス](apis/local_login/sequence.gen.md) |
+| apis | [local_login テスト観点](apis/local_login/unit-test.gen.md) |
+| apis | [revoke_share 詳細設計](apis/revoke_share/detail-design.gen.md) |
+| apis | [revoke_share IF仕様](apis/revoke_share/if.gen.md) |
+| apis | [revoke_share ログ・メッセージ台帳](apis/revoke_share/messages.gen.md) |
+| apis | [revoke_share SQL仕様](apis/revoke_share/query.gen.md) |
+| apis | [revoke_share シーケンス](apis/revoke_share/sequence.gen.md) |
+| apis | [revoke_share テスト観点](apis/revoke_share/unit-test.gen.md) |
+| apis | [update_note 詳細設計](apis/update_note/detail-design.gen.md) |
+| apis | [update_note IF仕様](apis/update_note/if.gen.md) |
+| apis | [update_note ログ・メッセージ台帳](apis/update_note/messages.gen.md) |
+| apis | [update_note SQL仕様](apis/update_note/query.gen.md) |
+| apis | [update_note シーケンス](apis/update_note/sequence.gen.md) |
+| apis | [update_note テスト観点](apis/update_note/unit-test.gen.md) |
+| database | [テーブル × API CRUD図](database/crud.gen.md) |
+| database | [DB全体ER図](database/er.gen.md) |
+| database | [DB一覧](database/index.gen.md) |
+| database | [マイグレーション仕様](database/migrations.gen.md) |
+| database | [notes テーブル仕様](database/tables/notes.gen.md) |
+| database | [schema_migrations テーブル仕様](database/tables/schema_migrations.gen.md) |
+| frontend | [frontend/src/App.tsx 画面・型・関数](frontend/App.gen.md) |
+| frontend | [frontend/src/Editor.tsx 画面・型・関数](frontend/Editor.gen.md) |
+| frontend | [frontend/src/api.ts 画面・型・関数](frontend/api.gen.md) |
+| frontend | [frontend/src/auth.ts 画面・型・関数](frontend/auth.gen.md) |
+| frontend | [frontend/src/domain.ts 画面・型・関数](frontend/domain.gen.md) |
+| frontend | [frontend/src/main.tsx 画面・型・関数](frontend/main.gen.md) |
+| infrastructure | [IAM・リソースポリシー](infrastructure/iam.gen.md) |
+| infrastructure | [AWS リソースインベントリ](infrastructure/index.gen.md) |
+| infrastructure | [cdk-nag抑制理由](infrastructure/nag.gen.md) |
+| infrastructure | [デプロイ出力](infrastructure/outputs.gen.md) |
+| infrastructure | [CDKパラメーター](infrastructure/parameters.gen.md) |
+| infrastructure | [AWSリソース仕様](infrastructure/resources.gen.md) |
+| infrastructure | [CDK構成・参照依存図](infrastructure/topology.gen.md) |
+| infrastructure | [AWS::ApiGatewayV2::Api](infrastructure/types/aws-apigatewayv2-api.gen.md) |
+| infrastructure | [AWS::ApiGatewayV2::Authorizer](infrastructure/types/aws-apigatewayv2-authorizer.gen.md) |
+| infrastructure | [AWS::ApiGatewayV2::Integration](infrastructure/types/aws-apigatewayv2-integration.gen.md) |
+| infrastructure | [AWS::ApiGatewayV2::Route](infrastructure/types/aws-apigatewayv2-route.gen.md) |
+| infrastructure | [AWS::ApiGatewayV2::Stage](infrastructure/types/aws-apigatewayv2-stage.gen.md) |
+| infrastructure | [AWS::CloudFront::Distribution](infrastructure/types/aws-cloudfront-distribution.gen.md) |
+| infrastructure | [AWS::CloudFront::OriginAccessControl](infrastructure/types/aws-cloudfront-originaccesscontrol.gen.md) |
+| infrastructure | [AWS::CloudFront::ResponseHeadersPolicy](infrastructure/types/aws-cloudfront-responseheaderspolicy.gen.md) |
+| infrastructure | [AWS::Cognito::UserPool](infrastructure/types/aws-cognito-userpool.gen.md) |
+| infrastructure | [AWS::Cognito::UserPoolClient](infrastructure/types/aws-cognito-userpoolclient.gen.md) |
+| infrastructure | [AWS::Cognito::UserPoolDomain](infrastructure/types/aws-cognito-userpooldomain.gen.md) |
+| infrastructure | [AWS::DSQL::Cluster](infrastructure/types/aws-dsql-cluster.gen.md) |
+| infrastructure | [AWS::IAM::Policy](infrastructure/types/aws-iam-policy.gen.md) |
+| infrastructure | [AWS::IAM::Role](infrastructure/types/aws-iam-role.gen.md) |
+| infrastructure | [AWS::Lambda::Function](infrastructure/types/aws-lambda-function.gen.md) |
+| infrastructure | [AWS::Lambda::Permission](infrastructure/types/aws-lambda-permission.gen.md) |
+| infrastructure | [AWS::Logs::LogGroup](infrastructure/types/aws-logs-loggroup.gen.md) |
+| infrastructure | [AWS::S3::Bucket](infrastructure/types/aws-s3-bucket.gen.md) |
+| infrastructure | [AWS::S3::BucketPolicy](infrastructure/types/aws-s3-bucketpolicy.gen.md) |
+| manifest.gen.md | [生成契約・入力ハッシュ](manifest.gen.md) |
+| queries.gen.md | [SQL生成カタログ](queries.gen.md) |
+| requirements | [REQ-AUTH 本人のノートにログインする](requirements/REQ-AUTH.gen.md) |
+| requirements | [REQ-AWS 指定のサーバーレス構成を生成する](requirements/REQ-AWS.gen.md) |
+| requirements | [REQ-COMPOSE AWS不要で全体を起動する](requirements/REQ-COMPOSE.gen.md) |
+| requirements | [REQ-CONFLICT 同時更新の上書きを防ぐ](requirements/REQ-CONFLICT.gen.md) |
+| requirements | [REQ-COST 常時課金の追加セキュリティを抑える](requirements/REQ-COST.gen.md) |
+| requirements | [REQ-DEPLOY 検査済みのコードだけをデプロイする](requirements/REQ-DEPLOY.gen.md) |
+| requirements | [REQ-DESIGN 実装由来の設計を生成する](requirements/REQ-DESIGN.gen.md) |
+| requirements | [REQ-EDIT コーネル式の三欄を編集する](requirements/REQ-EDIT.gen.md) |
+| requirements | [REQ-EXPIRY 共有リンクの期限を守る](requirements/REQ-EXPIRY.gen.md) |
+| requirements | [REQ-LIST ノートを分類して表示する](requirements/REQ-LIST.gen.md) |
+| requirements | [REQ-MIGRATION スキーマを追跡して適用する](requirements/REQ-MIGRATION.gen.md) |
+| requirements | [REQ-MOBILE スマートフォンで編集する](requirements/REQ-MOBILE.gen.md) |
+| requirements | [REQ-OWNER 他人のノートを保護する](requirements/REQ-OWNER.gen.md) |
+| requirements | [REQ-REPORT 日本語E2E証跡を公開する](requirements/REQ-REPORT.gen.md) |
+| requirements | [REQ-REVOKE 共有リンクを解除する](requirements/REQ-REVOKE.gen.md) |
+| requirements | [REQ-SEARCH ノートの内容を検索する](requirements/REQ-SEARCH.gen.md) |
+| requirements | [REQ-SHARE 閲覧リンクを発行する](requirements/REQ-SHARE.gen.md) |
+| requirements | [REQ-SQL API単位のSQLから型付きクエリを生成し静的解析する](requirements/REQ-SQL.gen.md) |
+| requirements | [REQ-TASK チェックリストを管理する](requirements/REQ-TASK.gen.md) |
+| requirements | [REQ-TEST 品質検査を継続する](requirements/REQ-TEST.gen.md) |
+| requirements | [REQ-UI 4cの見た目を採用する](requirements/REQ-UI.gen.md) |
+| requirements | [要件仕様一覧](requirements/index.gen.md) |
+| requirements | [要件対応表](requirements/trace.gen.md) |
+| tests | [Playwrightシナリオ](tests/e2e.gen.md) |
+| tests | [pytestテストと検証式](tests/pytest.gen.md) |
+| tests | [日本語の単体・結合テスト一覧](tests/unit.gen.md) |

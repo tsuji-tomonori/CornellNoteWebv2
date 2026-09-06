@@ -4,7 +4,7 @@
 
 `POST /api/auth/local` / operationId: `local_login`
 
-ハンドラ: [backend/src/app/apis/system/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L14)
+ハンドラ: [backend/src/app/apis/system/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/system/router.py#L15)
 
 処理: [backend/src/app/auth.py:65](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L65)
 
@@ -12,17 +12,25 @@
 
 OpenAPI上の認証依存なし。実装中のモード制限・入力判定はmessagesを参照。
 
-## Path / Query / Header
+## Headers
 
 該当なし。
 
-## Request application/json
+## Path Parameters
+
+該当なし。
+
+## Query Parameters
+
+該当なし。
+
+## Data / Request application/json
 
 | 項目 | 型 | 必須 | 説明 | 制約 |
 | --- | --- | --- | --- | --- |
 | $ | object | 必須 |  |  |
-| $.username | string | 必須 |  | pattern: ^(alice\|bob)$ |
-| $.password | string | 必須 |  |  |
+| $.username | string | 必須 | ローカル検証用のユーザー名 | pattern: ^(alice\|bob)$ |
+| $.password | string | 必須 | ローカル検証用のパスワード |  |
 
 ## Response 200
 
@@ -33,7 +41,7 @@ application/json
 | 項目 | 型 | 必須 | 説明 | 制約 |
 | --- | --- | --- | --- | --- |
 | $ | object | 必須 |  |  |
-| $.access_token | string | 必須 |  |  |
+| $.access_token | string | 必須 | 署名付きアクセストークン |  |
 
 ## Response 422
 

@@ -4,18 +4,45 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
 
 処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
 
-## 分岐から導出した確認観点
+## 0. Router層の暗黙処理
 
-実行済みテストを意味しない。分岐の真偽と返却条件をテスト設計の入力とする。
+| HTTP | 処理 | 条件 | 期待応答 |
+| --- | --- | --- | --- |
+| 401 | API / 認証 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
+| 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
+| 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
-| 条件 | 観点 |
-| --- | --- |
-| not rows | 真／偽の各経路と更新有無を確認 |
-| not owned | 真／偽の各経路と更新有無を確認 |
+## 1. 要因ごとの要素
+
+| 要因 | 要素 | 期待観点 |
+| --- | --- | --- |
+| not rows | 成立 | HTTP 404: 'ノートが見つかりません', HTTP 409: '別の画面で更新されています。入力を控えて再読み込みしてください' |
+| not rows | 不成立 | 後続処理または正常応答へ進む |
+| 例外: UpdateConflict | 発生／非発生 | 個別catchのHTTP応答と、非発生時の処理継続を確認する |
+| not owned | 成立 | HTTP 404: 'ノートが見つかりません' |
+| not owned | 不成立 | 後続処理または正常応答へ進む |
+
+## 2. HTTP経路のテストケース一覧
+
+到達不能な条件の直積は作らず、実装にある応答経路を列挙する。この表はテスト観点であり実行済みの証跡ではない。
+
+| Case ID | HTTP | 前提・操作 | 期待結果 |
+| --- | --- | --- | --- |
+| TC001 | 200 | 正常終了 | application/json: Note |
+| TC002 | 401 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
+| TC003 | 401 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
+| TC004 | 401 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| TC005 | 404 | ノートが見つかりません | application/json: {detail: "ノートが見つかりません"} |
+| TC006 | 409 | 別の画面で更新されています。入力を控えて再読み込みしてください | application/json: {detail: "別の画面で更新されています。入力を控えて再読み込みしてください"} |
+| TC007 | 409 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
+| TC008 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC009 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 

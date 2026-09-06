@@ -4,7 +4,7 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
 
 処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
 
@@ -12,31 +12,41 @@
 
 Bearer JWT。Depends(authenticate)でCognitoまたはローカルJWTを検証する。
 
-## Path / Query / Header
+## Headers
 
-| 位置 | 名前 | 必須 | スキーマ |
-| --- | --- | --- | --- |
-| path | note_id | True | format: uuid; title: Note Id; type: string |
+| 項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| Authorization | Bearer JWT | True | 本人のCognitoまたはローカルJWT | 署名・有効期限・subを検証する |
 
-## Request application/json
+## Path Parameters
+
+| 項目 | 型 | 必須 | 説明 | 制約 |
+| --- | --- | --- | --- | --- |
+| note_id | Note Id | True |  | format: uuid; title: Note Id; type: string |
+
+## Query Parameters
+
+該当なし。
+
+## Data / Request application/json
 
 | 項目 | 型 | 必須 | 説明 | 制約 |
 | --- | --- | --- | --- | --- |
 | $ | object | 必須 |  | additionalProperties: False |
-| $.title | string | 必須 |  | maxLength: 200; minLength: 1; pattern: \S |
-| $.group | string | 省略可 |  | default: 未分類; maxLength: 80; minLength: 1; pattern: \S |
-| $.cue | string | 省略可 |  | default: ; maxLength: 20000 |
-| $.content | string | 省略可 |  | default: ; maxLength: 80000 |
-| $.summary | string | 省略可 |  | default: ; maxLength: 20000 |
-| $.tasks | array | 省略可 |  | maxItems: 100 |
+| $.title | string | 必須 | ノートのタイトル | maxLength: 200; minLength: 1; pattern: \S |
+| $.group | string | 省略可 | 科目やコレクションの分類名 | default: 未分類; maxLength: 80; minLength: 1; pattern: \S |
+| $.cue | string | 省略可 | 問い・キーワード欄 | default: ; maxLength: 20000 |
+| $.content | string | 省略可 | ノート本文 | default: ; maxLength: 80000 |
+| $.summary | string | 省略可 | 学びを要約するまとめ欄 | default: ; maxLength: 20000 |
+| $.tasks | array | 省略可 | チェックリストのアクション一覧 | maxItems: 100 |
 | $.tasks[] | object | 省略可 |  |  |
-| $.tasks[].id | string | 必須 |  | format: uuid |
-| $.tasks[].text | string | 必須 |  | maxLength: 500; minLength: 1 |
-| $.tasks[].done | boolean | 省略可 |  | default: False |
-| $.tasks[].due | union | 省略可 |  |  |
+| $.tasks[].id | string | 必須 | 項目を一意に識別するUUID | format: uuid |
+| $.tasks[].text | string | 必須 | アクションの内容 | maxLength: 500; minLength: 1 |
+| $.tasks[].done | boolean | 省略可 | アクションの完了状態 | default: False |
+| $.tasks[].due | union | 省略可 | アクションの期日。未指定はnull |  |
 | $.tasks[].due (候補1) | string | 省略可 |  | format: date |
 | $.tasks[].due (候補2) | null | 省略可 |  |  |
-| $.version | integer | 必須 |  | minimum: 1.0 |
+| $.version | integer | 必須 | 更新前の版番号。競合検知に使用する | minimum: 1.0 |
 
 ## Response 200
 
@@ -47,22 +57,22 @@ application/json
 | 項目 | 型 | 必須 | 説明 | 制約 |
 | --- | --- | --- | --- | --- |
 | $ | object | 必須 |  | additionalProperties: False |
-| $.title | string | 必須 |  | maxLength: 200; minLength: 1; pattern: \S |
-| $.group | string | 省略可 |  | default: 未分類; maxLength: 80; minLength: 1; pattern: \S |
-| $.cue | string | 省略可 |  | default: ; maxLength: 20000 |
-| $.content | string | 省略可 |  | default: ; maxLength: 80000 |
-| $.summary | string | 省略可 |  | default: ; maxLength: 20000 |
-| $.tasks | array | 省略可 |  | maxItems: 100 |
+| $.title | string | 必須 | ノートのタイトル | maxLength: 200; minLength: 1; pattern: \S |
+| $.group | string | 省略可 | 科目やコレクションの分類名 | default: 未分類; maxLength: 80; minLength: 1; pattern: \S |
+| $.cue | string | 省略可 | 問い・キーワード欄 | default: ; maxLength: 20000 |
+| $.content | string | 省略可 | ノート本文 | default: ; maxLength: 80000 |
+| $.summary | string | 省略可 | 学びを要約するまとめ欄 | default: ; maxLength: 20000 |
+| $.tasks | array | 省略可 | チェックリストのアクション一覧 | maxItems: 100 |
 | $.tasks[] | object | 省略可 |  |  |
-| $.tasks[].id | string | 必須 |  | format: uuid |
-| $.tasks[].text | string | 必須 |  | maxLength: 500; minLength: 1 |
-| $.tasks[].done | boolean | 省略可 |  | default: False |
-| $.tasks[].due | union | 省略可 |  |  |
+| $.tasks[].id | string | 必須 | 項目を一意に識別するUUID | format: uuid |
+| $.tasks[].text | string | 必須 | アクションの内容 | maxLength: 500; minLength: 1 |
+| $.tasks[].done | boolean | 省略可 | アクションの完了状態 | default: False |
+| $.tasks[].due | union | 省略可 | アクションの期日。未指定はnull |  |
 | $.tasks[].due (候補1) | string | 省略可 |  | format: date |
 | $.tasks[].due (候補2) | null | 省略可 |  |  |
-| $.id | string | 必須 |  | format: uuid |
-| $.version | integer | 必須 |  |  |
-| $.updated_at | string | 必須 |  | format: date-time |
+| $.id | string | 必須 | 項目を一意に識別するUUID | format: uuid |
+| $.version | integer | 必須 | 保存されたノートの版番号 |  |
+| $.updated_at | string | 必須 | 最終更新日時 | format: date-time |
 
 ## Response 422
 

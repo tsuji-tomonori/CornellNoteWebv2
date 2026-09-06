@@ -4,43 +4,55 @@
 
 `DELETE /api/notes/{note_id}/share` / operationId: `revoke_share`
 
-ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L13)
 
 処理: [backend/src/app/apis/notes/revoke_share/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/functions.py#L8)
 
-本人のノートの共有リンクを失効させる。
+## 1. 正常系入力
 
-## 入出力
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| path | note_id | Note Id | True |
+| header | Authorization | Bearer JWT | True |
 
-```python
-def execute(note_id: UUID, owner: str, repo: Database) -> None:
-```
+## 2. 正常系前提と分岐
 
-## 条件分岐
+以下の拒否条件が成立せず、記載の例外が発生しない場合に正常系へ進む。
 
-該当なし。
+| 条件・例外 | 分岐時の応答 |
+| --- | --- |
+| ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
+| 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
+| 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
+| 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-## 呼出先と引数
+### 所有者のノートの共有を失効させる
 
-| 行 | 関数 | 引数 |
-| --- | --- | --- |
-| 10 | repo.transaction |  |
-| 11 | queries.RevokeShareParams |  |
-| 11 | queries.revoke_share | session, queries.RevokeShareParams(id=note_id, owner_id=owner) |
+テーブル: `notes` / 操作: `UPDATE`
 
-## 要件との直接対応
+対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s`
 
-| 要件 | タイトル | 検証方法 |
-| --- | --- | --- |
-| REQ-REVOKE | 共有リンクを解除する | automated-tests-and-review |
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | パス引数: note_id |
+| owner_id | 認証JWT: sub（所有者） |
 
-ファイル単位の正本traceのみ。未対応の要件を推測してAPIへ割り当てない。
+## 3. 正常系リソース変更
 
-## 処理本体（AST由来）
+| テーブル | 操作 | カラム | 日本語説明 | 値の取得元 |
+| --- | --- | --- | --- | --- |
+| notes | UPDATE | share_hash | 共有トークンのSHA256（生トークンは保存しない） | SQL式: NULL |
+| notes | UPDATE | share_expires | 共有リンクの有効期限 | SQL式: NULL |
 
-```python
-def execute(note_id: UUID, owner: str, repo: Database) -> None:
-    """本人のノートの共有リンクを失効させる。"""
-    with repo.transaction() as session:
-        queries.revoke_share(session, queries.RevokeShareParams(id=note_id, owner_id=owner))
-```
+## 4. 正常系レスポンス
+
+| HTTP | 区分 | 条件 | 応答 |
+| --- | --- | --- | --- |
+| 204 | API | 正常終了 | 本文なし |
+
+## 5. 要件との直接対応
+
+| 要件 | タイトル |
+| --- | --- |
+| REQ-REVOKE | 共有リンクを解除する |
