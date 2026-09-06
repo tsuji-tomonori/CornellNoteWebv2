@@ -1,5 +1,6 @@
 from typing import Any
 
+import certifi
 import psycopg
 from psycopg.rows import dict_row
 
@@ -11,15 +12,18 @@ def connect(*, admin: bool = False) -> psycopg.Connection[dict[str, Any]]:
     if cfg.dsql_host:
         from app.dsql import auth_token
 
-        return psycopg.connect(
+        return psycopg.Connection[dict[str, Any]].connect(
             host=cfg.dsql_host,
             dbname="postgres",
             user="admin" if admin else "cornell_app",
             password=auth_token(admin),
             sslmode="verify-full",
+            sslrootcert=certifi.where(),
             connect_timeout=10,
             row_factory=dict_row,
         )
     if not cfg.database_url:
         raise RuntimeError("DATABASE_URL or DSQL_HOST is required")
-    return psycopg.connect(cfg.database_url, row_factory=dict_row, connect_timeout=10)
+    return psycopg.Connection[dict[str, Any]].connect(
+        cfg.database_url, row_factory=dict_row, connect_timeout=10
+    )

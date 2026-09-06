@@ -1,0 +1,883 @@
+[
+  {
+    "functions": [],
+    "path": "backend/src/app/__init__.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/create_note/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.create"
+        ],
+        "line": 5,
+        "name": "execute",
+        "parameters": [
+          "data: NoteInput",
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/create_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.post",
+          "functions.execute"
+        ],
+        "line": 11,
+        "name": "create_note",
+        "parameters": [
+          "data: NoteInput",
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/create_note/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/create_share/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.share"
+        ],
+        "line": 7,
+        "name": "execute",
+        "parameters": [
+          "note_id: UUID",
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "Share"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/create_share/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.post",
+          "functions.execute"
+        ],
+        "line": 13,
+        "name": "create_share",
+        "parameters": [
+          "note_id: UUID",
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "Share"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/create_share/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/delete_note/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.delete"
+        ],
+        "line": 6,
+        "name": "execute",
+        "parameters": [
+          "note_id: UUID",
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/delete_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.delete",
+          "functions.execute"
+        ],
+        "line": 12,
+        "name": "delete_note",
+        "parameters": [
+          "note_id: UUID",
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/delete_note/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/get_note/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.get"
+        ],
+        "line": 7,
+        "name": "execute",
+        "parameters": [
+          "note_id: UUID",
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/get_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.get",
+          "functions.execute"
+        ],
+        "line": 13,
+        "name": "get_note",
+        "parameters": [
+          "note_id: UUID",
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/get_note/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/get_shared/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.shared"
+        ],
+        "line": 5,
+        "name": "execute",
+        "parameters": [
+          "token: str",
+          "repo: NoteStore"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/get_shared/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.get",
+          "functions.execute"
+        ],
+        "line": 11,
+        "name": "get_shared",
+        "parameters": [
+          "token: str",
+          "repo: Repo"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/get_shared/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/list_notes/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.list_notes"
+        ],
+        "line": 5,
+        "name": "execute",
+        "parameters": [
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "list[Note]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/list_notes/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.get",
+          "functions.execute"
+        ],
+        "line": 11,
+        "name": "list_notes",
+        "parameters": [
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "list[Note]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/list_notes/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/revoke_share/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.revoke"
+        ],
+        "line": 6,
+        "name": "execute",
+        "parameters": [
+          "note_id: UUID",
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/revoke_share/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.delete",
+          "functions.execute"
+        ],
+        "line": 12,
+        "name": "revoke_share",
+        "parameters": [
+          "note_id: UUID",
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/revoke_share/router.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/apis/notes/update_note/__init__.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "repo.update"
+        ],
+        "line": 7,
+        "name": "execute",
+        "parameters": [
+          "note_id: UUID",
+          "data: NoteUpdate",
+          "owner: str",
+          "repo: NoteStore"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/update_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.put",
+          "functions.execute"
+        ],
+        "line": 13,
+        "name": "update_note",
+        "parameters": [
+          "note_id: UUID",
+          "data: NoteUpdate",
+          "owner: Owner",
+          "repo: Repo"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/update_note/router.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "router.get"
+        ],
+        "line": 9,
+        "name": "health",
+        "parameters": [],
+        "return": "dict[str, str]"
+      },
+      {
+        "calls": [
+          "router.post",
+          "local_login"
+        ],
+        "line": 14,
+        "name": "login",
+        "parameters": [
+          "data: Login"
+        ],
+        "return": "Token"
+      }
+    ],
+    "path": "backend/src/app/apis/system/router.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "Settings",
+          "value.validate"
+        ],
+        "line": 17,
+        "name": "settings",
+        "parameters": [],
+        "return": "Settings"
+      },
+      {
+        "calls": [
+          "jwt.PyJWKClient"
+        ],
+        "line": 24,
+        "name": "jwks",
+        "parameters": [
+          "issuer: str"
+        ],
+        "return": "jwt.PyJWKClient"
+      },
+      {
+        "calls": [
+          "settings",
+          "HTTPException",
+          "jwt.decode",
+          "jwt.decode",
+          "HTTPException",
+          "HTTPException",
+          "Depends",
+          "jwks(cfg.issuer).get_signing_key_from_jwt",
+          "HTTPException",
+          "isinstance",
+          "jwks"
+        ],
+        "line": 28,
+        "name": "authenticate",
+        "parameters": [
+          "credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)]"
+        ],
+        "return": "str"
+      },
+      {
+        "calls": [
+          "settings",
+          "jwt.encode",
+          "Token",
+          "HTTPException",
+          "hmac.compare_digest",
+          "HTTPException",
+          "datetime.now",
+          "timedelta"
+        ],
+        "line": 65,
+        "name": "local_login",
+        "parameters": [
+          "data: Login"
+        ],
+        "return": "Token"
+      }
+    ],
+    "path": "backend/src/app/auth.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "RuntimeError",
+          "os.getenv",
+          "RuntimeError",
+          "RuntimeError",
+          "len"
+        ],
+        "line": 16,
+        "name": "validate",
+        "parameters": [
+          "self"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/config.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "settings",
+          "psycopg.Connection[dict[str, Any]].connect",
+          "psycopg.Connection[dict[str, Any]].connect",
+          "RuntimeError",
+          "auth_token",
+          "certifi.where"
+        ],
+        "line": 10,
+        "name": "connect",
+        "parameters": [],
+        "return": "psycopg.Connection[dict[str, Any]]"
+      }
+    ],
+    "path": "backend/src/app/db.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/deps.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "cast",
+          "boto3.client",
+          "settings"
+        ],
+        "line": 15,
+        "name": "client",
+        "parameters": [],
+        "return": "DsqlClient"
+      },
+      {
+        "calls": [
+          "client().generate_db_connect_auth_token",
+          "client().generate_db_connect_admin_auth_token",
+          "client",
+          "client",
+          "settings",
+          "settings"
+        ],
+        "line": 19,
+        "name": "auth_token",
+        "parameters": [
+          "admin: bool"
+        ],
+        "return": "str"
+      },
+      {
+        "calls": [],
+        "line": 10,
+        "name": "generate_db_connect_auth_token",
+        "parameters": [
+          "self"
+        ],
+        "return": "str"
+      },
+      {
+        "calls": [],
+        "line": 11,
+        "name": "generate_db_connect_admin_auth_token",
+        "parameters": [
+          "self"
+        ],
+        "return": "str"
+      }
+    ],
+    "path": "backend/src/app/dsql.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "settings",
+          "FastAPI",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router",
+          "instance.include_router"
+        ],
+        "line": 16,
+        "name": "create_app",
+        "parameters": [],
+        "return": "FastAPI"
+      }
+    ],
+    "path": "backend/src/app/main.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "settings",
+          "connect",
+          "conn.execute",
+          "conn.execute",
+          "conn.execute",
+          "conn.execute",
+          "sorted",
+          "Path(os.getenv('MIGRATIONS_DIR', 'backend/migrations')).glob",
+          "hashlib.sha256(path.read_bytes()).hexdigest",
+          "conn.execute('SELECT checksum FROM schema_migrations WHERE name=%s', (path.name,)).fetchone",
+          "cast(Callable[..., list[sqlglot.Expression | None]], sqlglot.parse)",
+          "conn.execute",
+          "conn.execute",
+          "conn.execute",
+          "conn.execute",
+          "cast",
+          "path.read_text",
+          "cast(Callable[..., str], expression.sql)",
+          "conn.execute(\"SELECT rolname FROM pg_roles WHERE rolname='cornell_app'\").fetchone",
+          "conn.execute",
+          "sql.SQL('AWS IAM GRANT cornell_app TO {}').format",
+          "Path",
+          "hashlib.sha256",
+          "conn.execute",
+          "RuntimeError",
+          "cast",
+          "statement.startswith",
+          "statement.replace",
+          "conn.execute(sql.SQL(statement)).fetchone",
+          "conn.execute",
+          "sql.Literal",
+          "os.getenv",
+          "path.read_bytes",
+          "conn.execute",
+          "sql.SQL",
+          "conn.execute",
+          "sql.SQL",
+          "conn.execute",
+          "sql.SQL",
+          "next",
+          "iter",
+          "job.values"
+        ],
+        "line": 14,
+        "name": "migrate",
+        "parameters": [],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/migrate.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "migrate"
+        ],
+        "line": 4,
+        "name": "handler",
+        "parameters": [
+          "event: object",
+          "context: object"
+        ],
+        "return": "dict[str, str]"
+      }
+    ],
+    "path": "backend/src/app/migration_handler.py"
+  },
+  {
+    "functions": [],
+    "path": "backend/src/app/models.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [],
+        "line": 8,
+        "name": "list_notes",
+        "parameters": [
+          "self",
+          "owner: str"
+        ],
+        "return": "list[Note]"
+      },
+      {
+        "calls": [],
+        "line": 9,
+        "name": "create",
+        "parameters": [
+          "self",
+          "owner: str",
+          "data: NoteInput"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [],
+        "line": 10,
+        "name": "get",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [],
+        "line": 11,
+        "name": "update",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID",
+          "data: NoteUpdate"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [],
+        "line": 12,
+        "name": "delete",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "None"
+      },
+      {
+        "calls": [],
+        "line": 13,
+        "name": "share",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "Share"
+      },
+      {
+        "calls": [],
+        "line": 14,
+        "name": "revoke",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "None"
+      },
+      {
+        "calls": [],
+        "line": 15,
+        "name": "shared",
+        "parameters": [
+          "self",
+          "token: str"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/port.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "dict",
+          "value.pop",
+          "json.loads",
+          "Note.model_validate",
+          "str"
+        ],
+        "line": 15,
+        "name": "decode",
+        "parameters": [
+          "row: dict[str, object]"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [
+          "PostgresStore"
+        ],
+        "line": 124,
+        "name": "store",
+        "parameters": [],
+        "return": "NoteStore"
+      },
+      {
+        "calls": [
+          "connect",
+          "decode",
+          "conn.execute('SELECT id, title, group_name, cue, content, summary, tasks, version, updated_at FROM notes WHERE owner_id=%s ORDER BY updated_at DESC', (owner,)).fetchall",
+          "conn.execute"
+        ],
+        "line": 23,
+        "name": "list_notes",
+        "parameters": [
+          "self",
+          "owner: str"
+        ],
+        "return": "list[Note]"
+      },
+      {
+        "calls": [
+          "uuid4",
+          "datetime.now",
+          "Note",
+          "connect",
+          "conn.execute",
+          "data.model_dump",
+          "json.dumps",
+          "t.model_dump"
+        ],
+        "line": 33,
+        "name": "create",
+        "parameters": [
+          "self",
+          "owner: str",
+          "data: NoteInput"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [
+          "connect",
+          "conn.execute('SELECT id, title, group_name, cue, content, summary, tasks, version, updated_at FROM notes WHERE id=%s AND owner_id=%s', (note_id, owner)).fetchone",
+          "decode",
+          "HTTPException",
+          "conn.execute"
+        ],
+        "line": 53,
+        "name": "get",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [
+          "decode",
+          "connect",
+          "conn.execute('UPDATE notes SET title=%s, group_name=%s, cue=%s, content=%s, summary=%s, tasks=%s, version=version+1, updated_at=%s WHERE id=%s AND owner_id=%s AND version=%s RETURNING id, title, group_name, cue, content, summary, tasks, version, updated_at', (data.title, data.group, data.cue, data.content, data.summary, json.dumps([t.model_dump(mode='json') for t in data.tasks]), datetime.now(UTC), note_id, owner, data.version)).fetchone",
+          "self.get",
+          "HTTPException",
+          "HTTPException",
+          "conn.execute",
+          "json.dumps",
+          "datetime.now",
+          "t.model_dump"
+        ],
+        "line": 63,
+        "name": "update",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID",
+          "data: NoteUpdate"
+        ],
+        "return": "Note"
+      },
+      {
+        "calls": [
+          "connect",
+          "conn.execute"
+        ],
+        "line": 90,
+        "name": "delete",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "None"
+      },
+      {
+        "calls": [
+          "secrets.token_urlsafe",
+          "Share",
+          "datetime.now",
+          "timedelta",
+          "connect",
+          "conn.execute('UPDATE notes SET share_hash=%s, share_expires=%s WHERE id=%s AND owner_id=%s RETURNING id', (hashlib.sha256(token.encode()).hexdigest(), expires, note_id, owner)).fetchone",
+          "HTTPException",
+          "conn.execute",
+          "hashlib.sha256(token.encode()).hexdigest",
+          "hashlib.sha256",
+          "token.encode"
+        ],
+        "line": 94,
+        "name": "share",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "Share"
+      },
+      {
+        "calls": [
+          "connect",
+          "conn.execute"
+        ],
+        "line": 106,
+        "name": "revoke",
+        "parameters": [
+          "self",
+          "owner: str",
+          "note_id: UUID"
+        ],
+        "return": "None"
+      },
+      {
+        "calls": [
+          "connect",
+          "conn.execute('SELECT id, title, group_name, cue, content, summary, tasks, version, updated_at FROM notes WHERE share_hash=%s AND share_expires>%s', (hashlib.sha256(token.encode()).hexdigest(), datetime.now(UTC))).fetchone",
+          "decode",
+          "HTTPException",
+          "conn.execute",
+          "hashlib.sha256(token.encode()).hexdigest",
+          "datetime.now",
+          "hashlib.sha256",
+          "token.encode"
+        ],
+        "line": 113,
+        "name": "shared",
+        "parameters": [
+          "self",
+          "token: str"
+        ],
+        "return": "Note"
+      }
+    ],
+    "path": "backend/src/app/repository.py"
+  }
+]

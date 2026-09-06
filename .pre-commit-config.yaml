@@ -1,0 +1,26 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff lint
+        entry: uv run ruff check
+        language: system
+        types: [python]
+        exclude: ^(\.agents|\.dev-standard|tools/(portable_python|quintflow|render_requirements|render_skills|safe_io|spec_mapping)\.py)
+      - id: ruff-format
+        name: Ruff format
+        entry: uv run ruff format --check
+        language: system
+        types: [python]
+        exclude: ^(\.agents|\.dev-standard|tools/(portable_python|quintflow|render_requirements|render_skills|safe_io|spec_mapping)\.py)
+      - id: frontend-format
+        name: Frontend Prettier
+        entry: npm --prefix frontend run format:check
+        language: system
+        pass_filenames: false
+        files: ^frontend/.*\.(ts|tsx|css)$
+      - id: private-key
+        name: Reject private keys
+        entry: python tools/check_secrets.py
+        language: system
+        types: [text]

@@ -1,0 +1,61 @@
+name: Deploy main after verified dev
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+concurrency:
+  group: aws-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require matching successful dev tree
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin dev
+          test "$(git rev-parse HEAD^{tree})" = "$(git rev-parse origin/dev^{tree})"
+          SHA=$(git rev-parse origin/dev)
+          gh run list --workflow verify.yml --branch dev --commit "$SHA" --event push --json conclusion --jq 'map(select(.conclusion == "success")) | length > 0' | grep -qx true
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.0'
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-1
+      - run: uv sync --locked
+      - run: npm ci --prefix frontend
+      - run: uv run python tools/package_lambda.py
+      - name: Deploy infrastructure
+        run: |
+          ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+          npx --yes aws-cdk@2.1140.0 synth --strict -c account="$ACCOUNT"
+          npx --yes aws-cdk@2.1140.0 diff -c account="$ACCOUNT"
+          npx --yes aws-cdk@2.1140.0 deploy --require-approval never -c account="$ACCOUNT" --outputs-file build/outputs.json
+      - name: Migrate database and deploy frontend
+        run: |
+          MIGRATION=$(jq -r '.CornellNote.MigrationFunction' build/outputs.json)
+          aws lambda invoke --function-name "$MIGRATION" --payload '{}' build/migration-result.json > build/migration-invoke.json
+          test "$(jq -r '.FunctionError // empty' build/migration-invoke.json)" = ""
+          test "$(jq -r '.status' build/migration-result.json)" = migrated
+          export VITE_AUTH_MODE=cognito
+          export VITE_COGNITO_DOMAIN=$(jq -r '.CornellNote.CognitoDomain' build/outputs.json)
+          export VITE_COGNITO_CLIENT_ID=$(jq -r '.CornellNote.CognitoClientId' build/outputs.json)
+          npm --prefix frontend run build
+          BUCKET=$(jq -r '.CornellNote.BucketName' build/outputs.json)
+          aws s3 sync frontend/dist/ "s3://$BUCKET/" --cache-control 'public,max-age=31536000,immutable' --exclude index.html
+          aws s3 cp frontend/dist/index.html "s3://$BUCKET/index.html" --cache-control 'no-cache'
+          aws cloudfront create-invalidation --distribution-id "$(jq -r '.CornellNote.DistributionId' build/outputs.json)" --paths '/' '/index.html'

@@ -18,7 +18,7 @@ class NoteInput(BaseModel):
     cue: str = Field(default="", max_length=20000)
     content: str = Field(default="", max_length=80000)
     summary: str = Field(default="", max_length=20000)
-    tasks: list[Task] = Field(default_factory=list, max_length=100)
+    tasks: list[Task] = Field(default_factory=list[Task], max_length=100)
 
 
 class NoteUpdate(NoteInput):

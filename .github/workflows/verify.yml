@@ -1,0 +1,88 @@
+name: Verify and publish quality
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      DATABASE_URL: postgresql://cornell:local-cornell-only@127.0.0.1:5432/cornell
+      AUTH_MODE: local
+      LOCAL_AUTH_SECRET: testing-only-key-with-at-least-32-characters
+      LOCAL_PASSWORD: cornell-local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.0'
+          python-version: '3.12'
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: uv sync --locked
+      - run: npm ci --prefix frontend
+      - run: python tools/quintflow.py setup
+      - run: uv run python tools/package_lambda.py
+      - run: uv run python -m infra.app
+      - run: docker compose up --build -d --wait
+      - run: npx --prefix frontend playwright install --with-deps chromium
+      - name: Quality gates
+        id: quality
+        continue-on-error: true
+        run: uv run python tools/quality.py
+      - name: Playwright Given When Then
+        id: e2e
+        continue-on-error: true
+        run: npm --prefix frontend run e2e
+      - name: Generate report
+        if: always()
+        run: python tools/report.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-report
+          path: reports/
+      - name: Require quality and E2E success
+        if: always()
+        env:
+          QUALITY: ${{ steps.quality.outcome }}
+          E2E: ${{ steps.e2e.outcome }}
+        run: test "$QUALITY" = success && test "$E2E" = success
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
+  pages:
+    if: always() && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: quality-report
+          path: reports
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports
+      - uses: actions/deploy-pages@v4
+        id: deployment

@@ -78,13 +78,12 @@ class PostgresStore:
                         data.version,
                     ),
                 ).fetchone()
-                if row is None:
-                    self.get(owner, note_id)
-                    raise HTTPException(
-                        409, "別の画面で更新されています。入力を控えて再読み込みしてください"
-                    )
-                result = decode(row)
-            return result
+            if row is None:
+                self.get(owner, note_id)
+                raise HTTPException(
+                    409, "別の画面で更新されています。入力を控えて再読み込みしてください"
+                )
+            return decode(row)
         except SerializationFailure as exc:
             raise HTTPException(409, "更新が競合しました。再読み込みしてください") from exc
 

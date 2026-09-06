@@ -15,3 +15,5 @@ playwright-report/
 .dev-standard/python/runtime/
 .dev-standard/quint/runtime/
 *.egg-info/
+
+build/

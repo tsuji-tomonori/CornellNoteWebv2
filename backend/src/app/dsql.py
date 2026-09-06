@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Protocol, cast
 
-import boto3  # type: ignore[import-untyped]
+import boto3
 
 from app.auth import settings
 
@@ -13,7 +13,7 @@ class DsqlClient(Protocol):
 
 @lru_cache
 def client() -> DsqlClient:
-    return cast(DsqlClient, boto3.client("dsql", region_name=settings().region))
+    return cast(DsqlClient, boto3.client("dsql", region_name=settings().region))  # pyright: ignore[reportUnknownMemberType]
 
 
 def auth_token(admin: bool) -> str:
