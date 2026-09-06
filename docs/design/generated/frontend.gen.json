@@ -18,13 +18,13 @@
         "returnType": "inferred"
       },
       {
-        "line": 93,
+        "line": 94,
         "name": "create",
         "parameters": [],
         "returnType": "inferred"
       },
       {
-        "line": 103,
+        "line": 104,
         "name": "save",
         "parameters": [
           "data: NoteInput"
@@ -32,13 +32,13 @@
         "returnType": "inferred"
       },
       {
-        "line": 473,
+        "line": 474,
         "name": "Brand",
         "parameters": [],
         "returnType": "inferred"
       },
       {
-        "line": 485,
+        "line": 486,
         "name": "LoginView",
         "parameters": [
           "{\n  error,\n  onError,\n  onLogin,\n}: {\n  error: string;\n  onError: (v: string) => void;\n  onLogin: () => void;\n}"
@@ -46,7 +46,7 @@
         "returnType": "inferred"
       },
       {
-        "line": 497,
+        "line": 498,
         "name": "submit",
         "parameters": [
           "e: React.FormEvent"

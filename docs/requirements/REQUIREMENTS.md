@@ -56,10 +56,10 @@ CornellNoteWebv2は、本人のノート一覧が表示され、未認証のAPI�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/auth.py","frontend/src/auth.ts"]</code>
+- テスト: <code>["backend/tests/test_api.py","frontend/src/auth.test.ts","frontend/e2e/notes.spec.ts"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -88,10 +88,10 @@ CornellNoteWebv2は、所有者以外にはノートを返さず変更しない�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/repository.py"]</code>
+- テスト: <code>["backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -120,10 +120,10 @@ CornellNoteWebv2は、自身の全ノートをコレクション別に閲覧で�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["frontend/src/App.tsx","frontend/src/domain.ts"]</code>
+- テスト: <code>["frontend/src/domain.test.ts","frontend/e2e/notes.spec.ts"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -152,10 +152,10 @@ CornellNoteWebv2は、タイトルと本文・問い・まとめで絞り込め�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["frontend/src/domain.ts"]</code>
+- テスト: <code>["frontend/src/domain.test.ts","frontend/e2e/notes.spec.ts"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -184,10 +184,10 @@ CornellNoteWebv2は、再読込後も三欄が保持されるを**維持する**
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["frontend/src/Editor.tsx","backend/src/app/repository.py"]</code>
+- テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -216,10 +216,10 @@ CornellNoteWebv2は、保存後もタスク状態を保持するを**維持す�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["frontend/src/Editor.tsx","backend/src/app/models.py"]</code>
+- テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -248,10 +248,10 @@ CornellNoteWebv2は、ログイン不要で閲覧のみできるを**維持す�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/repository.py","frontend/src/App.tsx"]</code>
+- テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -280,10 +280,10 @@ CornellNoteWebv2は、既存リンクでの閲覧を拒否するを**維持す�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/repository.py"]</code>
+- テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -312,10 +312,10 @@ CornellNoteWebv2は、期限切れを返すを**維持する**。
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/repository.py"]</code>
+- テスト: <code>["backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -344,10 +344,10 @@ CornellNoteWebv2は、409を返し最新保存を上書きしないを**維持�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/repository.py"]</code>
+- テスト: <code>["backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -376,10 +376,10 @@ CornellNoteWebv2は、入力と保存を横スクロールなしで利用でき�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["frontend/src/style.css"]</code>
+- テスト: <code>["frontend/e2e/notes.spec.ts"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -408,10 +408,10 @@ CornellNoteWebv2は、ユーカリミント配色とCUE・NOTE・SUMMARY・ACTIO
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["frontend/src/style.css"]</code>
+- テスト: <code>["frontend/e2e/notes.spec.ts"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -440,10 +440,10 @@ CornellNoteWebv2は、DB・バックエンド・フロントが起動して操�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["compose.yaml"]</code>
+- テスト: <code>[".github/workflows/verify.yml"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -472,10 +472,10 @@ CornellNoteWebv2は、CloudFront・非公開S3・API Gateway・Lambda・DSQL・C
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["infra/stack.py"]</code>
+- テスト: <code>["infra/tests/test_stack.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -504,10 +504,10 @@ CornellNoteWebv2は、VPC・NAT・WAFを追加せず抑制理由を限定して�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["infra/stack.py"]</code>
+- テスト: <code>["infra/tests/test_stack.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -536,10 +536,10 @@ CornellNoteWebv2は、適用済checksumを検査しテーブルと全カラム�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["backend/src/app/migrate.py","backend/migrations/001_notes.sql"]</code>
+- テスト: <code>["backend/tests/test_integration.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -568,10 +568,10 @@ CornellNoteWebv2は、API・DB・画面・インフラの構造を決定的に�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["tools/design.py","tools/frontend_design.mjs"]</code>
+- テスト: <code>["tests/test_design.py"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -600,10 +600,10 @@ CornellNoteWebv2は、pytest・TS単体・静的解析・CDK nag・アサーシ�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["tools/quality.py"]</code>
+- テスト: <code>[".github/workflows/verify.yml"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -632,10 +632,10 @@ CornellNoteWebv2は、全Given When Thenと右側スクリーンショットお�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>["tools/report.py"]</code>
+- テスト: <code>[".github/workflows/verify.yml"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>
 
@@ -664,9 +664,9 @@ CornellNoteWebv2は、同一treeのdev検査成功を確認後にOIDC認証し�
 検証証跡: GitHub Actions quality / E2E / Pages
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
-- 設計: <code>[]</code>
-- 実装: <code>[]</code>
-- テスト: <code>[]</code>
-- 参照資料: <code>[]</code>
+- 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
+- 実装: <code>[".github/workflows/deploy.yml"]</code>
+- テスト: <code>[".github/workflows/deploy.yml"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>

@@ -15,6 +15,14 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "on",
     locale: "ja-JP",
+    ...(process.env.PW_CHROMIUM
+      ? {
+          launchOptions: {
+            executablePath: process.env.PW_CHROMIUM,
+            args: ["--disable-gpu", "--no-zygote"],
+          },
+        }
+      : {}),
   },
   projects: [
     {
@@ -22,25 +30,12 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 1000 },
-        ...(process.env.PW_FIREFOX
-          ? {
-              browserName: "firefox" as const,
-              launchOptions: { executablePath: process.env.PW_FIREFOX },
-            }
-          : {}),
       },
     },
     {
       name: "mobile",
       use: {
         ...devices["Pixel 7"],
-        ...(process.env.PW_FIREFOX
-          ? {
-              browserName: "firefox" as const,
-              isMobile: false,
-              launchOptions: { executablePath: process.env.PW_FIREFOX },
-            }
-          : {}),
       },
     },
   ],

@@ -42,6 +42,14 @@ python tools/report.py
 
 `reports/index.html` が統合レポートです。日本語Given/When/Thenの各段階に実画像を右側表示し、全ケースを常時展開します。PythonとTypeScriptのコード行カバレッジ、静的解析、フォーマッター、CDK nag、snapshotも確認できます。CIの画面は合成画像ではなく実行時のスクリーンショットです。
 
+## 検証状況
+
+2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Python 12テスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像と終了時12画像、計44画像を生成。
+
+作業環境でもChromiumとローカルAPI・PostgreSQL互換PGliteで10ケースが成功。DockerがないためComposeそのものの検証はActionsで実施。通常のローカル手順は上記Composeを使用してください。
+
+Pagesは `github-pages` 環境の保護ルールがdevからの公開を拒否しています。Settings → Environments → github-pages → Deployment branches and tagsで `dev` を許可した後、失敗したPagesジョブを再実行してください。公開ワークフローとレポート生成は実装済みです。保護ルールを迂回する環境は作成していません。
+
 ## AWS構成
 
 CloudFrontの静的配信は非公開S3、`/api/*`はAPI Gateway HTTP API→FastAPI＋MangumのLambda→Aurora DSQL。Cognitoの認可コード＋PKCEでログインし、API GatewayとFastAPIの双方でJWTを検証します。DBは実行用DMLロールとmigration用管理ロールを分離。ノートは非公開が初期値で、共有トークンはSHA256だけを保存します。

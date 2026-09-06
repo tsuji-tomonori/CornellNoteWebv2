@@ -86,6 +86,7 @@ export function App({ initialError = "" }: { initialError?: string }) {
       await work();
     } catch (e) {
       setError((e as Error).message);
+      setStatus("操作を完了できませんでした");
     } finally {
       setBusy(false);
     }
