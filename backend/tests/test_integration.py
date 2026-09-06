@@ -92,3 +92,17 @@ def test_migrations_are_repeatable_and_document_columns(client):
         ).fetchall()
         assert len(rows) == 12
         assert all(row["description"] for row in rows)
+
+
+def test_bound_sql_preserves_quotes_as_data(client):
+    alice = headers(client)
+    title = "講義'; DROP TABLE notes; --"
+    note = client.post("/api/notes", headers=alice, json={"title": title}).json()
+    url = "/api/notes/" + note["id"]
+    assert client.get(url, headers=alice).json()["title"] == title
+    with connect() as conn:
+        assert (
+            conn.execute("SELECT title FROM notes WHERE id=%s", (note["id"],)).fetchone()["title"]
+            == title
+        )
+    assert client.delete(url, headers=alice).status_code == 204

@@ -1,5 +1,5 @@
 {
-  "catalog_revision": 1,
+  "catalog_revision": 2,
   "product": "CornellNoteWebv2",
   "requirements": [
     {
@@ -80,7 +80,7 @@
           "docs/design/generated/DESIGN.gen.md"
         ],
         "implementation": [
-          "backend/src/app/repository.py"
+          "backend/src/app/apis/notes/get_note/functions.py"
         ],
         "standards": [
           "AGENTS.md"
@@ -219,7 +219,7 @@
         ],
         "implementation": [
           "frontend/src/Editor.tsx",
-          "backend/src/app/repository.py"
+          "backend/src/app/apis/notes/update_note/functions.py"
         ],
         "standards": [
           "AGENTS.md"
@@ -312,7 +312,7 @@
           "docs/design/generated/DESIGN.gen.md"
         ],
         "implementation": [
-          "backend/src/app/repository.py",
+          "backend/src/app/apis/notes/create_share/functions.py",
           "frontend/src/App.tsx"
         ],
         "standards": [
@@ -359,7 +359,7 @@
           "docs/design/generated/DESIGN.gen.md"
         ],
         "implementation": [
-          "backend/src/app/repository.py"
+          "backend/src/app/apis/notes/revoke_share/functions.py"
         ],
         "standards": [
           "AGENTS.md"
@@ -405,7 +405,7 @@
           "docs/design/generated/DESIGN.gen.md"
         ],
         "implementation": [
-          "backend/src/app/repository.py"
+          "backend/src/app/apis/notes/get_shared/functions.py"
         ],
         "standards": [
           "AGENTS.md"
@@ -450,7 +450,7 @@
           "docs/design/generated/DESIGN.gen.md"
         ],
         "implementation": [
-          "backend/src/app/repository.py"
+          "backend/src/app/apis/notes/update_note/functions.py"
         ],
         "standards": [
           "AGENTS.md"
@@ -915,6 +915,54 @@
       "verification": {
         "evidence": "GitHub Actions quality / E2E / Pages",
         "method": "automated-tests-and-review"
+      }
+    },
+    {
+      "acceptance_criteria": [
+        {
+          "given": "APIのSQLまたはDDLが変更される",
+          "id": "AC-SQL",
+          "then": "型付き引数・行モデル・SQLファイル読込ラッパーが生成され、SQLFluffと差分・境界検査が不備を検出する",
+          "when": "コード生成と品質検査を実行する"
+        }
+      ],
+      "action": "maintain",
+      "category": "nonfunctional",
+      "id": "REQ-SQL",
+      "last_changed_by": "sql-refactor",
+      "object": "各APIのsqlファイルからgenerated/queries.pyを生成してfunctionsで呼ぶ",
+      "rationale": "SQLとPythonの二重管理を避け、参照元の開発ルールに整合する",
+      "retirement_reason": "",
+      "revision": 1,
+      "scope": "project",
+      "source_refs": [
+        "user:2026-09-06-sql-layout"
+      ],
+      "status": "active",
+      "subject": "CornellNoteWebv2",
+      "superseded_by": "",
+      "title": "API単位のSQLから型付きクエリを生成し静的解析する",
+      "traces": {
+        "design": [
+          "docs/design/generated/queries.gen.json"
+        ],
+        "implementation": [
+          "backend/src/app/apis/notes/update_note/functions.py",
+          "tools/generate_queries.py",
+          "backend/src/app/db.py"
+        ],
+        "standards": [
+          "AGENTS.md"
+        ],
+        "tests": [
+          "tests/test_queries.py",
+          "backend/tests/test_integration.py"
+        ]
+      },
+      "type": "constraint",
+      "verification": {
+        "evidence": "SQLFluff、tests/test_queries.py、DB結合テストとE2E",
+        "method": "automated-tests"
       }
     }
   ],

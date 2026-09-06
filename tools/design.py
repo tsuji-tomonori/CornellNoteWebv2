@@ -3,6 +3,7 @@ import ast
 import hashlib
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import sqlglot
@@ -13,6 +14,8 @@ OUT = ROOT / "docs/design/generated"
 
 
 def render() -> dict[str, str]:
+    subprocess.run([sys.executable, "tools/generate_queries.py", "--check"], cwd=ROOT, check=True)
+    queries = json.loads((OUT / "queries.gen.json").read_text())
     openapi = app.openapi()
     operations = []
     for path, methods in sorted(openapi["paths"].items()):
@@ -82,6 +85,8 @@ def render() -> dict[str, str]:
         [
             *ROOT.glob("backend/src/**/*.py"),
             *ROOT.glob("backend/migrations/*.sql"),
+            *ROOT.glob("backend/src/app/apis/*/*/sql/*.sql"),
+            ROOT / "tools/generate_queries.py",
             *ROOT.glob("frontend/src/*.ts"),
             *ROOT.glob("frontend/src/*.tsx"),
             ROOT / "frontend/src/style.css",
@@ -94,14 +99,44 @@ def render() -> dict[str, str]:
     manifest = {
         "generators": [
             {
+                "name": "queries",
+                "category": "codegen",
+                "command": "uv run python tools/generate_queries.py",
+                "check": "uv run python tools/generate_queries.py --check",
+                "inputs": [
+                    "backend/src/app/apis/*/*/sql/*.sql",
+                    "backend/migrations/*.sql",
+                    "tools/generate_queries.py",
+                ],
+                "outputs": [
+                    "backend/src/app/apis/*/*/generated/queries.py",
+                    "docs/design/generated/queries.gen.json",
+                ],
+                "dependencies": [],
+                "ci_safe": True,
+                "unsupported": "Computed projections, joins and subqueries fail closed until explicitly supported",
+            },
+            {
                 "name": "design",
                 "command": "uv run python tools/design.py",
                 "check": "uv run python tools/design.py --check",
                 "inputs": [str(p.relative_to(ROOT)) for p in source_paths],
-                "outputs": ["docs/design/generated/*"],
-                "dependencies": ["CDK synth", "TypeScript parser", "FastAPI OpenAPI"],
+                "outputs": [
+                    "docs/design/generated/" + name
+                    for name in [
+                        "DESIGN.gen.md",
+                        "openapi.gen.json",
+                        "operations.gen.json",
+                        "python.gen.json",
+                        "database.gen.json",
+                        "frontend.gen.json",
+                        "infrastructure.gen.json",
+                        "manifest.gen.json",
+                    ]
+                ],
+                "dependencies": ["queries", "CDK synth", "TypeScript parser", "FastAPI OpenAPI"],
                 "ci_safe": True,
-            }
+            },
         ],
         "source_sha256": {
             str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -109,8 +144,8 @@ def render() -> dict[str, str]:
         },
         "unsupported_surface": [
             {
-                "path": "backend/src/app/repository.py",
-                "reason": "関数の呼出関係は生成するが、SQLの実行結果や業務要件充足の証明はテストに委ねる",
+                "path": "backend/src/app/apis/notes",
+                "reason": "SQL単位の型・操作・テーブルを生成するが、DB実行結果と業務要件充足は結合テストで検証",
                 "support_status": "structural-only",
             },
             {
@@ -130,6 +165,13 @@ def render() -> dict[str, str]:
     )
     md += "\n## DB\n\n" + "".join(
         "```sql\n" + "\n".join(db["statements"]) + "\n```\n" for db in database
+    )
+    md += (
+        "\n## API別SQL / CRUD\n\n| API | SQL source | Table | Operation | Wrapper |\n|---|---|---|---|---|\n"
+        + "".join(
+            f"| {q['api']} | `{q['source']}` | {q['table']} | {q['operation']} | `{q['name']}` |\n"
+            for q in queries
+        )
     )
     md += "\n## 画面と関数\n\n" + "".join(
         f"- `{file['path']}`: " + ", ".join(f["name"] for f in file["functions"]) + "\n"

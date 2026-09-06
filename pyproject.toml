@@ -21,6 +21,7 @@ dev = [
     "cdk-nag>=2.35,<3",
     "pre-commit>=4,<5",
     "boto3-stubs[dsql]>=1.43.89",
+    "sqlfluff>=4.3,<5",
 ]
 [tool.pytest.ini_options]
 testpaths = ["backend/tests", "infra/tests", "tests"]

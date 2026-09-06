@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.auth import authenticate
-from app.port import NoteStore
-from app.repository import store
+from app.db import database
+from app.port import Database
 
 Owner = Annotated[str, Depends(authenticate)]
-Repo = Annotated[NoteStore, Depends(store)]
+Repo = Annotated[Database, Depends(database)]

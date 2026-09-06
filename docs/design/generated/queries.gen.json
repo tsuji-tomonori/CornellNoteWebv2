@@ -1,0 +1,206 @@
+[
+  {
+    "name": "insert_note",
+    "summary": "所有者に紐づく新しいノートを保存する",
+    "filename": "001_insert_note.sql",
+    "params": {
+      "content": "str",
+      "cue": "str",
+      "group_name": "str",
+      "id": "UUID",
+      "owner_id": "str",
+      "summary": "str",
+      "tasks": "str",
+      "title": "str",
+      "updated_at": "datetime"
+    },
+    "rows": {},
+    "table": "notes",
+    "operation": "INSERT",
+    "sha256": "d400246c694b0855572fdf15d3e4a7299796c9274c6cc19f9f318f4cbd4f9fed",
+    "source": "backend/src/app/apis/notes/create_note/sql/001_insert_note.sql",
+    "api": "create_note",
+    "generated": "backend/src/app/apis/notes/create_note/generated/queries.py"
+  },
+  {
+    "name": "update_share",
+    "summary": "所有者のノートに期限付き共有を発行する",
+    "filename": "001_update_share.sql",
+    "params": {
+      "id": "UUID",
+      "owner_id": "str",
+      "share_expires": "datetime | None",
+      "share_hash": "str | None"
+    },
+    "rows": {
+      "id": "UUID"
+    },
+    "table": "notes",
+    "operation": "UPDATE",
+    "sha256": "a6908834d8a0572490b4920fd84c8a52b853822508bc56b49c1edcc53f1db04a",
+    "source": "backend/src/app/apis/notes/create_share/sql/001_update_share.sql",
+    "api": "create_share",
+    "generated": "backend/src/app/apis/notes/create_share/generated/queries.py"
+  },
+  {
+    "name": "delete_note",
+    "summary": "所有者に一致するノートだけを削除する",
+    "filename": "001_delete_note.sql",
+    "params": {
+      "id": "UUID",
+      "owner_id": "str"
+    },
+    "rows": {},
+    "table": "notes",
+    "operation": "DELETE",
+    "sha256": "61eadaf66cb0e5d2cf49adba9a2731dec168c96df319a93a3f14fb199a55d656",
+    "source": "backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql",
+    "api": "delete_note",
+    "generated": "backend/src/app/apis/notes/delete_note/generated/queries.py"
+  },
+  {
+    "name": "select_note",
+    "summary": "所有者とIDでノートを取得する",
+    "filename": "001_select_note.sql",
+    "params": {
+      "id": "UUID",
+      "owner_id": "str"
+    },
+    "rows": {
+      "id": "UUID",
+      "title": "str",
+      "group_name": "str",
+      "cue": "str",
+      "content": "str",
+      "summary": "str",
+      "tasks": "str",
+      "version": "int",
+      "updated_at": "datetime"
+    },
+    "table": "notes",
+    "operation": "SELECT",
+    "sha256": "c04a30cb3cb4709d8140f34cb3796c88a09dab15e24f25f37dc2e0f92c842bc9",
+    "source": "backend/src/app/apis/notes/get_note/sql/001_select_note.sql",
+    "api": "get_note",
+    "generated": "backend/src/app/apis/notes/get_note/generated/queries.py"
+  },
+  {
+    "name": "select_shared_note",
+    "summary": "ハッシュと期限が一致する共有ノートを取得する",
+    "filename": "001_select_shared_note.sql",
+    "params": {
+      "share_expires": "datetime | None",
+      "share_hash": "str | None"
+    },
+    "rows": {
+      "id": "UUID",
+      "title": "str",
+      "group_name": "str",
+      "cue": "str",
+      "content": "str",
+      "summary": "str",
+      "tasks": "str",
+      "version": "int",
+      "updated_at": "datetime"
+    },
+    "table": "notes",
+    "operation": "SELECT",
+    "sha256": "8abbb65bda90064b43caf22f4f6c01bedc8852e8d9b0b8c7b5306ed13e697eb7",
+    "source": "backend/src/app/apis/notes/get_shared/sql/001_select_shared_note.sql",
+    "api": "get_shared",
+    "generated": "backend/src/app/apis/notes/get_shared/generated/queries.py"
+  },
+  {
+    "name": "select_notes",
+    "summary": "所有者のノートを更新日時順に取得する",
+    "filename": "001_select_notes.sql",
+    "params": {
+      "owner_id": "str"
+    },
+    "rows": {
+      "id": "UUID",
+      "title": "str",
+      "group_name": "str",
+      "cue": "str",
+      "content": "str",
+      "summary": "str",
+      "tasks": "str",
+      "version": "int",
+      "updated_at": "datetime"
+    },
+    "table": "notes",
+    "operation": "SELECT",
+    "sha256": "93d3a0a69bf5ce28c706c6864a1fc875c33bf50a6a20413b9794e4e1c8fbdd60",
+    "source": "backend/src/app/apis/notes/list_notes/sql/001_select_notes.sql",
+    "api": "list_notes",
+    "generated": "backend/src/app/apis/notes/list_notes/generated/queries.py"
+  },
+  {
+    "name": "revoke_share",
+    "summary": "所有者のノートの共有を失効させる",
+    "filename": "001_revoke_share.sql",
+    "params": {
+      "id": "UUID",
+      "owner_id": "str"
+    },
+    "rows": {},
+    "table": "notes",
+    "operation": "UPDATE",
+    "sha256": "1bd693094cf83bad5ef0441ceb44250c4c525037c2abc5260d7db553e4630404",
+    "source": "backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql",
+    "api": "revoke_share",
+    "generated": "backend/src/app/apis/notes/revoke_share/generated/queries.py"
+  },
+  {
+    "name": "update_note",
+    "summary": "所有者と版が一致するノートを更新する",
+    "filename": "001_update_note.sql",
+    "params": {
+      "content": "str",
+      "cue": "str",
+      "group_name": "str",
+      "id": "UUID",
+      "owner_id": "str",
+      "summary": "str",
+      "tasks": "str",
+      "title": "str",
+      "updated_at": "datetime",
+      "version": "int"
+    },
+    "rows": {
+      "id": "UUID",
+      "title": "str",
+      "group_name": "str",
+      "cue": "str",
+      "content": "str",
+      "summary": "str",
+      "tasks": "str",
+      "version": "int",
+      "updated_at": "datetime"
+    },
+    "table": "notes",
+    "operation": "UPDATE",
+    "sha256": "7d695cf645e54f583241b44efc51e3a3c37f2559f2eac326d72f79a28eb07126",
+    "source": "backend/src/app/apis/notes/update_note/sql/001_update_note.sql",
+    "api": "update_note",
+    "generated": "backend/src/app/apis/notes/update_note/generated/queries.py"
+  },
+  {
+    "name": "select_owned_note",
+    "summary": "更新失敗が権限不足か版競合かを区別する",
+    "filename": "002_select_owned_note.sql",
+    "params": {
+      "id": "UUID",
+      "owner_id": "str"
+    },
+    "rows": {
+      "id": "UUID"
+    },
+    "table": "notes",
+    "operation": "SELECT",
+    "sha256": "1ab6031b97df5efe122328a72560ca77c706bbf334a822e1b33cd767a0e375a2",
+    "source": "backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql",
+    "api": "update_note",
+    "generated": "backend/src/app/apis/notes/update_note/generated/queries.py"
+  }
+]

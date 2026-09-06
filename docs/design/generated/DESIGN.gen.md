@@ -42,6 +42,20 @@ CREATE INDEX IF NOT EXISTS notes_owner_idx ON notes(owner_id)
 CREATE INDEX IF NOT EXISTS notes_share_idx ON notes(share_hash)
 ```
 
+## API別SQL / CRUD
+
+| API | SQL source | Table | Operation | Wrapper |
+|---|---|---|---|---|
+| create_note | `backend/src/app/apis/notes/create_note/sql/001_insert_note.sql` | notes | INSERT | `insert_note` |
+| create_share | `backend/src/app/apis/notes/create_share/sql/001_update_share.sql` | notes | UPDATE | `update_share` |
+| delete_note | `backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql` | notes | DELETE | `delete_note` |
+| get_note | `backend/src/app/apis/notes/get_note/sql/001_select_note.sql` | notes | SELECT | `select_note` |
+| get_shared | `backend/src/app/apis/notes/get_shared/sql/001_select_shared_note.sql` | notes | SELECT | `select_shared_note` |
+| list_notes | `backend/src/app/apis/notes/list_notes/sql/001_select_notes.sql` | notes | SELECT | `select_notes` |
+| revoke_share | `backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql` | notes | UPDATE | `revoke_share` |
+| update_note | `backend/src/app/apis/notes/update_note/sql/001_update_note.sql` | notes | UPDATE | `update_note` |
+| update_note | `backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql` | notes | SELECT | `select_owned_note` |
+
 ## 画面と関数
 
 - `frontend/src/App.tsx`: App, action, create, save, Brand, LoginView, submit

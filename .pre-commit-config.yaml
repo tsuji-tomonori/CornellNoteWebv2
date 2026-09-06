@@ -24,3 +24,14 @@ repos:
         entry: python tools/check_secrets.py
         language: system
         types: [text]
+      - id: sqlfluff
+        name: SQLFluff PostgreSQL
+        entry: uv run sqlfluff lint
+        language: system
+        types: [sql]
+      - id: sql-codegen
+        name: SQL query generation drift
+        entry: uv run python tools/generate_queries.py --check
+        language: system
+        pass_filenames: false
+        files: ^(backend/.*\.(py|sql)|tools/generate_queries\.py)$

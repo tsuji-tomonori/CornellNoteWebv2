@@ -11,19 +11,45 @@
     "functions": [
       {
         "calls": [
-          "repo.create"
+          "uuid4",
+          "datetime.now",
+          "queries.InsertNoteParams",
+          "Note",
+          "repo.transaction",
+          "queries.insert_note",
+          "json.dumps",
+          "data.model_dump",
+          "t.model_dump"
         ],
-        "line": 5,
+        "line": 11,
         "name": "execute",
         "parameters": [
           "data: NoteInput",
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "Note"
       }
     ],
     "path": "backend/src/app/apis/notes/create_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "session.execute",
+          "params.model_dump"
+        ],
+        "line": 25,
+        "name": "insert_note",
+        "parameters": [
+          "session: QuerySession",
+          "params: InsertNoteParams"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/create_note/generated/queries.py"
   },
   {
     "functions": [
@@ -52,19 +78,48 @@
     "functions": [
       {
         "calls": [
-          "repo.share"
+          "secrets.token_urlsafe",
+          "queries.UpdateShareParams",
+          "Share",
+          "datetime.now",
+          "timedelta",
+          "repo.transaction",
+          "queries.update_share",
+          "HTTPException",
+          "hashlib.sha256(token.encode()).hexdigest",
+          "hashlib.sha256",
+          "token.encode"
         ],
-        "line": 7,
+        "line": 13,
         "name": "execute",
         "parameters": [
           "note_id: UUID",
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "Share"
       }
     ],
     "path": "backend/src/app/apis/notes/create_share/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "UpdateShareRow.model_validate",
+          "session.fetch_all",
+          "params.model_dump"
+        ],
+        "line": 25,
+        "name": "update_share",
+        "parameters": [
+          "session: QuerySession",
+          "params: UpdateShareParams"
+        ],
+        "return": "list[UpdateShareRow]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/create_share/generated/queries.py"
   },
   {
     "functions": [
@@ -93,19 +148,39 @@
     "functions": [
       {
         "calls": [
-          "repo.delete"
+          "repo.transaction",
+          "queries.delete_note",
+          "queries.DeleteNoteParams"
         ],
-        "line": 6,
+        "line": 8,
         "name": "execute",
         "parameters": [
           "note_id: UUID",
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "None"
       }
     ],
     "path": "backend/src/app/apis/notes/delete_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "session.execute",
+          "params.model_dump"
+        ],
+        "line": 17,
+        "name": "delete_note",
+        "parameters": [
+          "session: QuerySession",
+          "params: DeleteNoteParams"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/delete_note/generated/queries.py"
   },
   {
     "functions": [
@@ -134,19 +209,42 @@
     "functions": [
       {
         "calls": [
-          "repo.get"
+          "decode",
+          "repo.transaction",
+          "queries.select_note",
+          "HTTPException",
+          "queries.SelectNoteParams"
         ],
-        "line": 7,
+        "line": 11,
         "name": "execute",
         "parameters": [
           "note_id: UUID",
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "Note"
       }
     ],
     "path": "backend/src/app/apis/notes/get_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "SelectNoteRow.model_validate",
+          "session.fetch_all",
+          "params.model_dump"
+        ],
+        "line": 31,
+        "name": "select_note",
+        "parameters": [
+          "session: QuerySession",
+          "params: SelectNoteParams"
+        ],
+        "return": "list[SelectNoteRow]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/get_note/generated/queries.py"
   },
   {
     "functions": [
@@ -175,18 +273,45 @@
     "functions": [
       {
         "calls": [
-          "repo.shared"
+          "queries.SelectSharedNoteParams",
+          "decode",
+          "repo.transaction",
+          "queries.select_shared_note",
+          "HTTPException",
+          "hashlib.sha256(token.encode()).hexdigest",
+          "datetime.now",
+          "hashlib.sha256",
+          "token.encode"
         ],
-        "line": 5,
+        "line": 12,
         "name": "execute",
         "parameters": [
           "token: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "Note"
       }
     ],
     "path": "backend/src/app/apis/notes/get_shared/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "SelectSharedNoteRow.model_validate",
+          "session.fetch_all",
+          "params.model_dump"
+        ],
+        "line": 31,
+        "name": "select_shared_note",
+        "parameters": [
+          "session: QuerySession",
+          "params: SelectSharedNoteParams"
+        ],
+        "return": "list[SelectSharedNoteRow]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/get_shared/generated/queries.py"
   },
   {
     "functions": [
@@ -214,18 +339,40 @@
     "functions": [
       {
         "calls": [
-          "repo.list_notes"
+          "repo.transaction",
+          "queries.select_notes",
+          "decode",
+          "queries.SelectNotesParams"
         ],
-        "line": 5,
+        "line": 8,
         "name": "execute",
         "parameters": [
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "list[Note]"
       }
     ],
     "path": "backend/src/app/apis/notes/list_notes/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "SelectNotesRow.model_validate",
+          "session.fetch_all",
+          "params.model_dump"
+        ],
+        "line": 30,
+        "name": "select_notes",
+        "parameters": [
+          "session: QuerySession",
+          "params: SelectNotesParams"
+        ],
+        "return": "list[SelectNotesRow]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/list_notes/generated/queries.py"
   },
   {
     "functions": [
@@ -253,19 +400,39 @@
     "functions": [
       {
         "calls": [
-          "repo.revoke"
+          "repo.transaction",
+          "queries.revoke_share",
+          "queries.RevokeShareParams"
         ],
-        "line": 6,
+        "line": 8,
         "name": "execute",
         "parameters": [
           "note_id: UUID",
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "None"
       }
     ],
     "path": "backend/src/app/apis/notes/revoke_share/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "session.execute",
+          "params.model_dump"
+        ],
+        "line": 17,
+        "name": "revoke_share",
+        "parameters": [
+          "session: QuerySession",
+          "params: RevokeShareParams"
+        ],
+        "return": "None"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/revoke_share/generated/queries.py"
   },
   {
     "functions": [
@@ -294,20 +461,65 @@
     "functions": [
       {
         "calls": [
-          "repo.update"
+          "queries.UpdateNoteParams",
+          "decode",
+          "json.dumps",
+          "datetime.now",
+          "repo.transaction",
+          "queries.update_note",
+          "HTTPException",
+          "HTTPException",
+          "repo.transaction",
+          "queries.select_owned_note",
+          "HTTPException",
+          "t.model_dump",
+          "queries.SelectOwnedNoteParams"
         ],
-        "line": 7,
+        "line": 13,
         "name": "execute",
         "parameters": [
           "note_id: UUID",
           "data: NoteUpdate",
           "owner: str",
-          "repo: NoteStore"
+          "repo: Database"
         ],
         "return": "Note"
       }
     ],
     "path": "backend/src/app/apis/notes/update_note/functions.py"
+  },
+  {
+    "functions": [
+      {
+        "calls": [
+          "UpdateNoteRow.model_validate",
+          "session.fetch_all",
+          "params.model_dump"
+        ],
+        "line": 39,
+        "name": "update_note",
+        "parameters": [
+          "session: QuerySession",
+          "params: UpdateNoteParams"
+        ],
+        "return": "list[UpdateNoteRow]"
+      },
+      {
+        "calls": [
+          "SelectOwnedNoteRow.model_validate",
+          "session.fetch_all",
+          "params.model_dump"
+        ],
+        "line": 58,
+        "name": "select_owned_note",
+        "parameters": [
+          "session: QuerySession",
+          "params: SelectOwnedNoteParams"
+        ],
+        "return": "list[SelectOwnedNoteRow]"
+      }
+    ],
+    "path": "backend/src/app/apis/notes/update_note/generated/queries.py"
   },
   {
     "functions": [
@@ -451,10 +663,83 @@
           "auth_token",
           "certifi.where"
         ],
-        "line": 10,
+        "line": 17,
         "name": "connect",
         "parameters": [],
         "return": "psycopg.Connection[dict[str, Any]]"
+      },
+      {
+        "calls": [
+          "PostgresDatabase"
+        ],
+        "line": 60,
+        "name": "database",
+        "parameters": [],
+        "return": "Database"
+      },
+      {
+        "calls": [
+          "sql.SQL",
+          "path.read_text"
+        ],
+        "line": 65,
+        "name": "load_query",
+        "parameters": [
+          "path: Path"
+        ],
+        "return": "sql.SQL"
+      },
+      {
+        "calls": [],
+        "line": 40,
+        "name": "__init__",
+        "parameters": [
+          "self",
+          "conn: psycopg.Connection[dict[str, Any]]"
+        ],
+        "return": "None"
+      },
+      {
+        "calls": [
+          "list",
+          "self.conn.execute(load_query(sql_path), params).fetchall",
+          "self.conn.execute",
+          "load_query"
+        ],
+        "line": 43,
+        "name": "fetch_all",
+        "parameters": [
+          "self",
+          "sql_path: Path",
+          "params: Mapping[str, object]"
+        ],
+        "return": "list[Mapping[str, object]]"
+      },
+      {
+        "calls": [
+          "self.conn.execute",
+          "load_query"
+        ],
+        "line": 46,
+        "name": "execute",
+        "parameters": [
+          "self",
+          "sql_path: Path",
+          "params: Mapping[str, object]"
+        ],
+        "return": "None"
+      },
+      {
+        "calls": [
+          "connect",
+          "PostgresSession"
+        ],
+        "line": 52,
+        "name": "transaction",
+        "parameters": [
+          "self"
+        ],
+        "return": "Generator[QuerySession, None, None]"
       }
     ],
     "path": "backend/src/app/db.py"
@@ -616,268 +901,56 @@
   {
     "functions": [
       {
-        "calls": [],
+        "calls": [
+          "row.model_dump",
+          "value.pop",
+          "json.loads",
+          "Note.model_validate"
+        ],
         "line": 8,
-        "name": "list_notes",
+        "name": "decode",
         "parameters": [
-          "self",
-          "owner: str"
-        ],
-        "return": "list[Note]"
-      },
-      {
-        "calls": [],
-        "line": 9,
-        "name": "create",
-        "parameters": [
-          "self",
-          "owner: str",
-          "data: NoteInput"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [],
-        "line": 10,
-        "name": "get",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [],
-        "line": 11,
-        "name": "update",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID",
-          "data: NoteUpdate"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [],
-        "line": 12,
-        "name": "delete",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
-        ],
-        "return": "None"
-      },
-      {
-        "calls": [],
-        "line": 13,
-        "name": "share",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
-        ],
-        "return": "Share"
-      },
-      {
-        "calls": [],
-        "line": 14,
-        "name": "revoke",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
-        ],
-        "return": "None"
-      },
-      {
-        "calls": [],
-        "line": 15,
-        "name": "shared",
-        "parameters": [
-          "self",
-          "token: str"
+          "row: BaseModel"
         ],
         "return": "Note"
       }
     ],
-    "path": "backend/src/app/port.py"
+    "path": "backend/src/app/note_mapping.py"
   },
   {
     "functions": [
       {
-        "calls": [
-          "dict",
-          "value.pop",
-          "json.loads",
-          "Note.model_validate",
-          "str"
-        ],
-        "line": 15,
-        "name": "decode",
-        "parameters": [
-          "row: dict[str, object]"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [
-          "PostgresStore"
-        ],
-        "line": 124,
-        "name": "store",
-        "parameters": [],
-        "return": "NoteStore"
-      },
-      {
-        "calls": [
-          "connect",
-          "decode",
-          "conn.execute('SELECT id, title, group_name, cue, content, summary, tasks, version, updated_at FROM notes WHERE owner_id=%s ORDER BY updated_at DESC', (owner,)).fetchall",
-          "conn.execute"
-        ],
-        "line": 23,
-        "name": "list_notes",
+        "calls": [],
+        "line": 12,
+        "name": "fetch_all",
         "parameters": [
           "self",
-          "owner: str"
+          "sql_path: Path",
+          "params: Mapping[str, object]"
         ],
-        "return": "list[Note]"
+        "return": "list[Mapping[str, object]]"
       },
       {
-        "calls": [
-          "uuid4",
-          "datetime.now",
-          "Note",
-          "connect",
-          "conn.execute",
-          "data.model_dump",
-          "json.dumps",
-          "t.model_dump"
-        ],
-        "line": 33,
-        "name": "create",
+        "calls": [],
+        "line": 16,
+        "name": "execute",
         "parameters": [
           "self",
-          "owner: str",
-          "data: NoteInput"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [
-          "connect",
-          "conn.execute('SELECT id, title, group_name, cue, content, summary, tasks, version, updated_at FROM notes WHERE id=%s AND owner_id=%s', (note_id, owner)).fetchone",
-          "decode",
-          "HTTPException",
-          "conn.execute"
-        ],
-        "line": 53,
-        "name": "get",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [
-          "decode",
-          "connect",
-          "conn.execute('UPDATE notes SET title=%s, group_name=%s, cue=%s, content=%s, summary=%s, tasks=%s, version=version+1, updated_at=%s WHERE id=%s AND owner_id=%s AND version=%s RETURNING id, title, group_name, cue, content, summary, tasks, version, updated_at', (data.title, data.group, data.cue, data.content, data.summary, json.dumps([t.model_dump(mode='json') for t in data.tasks]), datetime.now(UTC), note_id, owner, data.version)).fetchone",
-          "self.get",
-          "HTTPException",
-          "HTTPException",
-          "conn.execute",
-          "json.dumps",
-          "datetime.now",
-          "t.model_dump"
-        ],
-        "line": 63,
-        "name": "update",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID",
-          "data: NoteUpdate"
-        ],
-        "return": "Note"
-      },
-      {
-        "calls": [
-          "connect",
-          "conn.execute"
-        ],
-        "line": 90,
-        "name": "delete",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
+          "sql_path: Path",
+          "params: Mapping[str, object]"
         ],
         "return": "None"
       },
       {
-        "calls": [
-          "secrets.token_urlsafe",
-          "Share",
-          "datetime.now",
-          "timedelta",
-          "connect",
-          "conn.execute('UPDATE notes SET share_hash=%s, share_expires=%s WHERE id=%s AND owner_id=%s RETURNING id', (hashlib.sha256(token.encode()).hexdigest(), expires, note_id, owner)).fetchone",
-          "HTTPException",
-          "conn.execute",
-          "hashlib.sha256(token.encode()).hexdigest",
-          "hashlib.sha256",
-          "token.encode"
-        ],
-        "line": 94,
-        "name": "share",
+        "calls": [],
+        "line": 20,
+        "name": "transaction",
         "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
+          "self"
         ],
-        "return": "Share"
-      },
-      {
-        "calls": [
-          "connect",
-          "conn.execute"
-        ],
-        "line": 106,
-        "name": "revoke",
-        "parameters": [
-          "self",
-          "owner: str",
-          "note_id: UUID"
-        ],
-        "return": "None"
-      },
-      {
-        "calls": [
-          "connect",
-          "conn.execute('SELECT id, title, group_name, cue, content, summary, tasks, version, updated_at FROM notes WHERE share_hash=%s AND share_expires>%s', (hashlib.sha256(token.encode()).hexdigest(), datetime.now(UTC))).fetchone",
-          "decode",
-          "HTTPException",
-          "conn.execute",
-          "hashlib.sha256(token.encode()).hexdigest",
-          "datetime.now",
-          "hashlib.sha256",
-          "token.encode"
-        ],
-        "line": 113,
-        "name": "shared",
-        "parameters": [
-          "self",
-          "token: str"
-        ],
-        "return": "Note"
+        "return": "AbstractContextManager[QuerySession]"
       }
     ],
-    "path": "backend/src/app/repository.py"
+    "path": "backend/src/app/port.py"
   }
 ]

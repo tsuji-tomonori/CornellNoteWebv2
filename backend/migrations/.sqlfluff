@@ -1,0 +1,3 @@
+# Preserve the already applied SQL files and their migration checksums.
+[sqlfluff:indentation]
+tab_space_size = 1

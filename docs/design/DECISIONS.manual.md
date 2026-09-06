@@ -13,3 +13,6 @@ DSQLは1transactionにつき1DDL、DDLとDML混在不可のため、Alembic標�
 DB実行ロールはDMLだけ。migrationロールを分離。所有者subによる絞り込みとversionによる楽観ロックを行う。共有トークンはSHA256のみDBへ保存。
 
 設計生成はOpenAPI・Python AST・SQL AST・TypeScript AST・CDK synthを入力とする。生成対象と未対応範囲はmanifestに明記し、コメントで実装説明を二重管理しない。
+
+
+API SQLはoperation配下のSQLファイル→生成Pydanticモデル・queries.py→functions.pyの順で利用する。Lazunexの構造を採用し、MySQL/SQLAlchemy依存は移植せず、PostgreSQL/psycopgのネイティブpyformatをそのままバインドする。SQLFluffはPostgreSQL dialectとplaceholder templater（pyformat）を利用する。https://docs.sqlfluff.com/en/stable/configuration/templating/placeholder.html

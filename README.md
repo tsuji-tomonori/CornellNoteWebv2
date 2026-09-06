@@ -26,6 +26,7 @@ uv run pre-commit install
 python tools/quintflow.py setup
 uv run python tools/package_lambda.py
 uv run python -m infra.app
+uv run python tools/generate_queries.py
 uv run python tools/design.py
 uv run python tools/design.py --check
 ```
@@ -48,7 +49,7 @@ python tools/report.py
 
 作業環境でもChromiumとローカルAPI・PostgreSQL互換PGliteで10ケースが成功。DockerがないためComposeそのものの検証はActionsで実施。通常のローカル手順は上記Composeを使用してください。
 
-Pagesは `github-pages` 環境の保護ルールがdevからの公開を拒否しています。Settings → Environments → github-pages → Deployment branches and tagsで `dev` を許可した後、失敗したPagesジョブを再実行してください。公開ワークフローとレポート生成は実装済みです。保護ルールを迂回する環境は作成していません。
+Pagesは環境保護ルールのdev許可後に再公開が成功。https://tsuji-tomonori.github.io/CornellNoteWebv2/ で公開HTMLと44画像の参照を確認済み。
 
 ## AWS構成
 
@@ -78,3 +79,22 @@ Dev Standardのdefaultとcommit-styleを導入済み。要件正本は `spec/req
 ## ライセンス
 
 Lucide IconsはISCライセンス。配布時の通知は `THIRD_PARTY_NOTICES.md` を参照してください。
+
+## SQLの編集と自動生成
+
+参照元Lazunexとbootstrap-fastapi-designに従い、各APIの `sql/NNN_query_name.sql` を正本とします。先頭行は日本語の処理概要、1ファイル1文、SELECT列は列挙します。PostgreSQL/psycopgの名前付き `%(column_name)s` を使用し、値は常に別引数でバインドします。文字列置換やSQLへの値の埋め込みは行いません。
+
+`uv run python tools/generate_queries.py` はSQL ASTとmigration DDLから引数・行のPydanticモデルと `generated/queries.py` を生成します。生成ラッパーは同じAPIのSQLファイルを読み込むDB portを呼び、`functions.py` が呼出順序・業務判定・transactionを持ちます。routerはfunctionsだけを呼びます。共通repositoryへの業務SQL集約は廃止しました。
+
+変更後は以下を実行します。生成Pythonと `queries.gen.json` は直接編集しません。
+
+```sh
+uv run sqlfluff lint backend/src/app/apis backend/migrations
+uv run python tools/generate_queries.py
+uv run python tools/design.py
+uv run python tools/generate_queries.py --check
+```
+
+SQLFluffでは既存のPostgreSQLカラム `content/summary/tasks/version` を許可し、適用済みmigrationの1スペース字下げをそのまま検査します。
+
+SQLFluffのJSON診断、生成差分・境界検査、型検査、既存API結合テストをCIの品質レポートに掲載します。未対応のJOIN・副問合せ・計算結果列は型を推測して通さず、ジェネレーターが明示エラーにします。適用済みmigrationはchecksumを保持するため整形し直さず、新しい変更は追加ファイルで扱います。

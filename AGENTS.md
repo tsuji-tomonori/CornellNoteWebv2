@@ -17,3 +17,5 @@ dev-standardは、このrepositoryのbranch、merge方式、CI/CD workflow、req
 - GitメッセージとPRコメントは日本語Gitmoji Conventional Commit形式。
 - Pythonはuv、フロントはTypeScript。生成設計は直接編集しない。
 - 前回の作業が中断しても復元できるように、検証状況を明記して作業ブランチへ適宜pushする。
+
+- SQLは各APIの`sql/NNN_name.sql`に置き、`generated/queries.py`を自動生成する。functionsから生成ラッパーを呼び、SQLFluffと生成差分・境界検査を通す。

@@ -2,7 +2,7 @@
 # CornellNoteWebv2 要件一覧
 
 - スキーマ版: 1
-- カタログ版: 1
+- カタログ版: 2
 - Product(JSON): <code>"CornellNoteWebv2"</code>
 - 更新日(JSON): <code>"2026-09-06"</code>
 - 正本: `spec/requirements/requirements.qnt`
@@ -30,6 +30,7 @@
 | <code>"REQ-TEST"</code> | 1 | 有効 | 制約 | CornellNoteWebv2は、pytest・TS単体・静的解析・CDK nag・アサーション・snapshotを検査するを**維持する**（<code>"maintain"</code>） | automated-tests-and-review |
 | <code>"REQ-REPORT"</code> | 1 | 有効 | 制約 | CornellNoteWebv2は、全Given When Thenと右側スクリーンショットおよび品質・coverageをPagesで初期展開表示するを**維持する**（<code>"maintain"</code>） | automated-tests-and-review |
 | <code>"REQ-DEPLOY"</code> | 1 | 有効 | 制約 | CornellNoteWebv2は、同一treeのdev検査成功を確認後にOIDC認証してCDKとフロントを配置するを**維持する**（<code>"maintain"</code>） | automated-tests-and-review |
+| <code>"REQ-SQL"</code> | 1 | 有効 | 制約 | CornellNoteWebv2は、各APIのsqlファイルからgenerated/queries.pyを生成してfunctionsで呼ぶを**維持する**（<code>"maintain"</code>） | automated-tests |
 
 ## REQ-AUTH: 本人のノートにログインする
 
@@ -89,7 +90,7 @@ CornellNoteWebv2は、所有者以外にはノートを返さず変更しない�
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
-- 実装: <code>["backend/src/app/repository.py"]</code>
+- 実装: <code>["backend/src/app/apis/notes/get_note/functions.py"]</code>
 - テスト: <code>["backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
@@ -185,7 +186,7 @@ CornellNoteWebv2は、再読込後も三欄が保持されるを**維持する**
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
-- 実装: <code>["frontend/src/Editor.tsx","backend/src/app/repository.py"]</code>
+- 実装: <code>["frontend/src/Editor.tsx","backend/src/app/apis/notes/update_note/functions.py"]</code>
 - テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
@@ -249,7 +250,7 @@ CornellNoteWebv2は、ログイン不要で閲覧のみできるを**維持す�
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
-- 実装: <code>["backend/src/app/repository.py","frontend/src/App.tsx"]</code>
+- 実装: <code>["backend/src/app/apis/notes/create_share/functions.py","frontend/src/App.tsx"]</code>
 - テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
@@ -281,7 +282,7 @@ CornellNoteWebv2は、既存リンクでの閲覧を拒否するを**維持す�
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
-- 実装: <code>["backend/src/app/repository.py"]</code>
+- 実装: <code>["backend/src/app/apis/notes/revoke_share/functions.py"]</code>
 - テスト: <code>["frontend/e2e/notes.spec.ts","backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
@@ -313,7 +314,7 @@ CornellNoteWebv2は、期限切れを返すを**維持する**。
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
-- 実装: <code>["backend/src/app/repository.py"]</code>
+- 実装: <code>["backend/src/app/apis/notes/get_shared/functions.py"]</code>
 - テスト: <code>["backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
@@ -345,7 +346,7 @@ CornellNoteWebv2は、409を返し最新保存を上書きしないを**維持�
 検証(JSON Object): <code>{"evidence":"GitHub Actions quality / E2E / Pages","method":"automated-tests-and-review"}</code>
 トレース(JSON List、順序保持):
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
-- 実装: <code>["backend/src/app/repository.py"]</code>
+- 実装: <code>["backend/src/app/apis/notes/update_note/functions.py"]</code>
 - テスト: <code>["backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
@@ -667,6 +668,38 @@ CornellNoteWebv2は、同一treeのdev検査成功を確認後にOIDC認証し�
 - 設計: <code>["docs/design/generated/DESIGN.gen.md"]</code>
 - 実装: <code>[".github/workflows/deploy.yml"]</code>
 - テスト: <code>[".github/workflows/deploy.yml"]</code>
+- 参照資料: <code>["AGENTS.md"]</code>
+廃止理由: <code>""</code>
+後継要件: <code>""</code>
+
+## REQ-SQL: API単位のSQLから型付きクエリを生成し静的解析する
+
+要件ID(JSON): <code>"REQ-SQL"</code>
+タイトル(JSON): <code>"API単位のSQLから型付きクエリを生成し静的解析する"</code>
+主体(JSON): <code>"CornellNoteWebv2"</code>
+対象(JSON): <code>"各APIのsqlファイルからgenerated/queries.pyを生成してfunctionsで呼ぶ"</code>
+CornellNoteWebv2は、各APIのsqlファイルからgenerated/queries.pyを生成してfunctionsで呼ぶを**維持する**。
+行為enum: <code>"maintain"</code>
+
+根拠: SQLとPythonの二重管理を避け、参照元の開発ルールに整合する
+根拠(JSON): <code>"SQLとPythonの二重管理を避け、参照元の開発ルールに整合する"</code>
+
+項目版: 1 / 状態: `active` / 種別: `constraint`
+変更識別子: <code>"sql-refactor"</code>
+分類: scope=<code>"project"</code> / category=<code>"nonfunctional"</code>
+
+受入条件:
+- <code>"AC-SQL"</code> 前提: APIのSQLまたはDDLが変更される。条件: コード生成と品質検査を実行する。期待結果: 型付き引数・行モデル・SQLファイル読込ラッパーが生成され、SQLFluffと差分・境界検査が不備を検出する。
+  - criterion(JSON Object): <code>{"given":"APIのSQLまたはDDLが変更される","id":"AC-SQL","then":"型付き引数・行モデル・SQLファイル読込ラッパーが生成され、SQLFluffと差分・境界検査が不備を検出する","when":"コード生成と品質検査を実行する"}</code>
+
+要求源(JSON List): <code>["user:2026-09-06-sql-layout"]</code>
+検証方法: automated-tests
+検証証跡: SQLFluff、tests/test_queries.py、DB結合テストとE2E
+検証(JSON Object): <code>{"evidence":"SQLFluff、tests/test_queries.py、DB結合テストとE2E","method":"automated-tests"}</code>
+トレース(JSON List、順序保持):
+- 設計: <code>["docs/design/generated/queries.gen.json"]</code>
+- 実装: <code>["backend/src/app/apis/notes/update_note/functions.py","tools/generate_queries.py","backend/src/app/db.py"]</code>
+- テスト: <code>["tests/test_queries.py","backend/tests/test_integration.py"]</code>
 - 参照資料: <code>["AGENTS.md"]</code>
 廃止理由: <code>""</code>
 後継要件: <code>""</code>

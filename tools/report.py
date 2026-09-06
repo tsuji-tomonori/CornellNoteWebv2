@@ -61,8 +61,33 @@ checks = "".join(
     f"<article><h2>{esc(x['name'])} <small>{'PASS' if x['exit_code'] == 0 else 'FAIL'}</small></h2><pre>{esc(x['output'])}</pre></article>"
     for x in quality
 )
+sql_diagnostics = reports / "sqlfluff.json"
+if sql_diagnostics.exists():
+    sql_sections = []
+    for entry in json.loads(sql_diagnostics.read_text()):
+        source = (root / entry["filepath"]).resolve()
+        if not source.is_relative_to(root):
+            raise ValueError("SQL diagnostic path escaped repository")
+        lines = "\n".join(
+            f"{index:3}  {esc(line)}"
+            for index, line in enumerate(source.read_text().splitlines(), 1)
+        )
+        findings = (
+            esc(json.dumps(entry["violations"], ensure_ascii=False, indent=2))
+            if entry["violations"]
+            else "指摘なし"
+        )
+        sql_sections.append(
+            f"<article><h2>{esc(entry['filepath'])}</h2><p>{findings}</p><pre><code>{lines}</code></pre></article>"
+        )
+    (reports / "sql.html").write_text(
+        '<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SQLFluff / SQLソース</title><style>body{font:16px/1.8 system-ui;margin:32px;background:#f0f6f4;color:#12211d}article{background:white;padding:24px;margin:20px 0;border:1px solid #dce7e2;border-radius:12px}h2{font-size:16px;overflow-wrap:anywhere}pre{overflow:auto;font-size:13px}</style><a href="index.html">品質レポートに戻る</a><h1>SQLFluffとSQLソース</h1>'
+        + "".join(sql_sections)
+        + "</html>"
+    )
 links = []
 for filename, label in [
+    ("sql.html", "SQLFluff診断・SQLソース"),
     ("python-coverage/index.html", "Python コード行カバレッジ"),
     ("frontend-coverage/index.html", "TypeScript コード行カバレッジ"),
     ("playwright/index.html", "Playwright 標準レポート"),
