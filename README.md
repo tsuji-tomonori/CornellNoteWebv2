@@ -45,7 +45,7 @@ python tools/report.py
 
 ## 検証状況
 
-2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Python 12テスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像と終了時12画像、計44画像を生成。
+2026-09-06: GitHub ActionsでCompose（PostgreSQL16・API・フロント）の起動、静的解析、Pythonテスト、Vitest、PC/モバイルのPlaywright 10ケースが成功。日本語Given/When/Thenの32画像と終了時12画像、計44画像を生成。
 
 作業環境でもChromiumとローカルAPI・PostgreSQL互換PGliteで10ケースが成功。DockerがないためComposeそのものの検証はActionsで実施。通常のローカル手順は上記Composeを使用してください。
 
@@ -70,7 +70,17 @@ VPC、NAT、WAF、独自KMS鍵は追加していません。固定費や利用�
 
 ## 正本と自動生成
 
-Dev Standardのdefaultとcommit-styleを導入済み。要件正本は `spec/requirements/requirements.qnt`、JSON・Markdownは `python tools/quintflow.py generate` で生成します。実装由来の設計は `docs/design/generated/`。APIは実際のOpenAPIとroute ASTを一対一照合、DBはSQL AST、画面はTypeScript AST、AWSはCDK synthを入力にしています。
+Dev Standardのdefaultとcommit-styleを導入済み。要件正本は `spec/requirements/requirements.qnt`。`uv run python tools/design.py` が要件・実装由来の設計を [docs/generated](docs/generated/README.gen.md) のMarkdownとして生成します。Quintの型・不変条件・trace検証とJSON直列化を、固定済みDev Standardの処理でメモリ上に実行します。生成JSONは保存しません。標準の配布ファイルや検証を改変せず、プロジェクト側のadapter `tools/requirements_view.py` が出力形式を担当します。
+
+- API: 10操作それぞれにIF・詳細設計・シーケンス・メッセージ・SQL・テスト観点の6種類。OpenAPIと実際の有効routeを一対一照合し、入出力のネスト・型・必須・制約、Python ASTの分岐とエラー、各SQLと生成ラッパーを記載します。
+- DB: 各テーブルの日本語説明・全カラム・型・NULL・キー・制約・index、全体ER図、CRUD、migrationとchecksum。管理台帳schema_migrationsも実装から抽出します。
+- 要件: 全体一覧・要件ごとの仕様と日本語Given/When/Then・設計/実装/テストへの対応表。
+- 画面/テスト/AWS: TypeScriptの型・関数・JSX属性、E2Eソースの日本語シナリオ、pytestのassert、CDK synthのリソース・IAM・抑制理由・outputs。
+- 生成管理: 入力ファイルのSHA-256と文書一覧。`--check`は未更新・余剰文書を検知し、書込みを行いません。未対応の構文はエラーにします。静的に抽出したテスト観点は、実行済みの証拠と区別します。
+
+CIは文書を再生成し、一致検査・品質・E2Eが成功した後、`docs/generated/`の差分だけをdevへ通常pushします。同時更新時は強制pushせず失敗します。GITHUB_TOKENによる文書commitはCIを再帰起動せず、同じ実行内でPagesとMarkdown artifactを公開します。mainのCDは成功したdev実行の`verified-revision` artifactにある元commit・反映後commit・treeと照合します。artifactは90日保持するため、古い結果が失効した場合はdev検証を再実行してください。
+
+出力形式の変更は利用者のMarkdown指定を優先します。依存管理・CDK設定・テストsnapshot・標準ツールの導入receiptなど、ドキュメント以外のJSONは各ツールに必要なため保持します。
 
 `docs/design/DESIGN_GUIDE.manual.md` は実装前に定めた見た目の判断、`DECISIONS.manual.md` は技術選択の理由です。ソースコメントを第二の設計書にはせず、DBの日本語コメントと外部型定義の限定的な補足のみを置きます。
 
@@ -86,7 +96,7 @@ Lucide IconsはISCライセンス。配布時の通知は `THIRD_PARTY_NOTICES.m
 
 `uv run python tools/generate_queries.py` はSQL ASTとmigration DDLから引数・行のPydanticモデルと `generated/queries.py` を生成します。生成ラッパーは同じAPIのSQLファイルを読み込むDB portを呼び、`functions.py` が呼出順序・業務判定・transactionを持ちます。routerはfunctionsだけを呼びます。共通repositoryへの業務SQL集約は廃止しました。
 
-変更後は以下を実行します。生成Pythonと `queries.gen.json` は直接編集しません。
+変更後は以下を実行します。生成Pythonと `docs/generated/queries.gen.md` は直接編集しません。
 
 ```sh
 uv run sqlfluff lint backend/src/app/apis backend/migrations

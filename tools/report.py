@@ -85,8 +85,21 @@ if sql_diagnostics.exists():
         + "".join(sql_sections)
         + "</html>"
     )
+documentation = root / "docs/generated"
+if documentation.exists():
+    shutil.copytree(documentation, reports / "docs", dirs_exist_ok=True)
+    doclinks = "".join(
+        f'<li><a href="https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/{p.relative_to(documentation).as_posix()}">{esc(p.relative_to(documentation).as_posix())}</a> · <a href="docs/{p.relative_to(documentation).as_posix()}">Markdown</a></li>'
+        for p in sorted(documentation.rglob("*.md"))
+    )
+    (reports / "docs.html").write_text(
+        '<!doctype html><html lang="ja"><meta charset="utf-8"><title>自動生成仕様書</title><style>body{font:16px/1.8 system-ui;margin:32px;background:#f0f6f4}a{color:#236b56}</style><a href="index.html">品質レポート</a><h1>実装・要件から自動生成したMarkdown</h1><p>文書名はGitHub表示、MarkdownはこのCI実行で生成したファイルです。</p><ul>'
+        + doclinks
+        + "</ul></html>"
+    )
 links = []
 for filename, label in [
+    ("docs.html", "自動生成Markdown仕様書"),
     ("sql.html", "SQLFluff診断・SQLソース"),
     ("python-coverage/index.html", "Python コード行カバレッジ"),
     ("frontend-coverage/index.html", "TypeScript コード行カバレッジ"),
@@ -94,7 +107,7 @@ for filename, label in [
 ]:
     if (reports / filename).exists():
         links.append(f'<a href="{filename}">{label}</a>')
-commit = os.getenv("GITHUB_SHA", "local")
+commit = os.getenv("VERIFIED_SHA", os.getenv("GITHUB_SHA", "local"))
 body = f"""<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cornell 品質レポート</title><style>body{{font:15px/1.8 system-ui,sans-serif;margin:0;background:#f0f6f4;color:#12211d}}header,main{{max-width:1440px;margin:auto;padding:32px}}h1{{font-size:32px}}h2{{font-size:19px}}small{{font-size:12px;color:#4e6862}}nav{{display:flex;gap:20px;flex-wrap:wrap}}a{{color:#236b56}}article{{background:white;border:1px solid #dce7e2;border-radius:12px;padding:24px;margin:20px 0}}.step{{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 2fr);border-top:1px solid #dce7e2;padding:22px 0;gap:14px}}img{{width:100%;border:1px solid #dce7e2}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:none}}.failed{{color:#963a29}}@media(max-width:700px){{header,main{{padding:16px}}.step{{grid-template-columns:1fr}}}}</style><header><p>CORNELL / QUALITY REPORT</p><h1>テストで確かめる、ノートの使い心地。</h1><p>対象commit: <code>{esc(commit)}</code> · スクリーンショット {count}枚</p><nav><a href="#e2e">日本語Given / When / Then</a><a href="#quality">静的解析・単体テスト</a>{"".join(links)}</nav><p>すべてのケースを展開表示。スクリーンショットは各段階の実際の操作結果です。カバレッジは単体・結合テストの実測値です。</p></header><main><section id="e2e">{"".join(cards)}</section><section id="quality"><h1>品質検査の結果</h1>{checks}</section></main></html>"""
 (reports / "index.html").write_text(body)
 (reports / ".nojekyll").touch()

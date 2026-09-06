@@ -35,3 +35,9 @@ repos:
         language: system
         pass_filenames: false
         files: ^(backend/.*\.(py|sql)|tools/generate_queries\.py)$
+      - id: markdown-design
+        name: Canonical requirements and Markdown drift
+        entry: uv run python tools/design.py --check
+        language: system
+        pass_filenames: false
+        files: ^(docs/generated/|spec/requirements/requirements.qnt|tools/(design|requirements_view|frontend_design)\.|backend/.*\.(py|sql)|frontend/(src|e2e)/|infra/)

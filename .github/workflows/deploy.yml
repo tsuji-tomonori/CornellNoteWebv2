@@ -20,11 +20,7 @@ jobs:
       - name: Require matching successful dev tree
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          git fetch origin dev
-          test "$(git rev-parse HEAD^{tree})" = "$(git rev-parse origin/dev^{tree})"
-          SHA=$(git rev-parse origin/dev)
-          gh run list --workflow verify.yml --branch dev --commit "$SHA" --event push --json conclusion --jq 'map(select(.conclusion == "success")) | length > 0' | grep -qx true
+        run: python tools/verified_revision.py
       - uses: astral-sh/setup-uv@v6
         with:
           version: '0.11.0'

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: write
     env:
       DATABASE_URL: postgresql://cornell:local-cornell-only@127.0.0.1:5432/cornell
       AUTH_MODE: local
@@ -38,6 +38,10 @@ jobs:
       - run: python tools/quintflow.py setup
       - run: uv run python tools/package_lambda.py
       - run: uv run python -m infra.app
+      - name: Generate Markdown from canonical sources
+        run: uv run python tools/design.py
+      - name: Verify deterministic Markdown
+        run: uv run python tools/design.py --check
       - run: docker compose up --build -d --wait
       - run: npx --prefix frontend playwright install --with-deps chromium
       - name: Quality gates
@@ -48,6 +52,34 @@ jobs:
         id: e2e
         continue-on-error: true
         run: npm --prefix frontend run e2e
+      - name: Commit verified Markdown on dev
+        if: steps.quality.outcome == 'success' && steps.e2e.outcome == 'success' && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/generated
+          if ! git diff --cached --quiet; then
+            git commit -m '📝 docs: 実装由来のMarkdown設計書を自動更新' -m '目的: 正本と生成設計の同期。変更: docs/generatedのみ。要件: REQ-DESIGN。検証: qualityとE2Eが成功した生成物。'
+            git push origin HEAD:dev
+          fi
+          VERIFIED_SHA=$(git rev-parse HEAD)
+          TREE_SHA=$(git rev-parse HEAD^{tree})
+          echo "VERIFIED_SHA=$VERIFIED_SHA" >> "$GITHUB_ENV"
+          mkdir -p build
+          printf '%s\n%s\n%s\n' "$SOURCE_SHA" "$VERIFIED_SHA" "$TREE_SHA" > build/verified-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: success() && steps.quality.outcome == 'success' && steps.e2e.outcome == 'success' && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+        with:
+          name: verified-revision
+          path: build/verified-revision.txt
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generated-markdown
+          path: docs/generated/**/*.md
       - name: Generate report
         if: always()
         run: python tools/report.py

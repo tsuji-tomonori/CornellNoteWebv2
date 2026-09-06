@@ -1,7 +1,6 @@
 import argparse
 import ast
 import hashlib
-import json
 import re
 import subprocess
 import sys
@@ -13,7 +12,6 @@ from sqlglot import exp
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "backend/src/app/apis"
-MANIFEST = ROOT / "docs/design/generated/queries.gen.json"
 
 
 def schema(root: Path) -> dict[str, dict[str, str]]:
@@ -172,7 +170,7 @@ def render_module(queries: list[dict]) -> str:
     ).stdout
 
 
-def render(root: Path = ROOT) -> dict[Path, str]:
+def collect(root: Path = ROOT) -> tuple[dict, list[dict]]:
     tables = schema(root)
     grouped = defaultdict(list)
     catalog = []
@@ -189,14 +187,16 @@ def render(root: Path = ROOT) -> dict[Path, str]:
         )
     if not grouped:
         raise ValueError("No operation SQL found")
+    return grouped, catalog
+
+
+def render(root: Path = ROOT) -> dict[Path, str]:
+    grouped, _ = collect(root)
     outputs = {}
     for operation, queries in grouped.items():
         if len({q["name"] for q in queries}) != len(queries):
             raise ValueError(f"{operation}: duplicate query name")
         outputs[operation / "generated/queries.py"] = render_module(queries)
-    outputs[root / MANIFEST.relative_to(ROOT)] = (
-        json.dumps(catalog, ensure_ascii=False, indent=2) + "\n"
-    )
     return outputs
 
 

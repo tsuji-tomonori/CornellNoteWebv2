@@ -65,7 +65,7 @@ def test_architecture_rejects_inline_sql_and_router_query_import(project):
 def test_generated_output_cannot_follow_a_symlink(project, tmp_path):
     target = tmp_path / "outside.txt"
     target.write_text("unchanged")
-    output = project / "docs/design/generated/queries.gen.json"
+    output = project / "backend/src/app/apis/notes/get_note/generated/queries.py"
     output.parent.mkdir(parents=True)
     output.symlink_to(target)
     with pytest.raises(ValueError, match="Unsafe generated output"):

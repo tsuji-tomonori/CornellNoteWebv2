@@ -45,8 +45,7 @@ checks = [
             "--junitxml=reports/pytest.xml",
         ],
     ),
-    ("Quint requirements", ["python", "tools/quintflow.py", "check"]),
-    ("As-built drift", ["uv", "run", "python", "tools/design.py", "--check"]),
+    ("Quint / Markdown as-built drift", ["uv", "run", "python", "tools/design.py", "--check"]),
 ]
 results = []
 for name, command in checks:
