@@ -16,9 +16,17 @@ from fastapi.routing import APIRoute, iter_route_contexts
 from sqlglot import exp
 
 try:
+    from tools.api_sequence import (
+        response_cases,
+        routing_cases,
+        schema_name,
+        sequence,
+        verify_framework,
+    )
     from tools.generate_queries import check_architecture, collect
     from tools.requirements_view import derive
 except ModuleNotFoundError:
+    from api_sequence import response_cases, routing_cases, schema_name, sequence, verify_framework
     from generate_queries import check_architecture, collect
     from requirements_view import derive
 
@@ -121,108 +129,6 @@ def errors(node, path):
                 )
             )
     return sorted(result)
-
-
-def label(node) -> str:
-    text = ast.unparse(node) if isinstance(node, ast.AST) else str(node)
-    return (
-        text.replace("\n", " ")
-        .replace(";", "#59;")
-        .replace('"', "#quot;")
-        .replace("<", "#lt;")
-        .replace(">", "#gt;")
-    )
-
-
-def sequence(node, queries, auth=False) -> str:
-    by_name = {q["name"]: q for q in queries}
-    lines = [
-        "sequenceDiagram",
-        "    participant C as 呼出元",
-        "    participant A as API / functions",
-    ]
-    if queries:
-        lines += ["    participant Q as 生成queries", "    participant D as DB"]
-    lines.append(f"    C->>A: {node.name}")
-    if auth:
-        lines += [
-            "    A->>A: Depends(authenticate) / JWT検証",
-            "    Note over C,A: 認証エラーは401で終了（messages参照）",
-        ]
-
-    def emit(text):
-        lines.append("    " + text)
-
-    def calls(expr):
-        if expr is None:
-            return
-        if isinstance(
-            expr,
-            ast.ListComp | ast.DictComp | ast.SetComp | ast.GeneratorExp | ast.BoolOp | ast.IfExp,
-        ):
-            emit("Note over A: 条件評価・反復式 " + label(expr))
-            return
-        for child in ast.iter_child_nodes(expr):
-            calls(child)
-        if isinstance(expr, ast.Call):
-            name = ast.unparse(expr.func)
-            if name.startswith("queries.") and name.split(".")[-1] in by_name:
-                q = by_name[name.split(".")[-1]]
-                emit(f"A->>Q: {q['name']}")
-                emit(f"Q->>D: {q['operation']} {q['table']} / {q['filename']}")
-                emit("D-->>Q: 実行結果（例外はtryの例外分岐へ）")
-                emit("Q-->>A: 型付き結果")
-            elif name != "HTTPException":
-                emit("A->>A: " + label(expr.func))
-
-    def block(nodes):
-        for n in nodes:
-            if (
-                isinstance(n, ast.Expr)
-                and isinstance(n.value, ast.Constant)
-                and isinstance(n.value.value, str)
-            ):
-                continue
-            if isinstance(n, ast.If):
-                calls(n.test)
-                emit("alt " + label(n.test))
-                block(n.body)
-                if n.orelse:
-                    emit("else 条件が偽")
-                    block(n.orelse)
-                emit("end")
-            elif isinstance(n, ast.Try):
-                emit("critical try（通常経路）")
-                block(n.body)
-                block(n.orelse)
-                for h in n.handlers:
-                    emit("option except " + label(h.type))
-                    block(h.body)
-                emit("end")
-                if n.finalbody:
-                    emit("Note over A: finally（終了・例外時にも実行）")
-                    block(n.finalbody)
-            elif isinstance(n, ast.With):
-                emit("rect rgb(240, 246, 244)")
-                emit("Note over A: with " + ", ".join(label(i.context_expr) for i in n.items))
-                block(n.body)
-                emit("Note over A: context終了（例外時も解放）")
-                emit("end")
-            elif isinstance(n, ast.Return | ast.Raise):
-                value = n.value if isinstance(n, ast.Return) else n.exc
-                calls(value)
-                emit("break " + ("return" if isinstance(n, ast.Return) else "raise"))
-                emit("A-->>C: " + label(value))
-                emit("end")
-            elif isinstance(n, ast.Assign | ast.AnnAssign | ast.Expr):
-                calls(n.value)
-            elif isinstance(n, ast.Pass):
-                continue
-            else:
-                raise ValueError(f"Unsupported sequence statement: {type(n).__name__}:{n.lineno}")
-
-    block(node.body)
-    return "```mermaid\n" + "\n".join(lines) + "\n```\n"
 
 
 def database_docs(queries):
@@ -358,6 +264,7 @@ def crud(q):
 
 
 def api_docs(queries, catalog):
+    verify_framework(app)
     spec = app.openapi()
     schemas = spec.get("components", {}).get("schemas", {})
     routes = [r for r in iter_route_contexts(app.routes) if isinstance(r.original_route, APIRoute)]
@@ -401,9 +308,11 @@ def api_docs(queries, catalog):
         ]
         qs = [q for q in queries if q["api"] == handler_path.parent.name]
         err = errors(function, function_path)
+        auth_err = []
         if authenticated:
             auth_path = ROOT / "backend/src/app/auth.py"
-            err += errors(function_at(auth_path, "authenticate"), auth_path)
+            auth_err = errors(function_at(auth_path, "authenticate"), auth_path)
+            err += auth_err
         base = f"apis/{op}/"
         intro = f"`{method} {path}` / operationId: `{op}`\n\nハンドラ: {source(handler_path, handler.lineno)}\n\n処理: {source(function_path, function.lineno)}\n\n"
         overview.append(
@@ -454,12 +363,62 @@ def api_docs(queries, catalog):
             ["HTTP", "detail（文字列）", "発生箇所"], sorted(set(err))
         )
         files[base + "if.gen.md"] = page(op + " IF仕様", body)
+        response_table = table(["HTTP", "処理区分", "条件", "応答内容"], response_cases(d, err))
+        common_table = table(
+            ["HTTP", "処理区分", "条件", "応答内容"], routing_cases(app.router.redirect_slashes)
+        )
+        incoming = [
+            (p["in"], p["name"], schema_name(p["schema"]), p.get("required", False)) for p in params
+        ]
+        if authenticated:
+            incoming.append(("header", "Authorization", "Bearer JWT", True))
+        incoming += [
+            ("body", media, schema_name(c["schema"]), d["requestBody"].get("required", False))
+            for media, c in d.get("requestBody", {}).get("content", {}).items()
+        ]
+        access = []
+        for q in qs:
+            sql = sqlglot.parse_one((ROOT / q["source"]).read_text(), dialect="postgres")
+            where = sql.args.get("where")
+            access.append(
+                (
+                    q["table"],
+                    q["operation"],
+                    q["summary"],
+                    where.sql(dialect="postgres") if where else "なし",
+                    list(q["params"]),
+                )
+            )
         files[base + "sequence.gen.md"] = page(
             op + " シーケンス",
             intro
-            + "routerから呼ぶ業務関数の分岐・transaction・例外をAST順に表示する。self呼出の外部ライブラリ内部、式中の短絡・内包表記内部は展開しない。breakはその経路の終了を表す。\n\n"
-            + sequence(function, qs, authenticated),
+            + "## 入力\n\n"
+            + table(["位置", "名前", "型", "必須"], incoming)
+            + "## 呼出し・分岐・応答\n\n"
+            + "生成ラッパー・with・変換用関数の表示を省き、ifとtry/catch、DB操作、HTTP応答を表示する。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。\n\n"
+            + sequence(function, qs, request=f"{method} {path}", definition=d, auth_errors=auth_err)
+            + "\n## DBアクセス\n\n"
+            + table(["テーブル", "操作", "処理", "絞込み条件", "バインド引数"], access)
+            + (
+                "接続は`DSQL_HOST`（AWSのAurora DSQL）または`DATABASE_URL`（ローカルPostgreSQL）。接続処理: "
+                + source("backend/src/app/db.py")
+                + " / ローカル構成: "
+                + source("compose.yaml")
+                + "\n\n"
+                if qs
+                else "このAPIはDBへアクセスしない。\n\n"
+            )
+            + "## このAPIのHTTP応答\n\n"
+            + response_table
+            + "## ハンドラ到達前の共通応答\n\n"
+            + common_table
+            + "共通404はURL不一致であり、一覧が空であることを意味しない。500は未処理例外の標準応答であり、DB失敗が必ず500とは限らない（更新競合の409などは個別catchを優先する）。\n\n"
+            + "根拠: 実装AST・OpenAPI・現在の標準例外ハンドラ。共通応答の実測テスト: "
+            + source("backend/tests/test_response_contract.py")
+            + "。CloudFront/API Gateway自身のエラーはこのFastAPI図の対象外。\n",
         )
+        body += "## 共通処理を含む応答一覧\n\n" + response_table + common_table
+        files[base + "if.gen.md"] = page(op + " IF仕様", body)
         branches = [
             (n.lineno, ast.unparse(n.test)) for n in ast.walk(function) if isinstance(n, ast.If)
         ]

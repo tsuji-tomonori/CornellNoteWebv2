@@ -48,12 +48,12 @@ def test_markdown_rejects_json_escape_and_symlink(tmp_path):
     assert target.read_text() == "keep"
 
 
-def test_sequence_preserves_branches_transactions_and_exceptions():
+def test_sequence_preserves_http_branches_and_hides_implementation_details():
     import ast
 
     import pytest
 
-    from tools.design import sequence
+    from tools.api_sequence import sequence
 
     node = ast.parse("""
 def execute():
@@ -66,18 +66,25 @@ def execute():
     except Conflict:
         raise HTTPException(409, "conflict")
 """).body[0]
-    result = sequence(node, [])
-    assert result.index("critical try") < result.index("with repo.transaction()")
+    definition = {
+        "responses": {"200": {"content": {"application/json": {"schema": {"type": "string"}}}}}
+    }
+    result = sequence(node, [], request="GET /example", definition=definition)
+    assert "with repo.transaction()" not in result
+    assert "participant Q" not in result
+    assert "A->>A" not in result
+    assert "HTTP 200" in result
+    assert "HTTP 500" in result
     assert (
         result.index("alt not value")
         < result.index("404")
-        < result.index("option except Conflict")
+        < result.index("option catch Conflict")
         < result.index("409")
     )
-    assert result.count("break raise") == 2
+    assert result.count("break 異常終了") == 2
     node = ast.parse("def execute():\n    while True:\n        pass").body[0]
     with pytest.raises(ValueError, match="Unsupported sequence"):
-        sequence(node, [])
+        sequence(node, [], request="GET /example", definition=definition)
 
 
 def test_ddl_and_openapi_emit_actual_comments_constraints_and_all_operations():
@@ -100,3 +107,42 @@ def test_ddl_and_openapi_emit_actual_comments_constraints_and_all_operations():
     assert all(p.suffix == ".md" for p in OUT.rglob("*") if p.is_file())
     assert not (ROOT / "spec/requirements/requirements.json").exists()
     assert fields({"type": "string", "maxLength": 17}, {})[0][-1] == {"maxLength": 17}
+
+
+def test_sequence_records_tables_inputs_success_empty_responses_and_failure_codes():
+    from tools.design import api_docs
+    from tools.generate_queries import collect
+
+    _, queries = collect()
+    docs = api_docs(queries, {"requirements": []})
+    listing = docs["apis/list_notes/sequence.gen.md"]
+    diagram = listing.split("```mermaid\n")[1].split("```")[0]
+    assert diagram.count("participant ") == 3
+    assert "C->>A: GET /api/notes" in diagram
+    assert "A->>D: SELECT notes" in diagram
+    assert "HTTP 200 / application/json: Note[]" in diagram
+    assert "HTTP 401" in diagram
+    assert "HTTP 500 / text/plain: Internal Server Error" in diagram
+    assert "HTTP 404" not in diagram
+    assert "HTTP 422" not in diagram
+    assert "WHERE owner_id = %(owner_id)s" in listing
+    assert "ハンドラ到達前の共通応答" in listing
+    assert "HTTP 204 / 本文なし" in docs["apis/delete_note/sequence.gen.md"]
+    assert "HTTP 201" in docs["apis/create_note/sequence.gen.md"]
+    assert "HTTP 422" in docs["apis/create_note/sequence.gen.md"]
+    update = docs["apis/update_note/sequence.gen.md"]
+    assert "catch UpdateConflict" in update
+    assert "HTTP 404" in update and "HTTP 409" in update
+
+
+def test_custom_framework_handlers_fail_closed():
+    import pytest
+    from app.main import create_app
+
+    from tools.api_sequence import verify_framework
+
+    instance = create_app()
+    verify_framework(instance)
+    instance.debug = True
+    with pytest.raises(ValueError, match="Custom error handling"):
+        verify_framework(instance)

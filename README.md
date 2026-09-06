@@ -72,7 +72,7 @@ VPC、NAT、WAF、独自KMS鍵は追加していません。固定費や利用�
 
 Dev Standardのdefaultとcommit-styleを導入済み。要件正本は `spec/requirements/requirements.qnt`。`uv run python tools/design.py` が要件・実装由来の設計を [docs/generated](docs/generated/README.gen.md) のMarkdownとして生成します。Quintの型・不変条件・trace検証とJSON直列化を、固定済みDev Standardの処理でメモリ上に実行します。生成JSONは保存しません。標準の配布ファイルや検証を改変せず、プロジェクト側のadapter `tools/requirements_view.py` が出力形式を担当します。
 
-- API: 10操作それぞれにIF・詳細設計・シーケンス・メッセージ・SQL・テスト観点の6種類。OpenAPIと実際の有効routeを一対一照合し、入出力のネスト・型・必須・制約、Python ASTの分岐とエラー、各SQLと生成ラッパーを記載します。
+- API: 10操作それぞれにIF・詳細設計・シーケンス・メッセージ・SQL・テスト観点の6種類。OpenAPIと実際の有効routeを一対一照合し、入出力のネスト・型・必須・制約、Python ASTの分岐とエラー、各SQLと生成ラッパーを記載します。シーケンス図は呼び出し元・API・DBの3者で、if・try/catch・テーブル操作・HTTPコードと応答型を表示し、withや生成ラッパーの内部は省きます。標準処理の500も明記し、URL不一致404・メソッド不許可405・スラッシュ補正307はハンドラ到達前の共通応答として区別します。応答契約はAPIテストで検証し、例外ハンドラが変更された場合は抽出器を更新するまで生成を止めます。
 - DB: 各テーブルの日本語説明・全カラム・型・NULL・キー・制約・index、全体ER図、CRUD、migrationとchecksum。管理台帳schema_migrationsも実装から抽出します。
 - 要件: 全体一覧・要件ごとの仕様と日本語Given/When/Then・設計/実装/テストへの対応表。
 - 画面/テスト/AWS: TypeScriptの型・関数・JSX属性、E2Eソースの日本語シナリオ、pytestのassert、CDK synthのリソース・IAM・抑制理由・outputs。

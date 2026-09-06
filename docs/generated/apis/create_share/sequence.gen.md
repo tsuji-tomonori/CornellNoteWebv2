@@ -8,39 +8,73 @@
 
 処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
 
-routerから呼ぶ業務関数の分岐・transaction・例外をAST順に表示する。self呼出の外部ライブラリ内部、式中の短絡・内包表記内部は展開しない。breakはその経路の終了を表す。
+## 入力
+
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| path | note_id | Note Id | True |
+| header | Authorization | Bearer JWT | True |
+
+## 呼出し・分岐・応答
+
+生成ラッパー・with・変換用関数の表示を省き、ifとtry/catch、DB操作、HTTP応答を表示する。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。
 
 ```mermaid
 sequenceDiagram
-    participant C as 呼出元
-    participant A as API / functions
-    participant Q as 生成queries
-    participant D as DB
-    C->>A: execute
-    A->>A: Depends(authenticate) / JWT検証
-    Note over C,A: 認証エラーは401で終了（messages参照）
-    A->>A: secrets.token_urlsafe
-    A->>A: datetime.now
-    A->>A: timedelta
-    A->>A: token.encode
-    A->>A: hashlib.sha256
-    A->>A: hashlib.sha256(token.encode()).hexdigest
-    A->>A: queries.UpdateShareParams
-    rect rgb(240, 246, 244)
-    Note over A: with repo.transaction()
-    A->>Q: update_share
-    Q->>D: UPDATE notes / 001_update_share.sql
-    D-->>Q: 実行結果（例外はtryの例外分岐へ）
-    Q-->>A: 型付き結果
-    Note over A: context終了（例外時も解放）
-    end
+    participant C as 呼び出し元
+    participant A as API
+    participant D as データベース
+    C->>A: POST /api/notes/{note_id}/share
+    critical リクエスト処理
+    alt 認証検証で拒否
+    A-->>C: HTTP 401 / application/json: detail（理由は応答表を参照）
+    else 入力検証で拒否
+    A-->>C: HTTP 422 / application/json: HTTPValidationError
+    else 検証通過
+    A->>D: UPDATE notes / 所有者のノートに期限付き共有を発行する
+    D-->>A: 行データ（0件以上）
     alt not rows
-    break raise
-    A-->>C: HTTPException(404, 'ノートが見つかりません')
+    break 異常終了
+    A-->>C: HTTP 404 / application/json: {detail: #quot;ノートが見つかりません#quot;}
     end
     end
-    A->>A: Share
-    break return
-    A-->>C: Share(token=token, expires_at=expires)
+    break 正常終了
+    A-->>C: HTTP 200 / application/json: Share
+    end
+    end
+    option 個別catchで処理されない例外
+    A-->>C: HTTP 500 / text/plain: Internal Server Error
     end
 ```
+
+## DBアクセス
+
+| テーブル | 操作 | 処理 | 絞込み条件 | バインド引数 |
+| --- | --- | --- | --- | --- |
+| notes | UPDATE | 所有者のノートに期限付き共有を発行する | WHERE id = %(id)s AND owner_id = %(owner_id)s | id, owner_id, share_expires, share_hash |
+
+接続は`DSQL_HOST`（AWSのAurora DSQL）または`DATABASE_URL`（ローカルPostgreSQL）。接続処理: [backend/src/app/db.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/db.py) / ローカル構成: [compose.yaml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/compose.yaml)
+
+## このAPIのHTTP応答
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Share |
+| 401 | API / 認証 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
+| 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
+| 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| 404 | API / 認証 | ノートが見つかりません | application/json: {detail: "ノートが見つかりません"} |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+
+## ハンドラ到達前の共通応答
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 404 | ルーティング | URLが登録済みパスに一致しない（このAPIのハンドラには到達しない） | application/json: {detail: "Not Found"} |
+| 405 | ルーティング | URLは存在するがHTTPメソッドが許可されていない | application/json: {detail: "Method Not Allowed"} / Allowヘッダー |
+| 307 | ルーティング | 末尾スラッシュの補正で既存パスへリダイレクトする | 本文なし / Locationヘッダー |
+
+共通404はURL不一致であり、一覧が空であることを意味しない。500は未処理例外の標準応答であり、DB失敗が必ず500とは限らない（更新競合の409などは個別catchを優先する）。
+
+根拠: 実装AST・OpenAPI・現在の標準例外ハンドラ。共通応答の実測テスト: [backend/tests/test_response_contract.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_response_contract.py)。CloudFront/API Gateway自身のエラーはこのFastAPI図の対象外。

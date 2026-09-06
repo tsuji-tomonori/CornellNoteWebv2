@@ -61,3 +61,19 @@ application/json
 | --- | --- | --- |
 | 401 | ユーザー名またはパスワードが違います | [backend/src/app/auth.py:70](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L70) |
 | 404 | Not found | [backend/src/app/auth.py:68](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L68) |
+
+## 共通処理を含む応答一覧
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Token |
+| 401 | API / 認証 | ユーザー名またはパスワードが違います | application/json: {detail: "ユーザー名またはパスワードが違います"} |
+| 404 | API / 認証 | Not found | application/json: {detail: "Not found"} |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 404 | ルーティング | URLが登録済みパスに一致しない（このAPIのハンドラには到達しない） | application/json: {detail: "Not Found"} |
+| 405 | ルーティング | URLは存在するがHTTPメソッドが許可されていない | application/json: {detail: "Method Not Allowed"} / Allowヘッダー |
+| 307 | ルーティング | 末尾スラッシュの補正で既存パスへリダイレクトする | 本文なし / Locationヘッダー |

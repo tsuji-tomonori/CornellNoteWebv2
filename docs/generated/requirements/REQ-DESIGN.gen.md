@@ -7,11 +7,11 @@
 | action | maintain |
 | category | nonfunctional |
 | id | REQ-DESIGN |
-| last_changed_by | user-markdown-generation |
-| object | 要件・API別6文書・テーブル別仕様・ER図・画面・インフラをMarkdownのみで決定的に生成し、CIで再生成・検証・dev反映する |
+| last_changed_by | user-api-sequence-abstraction |
+| object | 要件・API別6文書・テーブル別仕様・ER図・画面・インフラをMarkdownのみで決定的に生成し、CIで再生成・検証・dev反映する。シーケンスは呼び出し元・API・DBの3者とif・try/catchを中心に、入力・アクセス先テーブル・実装および共通処理由来のHTTP応答を記載する |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 2 |
+| revision | 3 |
 | scope | project |
 | source_refs | user:2026-09-05-cornellnoteweb |
 | status | active |
@@ -25,13 +25,13 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-DESIGN | 実装が更新される | 設計生成とdrift検査を実行する | 要件・API別6文書・テーブル別仕様・ER図・画面・インフラをMarkdownのみで決定的に生成し、CIで再生成・検証・dev反映する |
+| AC-DESIGN | 実装が更新される | 設計生成とdrift検査を実行する | 要件・API別6文書・テーブル別仕様・ER図・画面・インフラをMarkdownのみで決定的に生成し、CIで再生成・検証・dev反映する。シーケンスは呼び出し元・API・DBの3者とif・try/catchを中心に、入力・アクセス先テーブル・実装および共通処理由来のHTTP応答を記載する |
 
 ## トレーサビリティ
 
 | 種類 | 正本の参照 |
 | --- | --- |
 | design | [docs/generated/README.gen.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/README.gen.md) |
-| implementation | [tools/design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/design.py), [tools/frontend_design.mjs](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/frontend_design.mjs), [tools/requirements_view.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/requirements_view.py), [.github/workflows/verify.yml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/.github/workflows/verify.yml) |
+| implementation | [tools/design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/design.py), [tools/frontend_design.mjs](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/frontend_design.mjs), [tools/requirements_view.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/requirements_view.py), [tools/api_sequence.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tools/api_sequence.py), [.github/workflows/verify.yml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/.github/workflows/verify.yml) |
 | standards | [AGENTS.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/AGENTS.md) |
-| tests | [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py) |
+| tests | [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py), [backend/tests/test_response_contract.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_response_contract.py) |

@@ -50,3 +50,20 @@ application/json
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:56](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L56) |
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:59](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L59) |
 | 401 | 認証情報が無効または期限切れです | [backend/src/app/auth.py:62](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L62) |
+
+## 共通処理を含む応答一覧
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 204 | API | 正常終了 | 本文なし |
+| 401 | API / 認証 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
+| 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
+| 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 404 | ルーティング | URLが登録済みパスに一致しない（このAPIのハンドラには到達しない） | application/json: {detail: "Not Found"} |
+| 405 | ルーティング | URLは存在するがHTTPメソッドが許可されていない | application/json: {detail: "Method Not Allowed"} / Allowヘッダー |
+| 307 | ルーティング | 末尾スラッシュの補正で既存パスへリダイレクトする | 本文なし / Locationヘッダー |

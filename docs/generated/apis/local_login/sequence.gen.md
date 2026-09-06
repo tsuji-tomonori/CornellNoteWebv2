@@ -8,30 +8,69 @@
 
 処理: [backend/src/app/auth.py:65](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L65)
 
-routerから呼ぶ業務関数の分岐・transaction・例外をAST順に表示する。self呼出の外部ライブラリ内部、式中の短絡・内包表記内部は展開しない。breakはその経路の終了を表す。
+## 入力
+
+| 位置 | 名前 | 型 | 必須 |
+| --- | --- | --- | --- |
+| body | application/json | Login | True |
+
+## 呼出し・分岐・応答
+
+生成ラッパー・with・変換用関数の表示を省き、ifとtry/catch、DB操作、HTTP応答を表示する。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。
 
 ```mermaid
 sequenceDiagram
-    participant C as 呼出元
-    participant A as API / functions
-    C->>A: local_login
-    A->>A: settings
+    participant C as 呼び出し元
+    participant A as API
+    participant D as データベース
+    C->>A: POST /api/auth/local
+    critical リクエスト処理
+    alt 入力検証で拒否
+    A-->>C: HTTP 422 / application/json: HTTPValidationError
+    else 検証通過
     alt cfg.auth_mode != 'local'
-    break raise
-    A-->>C: HTTPException(404, 'Not found')
+    break 異常終了
+    A-->>C: HTTP 404 / application/json: {detail: #quot;Not found#quot;}
     end
     end
-    A->>A: hmac.compare_digest
     alt not hmac.compare_digest(data.password, cfg.local_password)
-    break raise
-    A-->>C: HTTPException(401, 'ユーザー名またはパスワードが違います')
+    break 異常終了
+    A-->>C: HTTP 401 / application/json: {detail: #quot;ユーザー名またはパスワードが違います#quot;}
     end
     end
-    A->>A: datetime.now
-    A->>A: timedelta
-    A->>A: jwt.encode
-    A->>A: Token
-    break return
-    A-->>C: Token(access_token=token)
+    break 正常終了
+    A-->>C: HTTP 200 / application/json: Token
+    end
+    end
+    option 個別catchで処理されない例外
+    A-->>C: HTTP 500 / text/plain: Internal Server Error
     end
 ```
+
+## DBアクセス
+
+該当なし。
+
+このAPIはDBへアクセスしない。
+
+## このAPIのHTTP応答
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 200 | API | 正常終了 | application/json: Token |
+| 401 | API / 認証 | ユーザー名またはパスワードが違います | application/json: {detail: "ユーザー名またはパスワードが違います"} |
+| 404 | API / 認証 | Not found | application/json: {detail: "Not found"} |
+| 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+
+## ハンドラ到達前の共通応答
+
+| HTTP | 処理区分 | 条件 | 応答内容 |
+| --- | --- | --- | --- |
+| 404 | ルーティング | URLが登録済みパスに一致しない（このAPIのハンドラには到達しない） | application/json: {detail: "Not Found"} |
+| 405 | ルーティング | URLは存在するがHTTPメソッドが許可されていない | application/json: {detail: "Method Not Allowed"} / Allowヘッダー |
+| 307 | ルーティング | 末尾スラッシュの補正で既存パスへリダイレクトする | 本文なし / Locationヘッダー |
+
+共通404はURL不一致であり、一覧が空であることを意味しない。500は未処理例外の標準応答であり、DB失敗が必ず500とは限らない（更新競合の409などは個別catchを優先する）。
+
+根拠: 実装AST・OpenAPI・現在の標準例外ハンドラ。共通応答の実測テスト: [backend/tests/test_response_contract.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_response_contract.py)。CloudFront/API Gateway自身のエラーはこのFastAPI図の対象外。
