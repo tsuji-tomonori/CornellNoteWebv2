@@ -61,6 +61,7 @@ beforeEach(() => {
       return undefined;
     }
     if (path.startsWith("/shared/")) return note();
+    if (path === "/notes/n") return note();
     throw new Error("未定義API: " + path);
   });
 });
@@ -220,4 +221,42 @@ test("一覧の取得失敗とセッション失効を利用者に通知する",
   act(() => window.dispatchEvent(new Event("session-expired")));
   expect(screen.getByRole("alert")).toHaveTextContent("セッションが切れました");
   expect(screen.getByLabelText("パスワード")).toBeInTheDocument();
+});
+
+test("タスク一覧から最新ノートを開き一覧の表示を切り替える", async () => {
+  sessionStorage.setItem("access_token", "jwt");
+  const base = vi.mocked(api).getMockImplementation()!;
+  vi.mocked(api).mockImplementation(async (path, method, body) =>
+    path === "/tasks"
+      ? [
+          {
+            id: "t",
+            note_id: "n",
+            title: "講義n",
+            group_name: "数学",
+            text: "横断タスク",
+            done: false,
+            due: null,
+          },
+        ]
+      : base(path, method, body),
+  );
+  render(<App />);
+  await screen.findByRole("heading", { name: "講義n" });
+  fireEvent.click(screen.getByRole("button", { name: "すべてのタスク" }));
+  await screen.findByText("横断タスク");
+  fireEvent.click(screen.getByRole("button", { name: "ノートを開く: 講義n" }));
+  await screen.findByLabelText("ノートのタイトル");
+  expect(api).toHaveBeenCalledWith("/notes/n");
+  fireEvent.change(screen.getByLabelText("ノートのタイトル"), {
+    target: { value: "未保存" },
+  });
+  vi.mocked(confirm).mockReturnValue(false);
+  fireEvent.click(screen.getByRole("button", { name: "すべてのタスク" }));
+  expect(screen.getByLabelText("ノートのタイトル")).toHaveValue("未保存");
+  vi.mocked(confirm).mockReturnValue(true);
+  fireEvent.click(screen.getByRole("button", { name: "すべてのタスク" }));
+  await screen.findByText("横断タスク");
+  fireEvent.click(screen.getByRole("button", { name: /すべてのノート/ }));
+  expect(screen.getByRole("heading", { name: "マイノート." })).toBeVisible();
 });

@@ -8,22 +8,23 @@ from sqlglot import exp
 
 
 def ddl_fields(root):
-    columns, comments = {}, {}
-    for path in sorted((root / "backend/migrations").glob("*.sql")):
-        for statement in sqlglot.parse(path.read_text(), dialect="postgres"):
-            if isinstance(statement, exp.Comment):
-                comments[statement.this.sql(dialect="postgres")] = statement.expression.this
-            if isinstance(statement, exp.Create) and statement.kind == "TABLE":
-                for c in statement.this.expressions:
-                    columns[statement.this.this.name + "." + c.name] = (
-                        c.kind.sql(dialect="postgres"),
-                        not any(
-                            isinstance(
-                                k.kind, exp.NotNullColumnConstraint | exp.PrimaryKeyColumnConstraint
-                            )
-                            for k in c.constraints
-                        ),
-                    )
+    try:
+        from tools.schema_model import ddl_state, primary_columns
+    except ModuleNotFoundError:
+        from schema_model import ddl_state, primary_columns
+    tables, comments, _ = ddl_state(root)
+    columns = {}
+    for name, (_, statement) in tables.items():
+        primary = primary_columns(statement.this)
+        for c in statement.this.expressions:
+            if isinstance(c, exp.ColumnDef):
+                columns[name + "." + c.name] = (
+                    c.kind.sql(dialect="postgres"),
+                    c.name not in primary
+                    and not any(
+                        isinstance(k.kind, exp.NotNullColumnConstraint) for k in c.constraints
+                    ),
+                )
     return {key: (*value, comments.get(key, "")) for key, value in columns.items()}
 
 
@@ -86,7 +87,7 @@ def detail_design(
             for k in n.keywords
         }
         where = sql.args.get("where")
-        body += f"### {q['summary']}\n\nテーブル: `{q['table']}` / 操作: `{q['operation']}`\n\n"
+        body += f"### {q['summary']}\n\nテーブル: `{', '.join(q['tables'])}` / 操作: `{q['operation']}`\n\n"
         body += "対象条件: `" + (where.sql(dialect="postgres") if where else "条件なし") + "`\n\n"
         body += table(["バインド引数", "値の取得元"], params.items())
         if isinstance(sql, exp.Insert):
@@ -167,11 +168,15 @@ def detail_design(
                 column = aliases.get(key, key)
                 origin = response_sources.get(key)
                 if not origin and any(column in q["rows"] for q in queries):
-                    origin = (
-                        "DB: "
-                        + next(q["table"] + "." + column for q in queries if column in q["rows"])
-                        + ("（JSONから復元）" if key == "tasks" else "")
+                    origin = "DB: " + next(
+                        q["row_sources"][column] for q in queries if column in q["rows"]
                     )
+                if key in {"cue", "content", "summary"} and any(
+                    "note_sections" in q["tables"] for q in queries
+                ):
+                    origin = "DB: note_sections.body（kind = " + key + "）"
+                if key == "tasks" and any("note_tasks" in q["tables"] for q in queries):
+                    origin = "DB: note_tasks の行を表示順に配列化"
                 if (
                     not origin
                     and key
@@ -202,19 +207,27 @@ def query_design(root, queries, table, source):
     metadata = ddl_fields(root)
     body = ""
     for q in queries:
-        body += f"## {q['filename']}\n\n### SQL種別\n\n`{q['operation']}`\n\n### SQLの概要\n\n{q['summary']}\n\n### 利用するテーブル\n\n`{q['table']}`\n\n"
+        body += f"## {q['filename']}\n\n### SQL種別\n\n`{q['operation']}`\n\n### SQLの概要\n\n{q['summary']}\n\n### 利用するテーブル\n\n`{', '.join(q['tables'])}`\n\n"
         for title, key in [("引数", "params"), ("戻り値", "rows")]:
             body += f"### {title}\n\n" + table(
                 ["DDLテーブル", "DDL項目", "SQL項目", "日本語名", "DB型", "Python型", "NULL許容"],
                 (
                     (
-                        q["table"],
+                        q["param_sources" if key == "params" else "row_sources"][name].split(".")[
+                            0
+                        ],
+                        q["param_sources" if key == "params" else "row_sources"][name].split(".")[
+                            1
+                        ],
                         name,
-                        name,
-                        metadata[q["table"] + "." + name][2],
-                        metadata[q["table"] + "." + name][0],
+                        metadata[q["param_sources" if key == "params" else "row_sources"][name]][2],
+                        metadata[q["param_sources" if key == "params" else "row_sources"][name]][0],
                         kind,
-                        "可" if metadata[q["table"] + "." + name][1] else "不可",
+                        "可"
+                        if metadata[q["param_sources" if key == "params" else "row_sources"][name]][
+                            1
+                        ]
+                        else "不可",
                     )
                     for name, kind in q[key].items()
                 ),

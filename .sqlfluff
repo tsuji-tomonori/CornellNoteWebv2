@@ -5,9 +5,27 @@ max_line_length = 100
 large_file_skip_byte_limit = 0
 [sqlfluff:templater:placeholder]
 param_style = pyformat
+id = '00000000-0000-4000-8000-000000000001'
+owner_id = 'fixture-owner'
+note_id = '00000000-0000-4000-8000-000000000001'
+after_id = '00000000-0000-4000-8000-000000000000'
+created_by = 'fixture-owner'
+created_at = '2026-09-06T00:00:00Z'
+updated_at = '2026-09-06T00:00:00Z'
+expires_at = '2026-09-13T00:00:00Z'
+token_hash = 'fixture-token-hash'
+title = '題名'
+group_name = '分類'
+kind = 'cue'
+body = '本文'
+text = 'タスク'
+done = false
+due = '2026-09-20'
+position = 0
+version = 1
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
 [sqlfluff:rules:capitalisation.types]
 extended_capitalisation_policy = upper
 [sqlfluff:rules:references.keywords]
-ignore_words = content,summary,tasks,version
+ignore_words = content,summary,tasks,version,text,position

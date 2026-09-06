@@ -4,19 +4,19 @@
 
 `POST /api/notes/{note_id}/share` / operationId: `create_share`
 
-ハンドラ: [backend/src/app/apis/notes/create_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/create_share/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L15)
 
-処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
+処理: [backend/src/app/apis/notes/create_share/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L15)
 
-## 001_update_share.sql
+## 001_select_owned_note.sql
 
 ### SQL種別
 
-`UPDATE`
+`SELECT`
 
 ### SQLの概要
 
-所有者のノートに期限付き共有を発行する
+操作対象ノートの所有者を確認する
 
 ### 利用するテーブル
 
@@ -28,8 +28,6 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
 | notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
-| notes | share_expires | share_expires | 共有リンクの有効期限 | TIMESTAMPTZ | datetime \| None | 可 |
-| notes | share_hash | share_hash | 共有トークンのSHA256（生トークンは保存しない） | VARCHAR(64) | str \| None | 可 |
 
 ### 戻り値
 
@@ -40,9 +38,81 @@
 ### SQL
 
 ```sql
--- 所有者のノートに期限付き共有を発行する
-UPDATE notes SET share_hash = %(share_hash)s, share_expires = %(share_expires)s
-WHERE id = %(id)s AND owner_id = %(owner_id)s RETURNING id;
+-- 操作対象ノートの所有者を確認する
+SELECT id FROM notes
+WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
 
-正本: [backend/src/app/apis/notes/create_share/sql/001_update_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/sql/001_update_share.sql)
+正本: [backend/src/app/apis/notes/create_share/sql/001_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/sql/001_select_owned_note.sql)
+
+## 002_delete_share.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+以前の閲覧リンクを失効する
+
+### 利用するテーブル
+
+`note_shares`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_shares | note_id | note_id | 閲覧を許可するノート | UUID | UUID | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 以前の閲覧リンクを失効する
+DELETE FROM note_shares
+WHERE note_id = %(note_id)s;
+```
+
+正本: [backend/src/app/apis/notes/create_share/sql/002_delete_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/sql/002_delete_share.sql)
+
+## 003_insert_share.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
+
+期限付き閲覧リンクのハッシュと発行者を保存する
+
+### 利用するテーブル
+
+`note_shares`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_shares | created_by | created_by | リンクを発行したノート所有者 | VARCHAR(128) | str | 不可 |
+| note_shares | expires_at | expires_at | 閲覧リンクの有効期限（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| note_shares | note_id | note_id | 閲覧を許可するノート | UUID | UUID | 不可 |
+| note_shares | token_hash | token_hash | 共有トークンのSHA256。生トークンは保持しない | VARCHAR(64) | str | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 期限付き閲覧リンクのハッシュと発行者を保存する
+INSERT INTO note_shares (note_id, token_hash, expires_at, created_by) VALUES (
+    %(note_id)s, %(token_hash)s, %(expires_at)s, %(created_by)s
+);
+```
+
+正本: [backend/src/app/apis/notes/create_share/sql/003_insert_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/sql/003_insert_share.sql)

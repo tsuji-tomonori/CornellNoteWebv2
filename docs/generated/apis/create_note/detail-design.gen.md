@@ -4,9 +4,9 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L13)
 
-処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
+処理: [backend/src/app/apis/notes/create_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L13)
 
 ## 1. 正常系入力
 
@@ -41,10 +41,22 @@
 | ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
 | 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
 | 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| 更新が競合しました。再読み込みしてください | HTTP 409: application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-### 所有者に紐づく新しいノートを保存する
+### 認証済み所有者を初回のみ登録する
+
+テーブル: `users` / 操作: `INSERT`
+
+対象条件: `条件なし`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | 認証JWT: sub（所有者） |
+| created_at | datetime.now(UTC) |
+
+### ノートの基本情報を保存する
 
 テーブル: `notes` / 操作: `INSERT`
 
@@ -56,26 +68,58 @@
 | owner_id | 認証JWT: sub（所有者） |
 | title | リクエスト: title |
 | group_name | リクエスト: group |
-| cue | リクエスト: cue |
-| content | リクエスト: content |
-| summary | リクエスト: summary |
-| tasks | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
 | updated_at | datetime.now(UTC) |
+
+### 問い・本文・要約をそれぞれ一行として保存する
+
+テーブル: `note_sections` / 操作: `INSERT`
+
+対象条件: `条件なし`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+| kind | kind |
+| body | getattr(data, kind) |
+| updated_at | datetime.now(UTC) |
+
+### 個別タスクの内容・完了状態・期日・表示順序を保存する
+
+テーブル: `note_tasks` / 操作: `INSERT`
+
+対象条件: `条件なし`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+| id | task.id |
+| text | task.text |
+| done | task.done |
+| due | task.due |
+| position | position |
 
 ## 3. 正常系リソース変更
 
 | テーブル | 操作 | カラム | 日本語説明 | 値の取得元 |
 | --- | --- | --- | --- | --- |
+| users | INSERT | id | Cognito sub。ローカルでは検証用ユーザー名 | 認証JWT: sub（所有者） |
+| users | INSERT | created_at | アプリのユーザー行を登録した日時（UTC） | datetime.now(UTC) |
 | notes | INSERT | id | ノート識別子（ランダムUUID） | uuid4() |
 | notes | INSERT | owner_id | 所有者のCognito sub | 認証JWT: sub（所有者） |
 | notes | INSERT | title | ノートの題名 | リクエスト: title |
 | notes | INSERT | group_name | 科目またはプロジェクトの分類名 | リクエスト: group |
-| notes | INSERT | cue | 問い・キーワード | リクエスト: cue |
-| notes | INSERT | content | 自由記述の記録本文 | リクエスト: content |
-| notes | INSERT | summary | 自分の言葉による要約 | リクエスト: summary |
-| notes | INSERT | tasks | チェック項目・完了状態・期日のJSON配列 | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
 | notes | INSERT | version | 同時更新検知の連番 | SQL式: 1 |
 | notes | INSERT | updated_at | 最終更新日時（UTC） | datetime.now(UTC) |
+| note_sections | INSERT | note_id | 所属ノートの識別子 | パス引数: note_id |
+| note_sections | INSERT | kind | 記入欄の種類（cue:問い、content:本文、summary:要約） | kind |
+| note_sections | INSERT | body | この記入欄の自由記述本文 | getattr(data, kind) |
+| note_sections | INSERT | updated_at | 記入欄を保存した日時（UTC） | datetime.now(UTC) |
+| note_tasks | INSERT | note_id | 所属ノートの識別子 | パス引数: note_id |
+| note_tasks | INSERT | id | ノート内で一意なタスク識別子 | task.id |
+| note_tasks | INSERT | text | タスクの内容 | task.text |
+| note_tasks | INSERT | done | 完了していればtrue、未完了ならfalse | task.done |
+| note_tasks | INSERT | due | 期日。未指定はNULL | task.due |
+| note_tasks | INSERT | position | ノート内の表示順序（0始まり） | position |
 
 ## 4. 正常系レスポンス
 
@@ -86,23 +130,25 @@
 | 項目 | 型 | 説明 | 値の取得元 |
 | --- | --- | --- | --- |
 | $ | object |  | 配列・オブジェクトの入れ物 |
-| $.title | string | ノートのタイトル | リクエスト: title |
-| $.group | string | 科目やコレクションの分類名 | リクエスト: group |
-| $.cue | string | 問い・キーワード欄 | リクエスト: cue |
-| $.content | string | ノート本文 | リクエスト: content |
-| $.summary | string | 学びを要約するまとめ欄 | リクエスト: summary |
-| $.tasks | array | チェックリストのアクション一覧 | リクエスト: tasks |
-| $.tasks[] | object |  | リクエスト: tasks |
-| $.tasks[].id | string | 項目を一意に識別するUUID | リクエスト: tasks |
-| $.tasks[].text | string | アクションの内容 | リクエスト: tasks |
-| $.tasks[].done | boolean | アクションの完了状態 | リクエスト: tasks |
-| $.tasks[].due | union | アクションの期日。未指定はnull | リクエスト: tasks |
-| $.tasks[].due (候補1) | string |  | リクエスト: tasks |
-| $.tasks[].due (候補2) | null |  | リクエスト: tasks |
-| $.id | string | 項目を一意に識別するUUID | uuid4() |
-| $.version | integer | 保存されたノートの版番号 | 固定値: 1 |
-| $.updated_at | string | 最終更新日時 | datetime.now(UTC) |
+| $.title | string | ノートのタイトル | DB: notes.title |
+| $.group | string | 科目やコレクションの分類名 | DB: notes.group_name |
+| $.cue | string | 問い・キーワード欄 | DB: note_sections.body（kind = cue） |
+| $.content | string | ノート本文 | DB: note_sections.body（kind = content） |
+| $.summary | string | 学びを要約するまとめ欄 | DB: note_sections.body（kind = summary） |
+| $.tasks | array | チェックリストのアクション一覧 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[] | object |  | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].id | string | 項目を一意に識別するUUID | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].text | string | アクションの内容 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].done | boolean | アクションの完了状態 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due | union | アクションの期日。未指定はnull | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due (候補1) | string |  | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due (候補2) | null |  | DB: note_tasks の行を表示順に配列化 |
+| $.id | string | 項目を一意に識別するUUID | row.id |
+| $.version | integer | 保存されたノートの版番号 | row.version |
+| $.updated_at | string | 最終更新日時 | row.updated_at |
 
 ## 5. 要件との直接対応
 
-該当なし。
+| 要件 | タイトル |
+| --- | --- |
+| REQ-TRANSACTION | ルーターでAPI全体のトランザクションを管理する |

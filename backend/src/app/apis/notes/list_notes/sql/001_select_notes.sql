@@ -1,14 +1,10 @@
--- 所有者のノートを更新日時順に取得する
+-- 閲覧条件を満たすノートの基本情報を取得する
 SELECT
-    id,
-    title,
-    group_name,
-    cue,
-    content,
-    summary,
-    tasks,
-    version,
-    updated_at
-FROM notes
-WHERE owner_id = %(owner_id)s
-ORDER BY updated_at DESC;
+    n.id,
+    n.title,
+    n.group_name,
+    n.version,
+    n.updated_at
+FROM notes AS n
+WHERE n.owner_id = %(owner_id)s
+ORDER BY n.updated_at DESC, n.id ASC;

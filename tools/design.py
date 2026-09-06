@@ -157,51 +157,57 @@ def database_docs(queries):
                 and literal.value.startswith(("CREATE TABLE", "COMMENT ON"))
             ):
                 statements += [(path, sqlglot.parse_one(literal.value, dialect="postgres"))]
-    comments = {}
-    tables = {}
-    indexes = []
+    try:
+        from tools.schema_model import ddl_state, primary_columns, references
+    except ModuleNotFoundError:
+        from schema_model import ddl_state, primary_columns, references
+    tables, comments, indexes = ddl_state(ROOT)
     for path, statement in statements:
+        if path.name != "migrate.py":
+            continue
         if isinstance(statement, exp.Comment):
             comments[statement.this.sql(dialect="postgres")] = statement.expression.this
         elif isinstance(statement, exp.Create) and statement.kind == "TABLE":
             tables[statement.this.this.name] = (path, statement)
-        elif isinstance(statement, exp.Create) and statement.kind == "INDEX":
-            indexes.append((path, statement))
-        else:
-            raise ValueError("Unsupported DDL; extend extractor: " + statement.sql())
     files = {}
-    er = ["erDiagram"]
+    er = ["erDiagram", "    direction TB"]
+    relations = []
     for name, (path, statement) in sorted(tables.items()):
         if name not in comments:
             raise ValueError("Missing Japanese table comment: " + name)
         columns = []
+        primary = primary_columns(statement.this)
+        foreign = references(statement.this)
+        for cols, parent, _parent_cols in foreign:
+            cardinality = "o|" if set(cols) == primary else "o{"
+            relations.append(f'    {parent} ||--{cardinality} {name} : "{", ".join(cols)}"')
         er.append(f"    {name} {{")
         for c in statement.this.expressions:
             if not isinstance(c, exp.ColumnDef):
-                raise ValueError("Unsupported table constraint: " + c.sql())
+                continue
             description = comments.get(name + "." + c.name)
             if not description:
                 raise ValueError("Missing column comment: " + name + "." + c.name)
             kinds = [constraint.kind for constraint in c.constraints]
-            if any(isinstance(k, exp.Reference) for k in kinds):
-                raise ValueError("Foreign key requires ER extraction support")
-            pk = any(isinstance(k, exp.PrimaryKeyColumnConstraint) for k in kinds)
+            pk = c.name in primary
+            fk = any(c.name in cols for cols, _parent, _target in foreign)
+            keys = ", ".join(k for k, present in [("PK", pk), ("FK", fk)] if present)
             nonnull = pk or any(isinstance(k, exp.NotNullColumnConstraint) for k in kinds)
             columns.append(
                 (
                     c.name,
                     c.kind.sql(dialect="postgres"),
                     "不可" if nonnull else "可",
-                    "PK" if pk else "",
+                    keys,
                     ", ".join(k.sql(dialect="postgres") for k in kinds),
                     description,
                 )
             )
             er.append(
-                f'        {c.kind.sql(dialect="postgres").replace("(", "_").replace(")", "")} {c.name}{" PK" if pk else ""} "{description}"'
+                f"        {c.kind.sql(dialect='postgres').replace('(', '_').replace(')', '')} {c.name}{' ' + keys if keys else ''}"
             )
         er.append("    }")
-        relevant = [q for q in queries if q["table"] == name]
+        relevant = [q for q in queries if name in q["tables"]]
         body = (
             comments[name]
             + "\n\n正本: "
@@ -209,6 +215,7 @@ def database_docs(queries):
             + "\n\n## カラム\n\n"
             + table(["カラム", "型", "NULL", "キー", "制約・既定値", "日本語説明"], columns)
         )
+        body += "## 外部キー\n\n" + table(["子カラム", "参照テーブル", "参照カラム"], foreign)
         body += "## インデックス\n\n" + table(
             ["名前", "定義", "正本"],
             (
@@ -225,8 +232,8 @@ def database_docs(queries):
         files[f"database/tables/{name}.gen.md"] = page(name + " テーブル仕様", body)
     files["database/er.gen.md"] = page(
         "DB全体ER図",
-        "DDLに定義された物理テーブルを表示する。現在、外部キーは定義されていないため関連線はない。owner_idは外部認証主体でありDB外部キーではない。\n\n```mermaid\n"
-        + "\n".join(er)
+        "DDLとALTER適用後の物理テーブル・外部キーを表示する。usersはCognito subを持ち、notes.owner_idが所有者を参照する。note_sharesは期限付き匿名閲覧の許可、note_sectionsは種類別の記入欄、note_tasksは個別タスクを表す。\n\n```mermaid\n"
+        + "\n".join(er + relations)
         + "\n```",
     )
     operations = {"INSERT": "C", "SELECT": "R", "UPDATE": "U", "DELETE": "D"}
@@ -241,7 +248,7 @@ def database_docs(queries):
                         {
                             operations[q["operation"]]
                             for q in queries
-                            if q["api"] == api and q["table"] == name
+                            if q["api"] == api and name in q["tables"]
                         }
                     )
                 )
@@ -255,7 +262,7 @@ def database_docs(queries):
     for name in names:
         for operation, code in operations.items():
             relevant = sorted(
-                {q["api"] for q in queries if q["table"] == name and q["operation"] == operation}
+                {q["api"] for q in queries if name in q["tables"] and q["operation"] == operation}
             )
             if relevant:
                 diagram = 'flowchart TD\n  DB["' + name + '"]'
@@ -264,7 +271,7 @@ def database_docs(queries):
                 diagrams += f"## {name} {operation}\n\n```mermaid\n{diagram}\n```\n\n"
     files["database/crud.gen.md"] = page(
         "テーブル × API CRUD図",
-        "C=作成 / R=参照 / U=更新 / D=削除。SQL文種別に基づく対応で、UPDATE・DELETEのWHERE判定は別のRとして加算しない。schema_migrationsはAPIから直接操作せずmigrationで管理する。\n\n"
+        "C=作成 / R=参照 / U=更新 / D=削除。SQL文種別に基づく対応で、UPDATE・DELETEのWHERE判定は別のRとして加算しない。JOIN先の参照もRとして含める。schema_migrationsはAPIから直接操作せずmigrationで管理する。\n\n"
         + table(["API", *names], matrix)
         + diagrams
         + "## SQL・カラム詳細\n\n"
@@ -274,7 +281,17 @@ def database_docs(queries):
     )
     files["database/migrations.gen.md"] = page(
         "マイグレーション仕様",
-        "適用処理: "
+        "005_split_note_dataは一件ずつのDMLトランザクションで既存ノートを分割し、記入欄・タスク・共有が一致することを検証する。再開時も照合し、不一致なら旧カラムの削除に進まない。006で移行済みカラムを除去、007で所有者の外部キーを追加する。DDLはDSQLの制約に合わせ一文ずつ適用する。移行中は旧版APIを停止する。\n\nデータ移行処理: "
+        + source("backend/src/app/migration_data.py")
+        + "\n\n"
+        + table(
+            ["データ移行SQL", "SHA-256"],
+            (
+                (source(p), hashlib.sha256(p.read_bytes()).hexdigest())
+                for p in sorted((ROOT / "backend/migrations/005_split_note_data").glob("*.sql"))
+            ),
+        )
+        + "\n適用処理: "
         + source("backend/src/app/migrate.py")
         + "\n\n"
         + table(
@@ -338,8 +355,20 @@ def api_docs(queries, catalog):
         handler_path = Path(inspect.getfile(route.endpoint))
         handler = function_at(handler_path, route.endpoint.__name__)
         function_path = handler_path.parent / "functions.py"
+        helpers = {}
         if function_path.exists():
-            function = function_at(function_path, "execute")
+            helpers = {
+                n.name: n
+                for n in ast.parse(function_path.read_text()).body
+                if isinstance(n, ast.FunctionDef)
+            }
+            function = ast.FunctionDef(
+                name=handler.name,
+                args=handler.args,
+                body=[*handler.body, *helpers.values()],
+                decorator_list=[],
+                lineno=handler.lineno,
+            )
         elif op == "local_login":
             function_path = ROOT / "backend/src/app/auth.py"
             function = function_at(function_path, "local_login")
@@ -451,7 +480,7 @@ def api_docs(queries, catalog):
             where = sql.args.get("where")
             access.append(
                 (
-                    q["table"],
+                    ", ".join(q["tables"]),
                     q["operation"],
                     q["summary"],
                     where.sql(dialect="postgres") if where else "なし",
@@ -464,8 +493,15 @@ def api_docs(queries, catalog):
             + "## 入力\n\n"
             + table(["位置", "名前", "型", "必須"], incoming)
             + "## 呼出し・分岐・応答\n\n"
-            + "生成ラッパー・with・変換用関数の表示を省き、ifとtry/catch、DB操作、HTTP応答を表示する。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。\n\n"
-            + sequence(function, qs, request=f"{method} {path}", definition=d, auth_errors=auth_err)
+            + "ルーターを起点に関数呼出しを展開し、ifとtry/catch、DB操作、BEGIN・COMMIT・ROLLBACK、HTTP応答を表示する。関数層ではトランザクションを開始しない。成功応答はCOMMIT完了後に返す。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。\n\n"
+            + sequence(
+                handler if helpers else function,
+                qs,
+                request=f"{method} {path}",
+                definition=d,
+                auth_errors=auth_err,
+                helpers=helpers,
+            )
             + "\n## DBアクセス\n\n"
             + table(["テーブル", "操作", "処理", "絞込み条件", "バインド引数"], access)
             + (
@@ -750,7 +786,7 @@ def render():
                     q["api"],
                     source(q["source"]),
                     q["operation"],
-                    q["table"],
+                    ", ".join(q["tables"]),
                     source(q["generated"]),
                     q["sha256"],
                 )

@@ -24,6 +24,7 @@ import {
   type Note,
   type NoteInput,
 } from "./domain";
+import { TaskList } from "./TaskList";
 import { Editor } from "./Editor";
 export function App({ initialError = "" }: { initialError?: string }) {
   const [logged, setLogged] = useState(
@@ -33,6 +34,7 @@ export function App({ initialError = "" }: { initialError?: string }) {
   const [selected, setSelected] = useState<Note | null>(null);
   const [error, setError] = useState(initialError);
   const [busy, setBusy] = useState(false);
+  const [taskView, setTaskView] = useState(false);
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("");
   const [dirty, setDirty] = useState(false);
@@ -158,17 +160,31 @@ export function App({ initialError = "" }: { initialError?: string }) {
         <Brand />
         <p className="eyebrow">YOUR WORKSPACE</p>
         <button
-          className={!group ? "nav active" : "nav"}
+          className={!group && !taskView ? "nav active" : "nav"}
           onClick={() => {
             if (leave()) {
               setSelected(null);
               setDirty(false);
               setGroup("");
+              setTaskView(false);
             }
           }}
         >
           <BookOpen size={18} />
           すべてのノート<span>{notes.length}</span>
+        </button>
+        <button
+          className={taskView ? "nav active" : "nav"}
+          onClick={() => {
+            if (leave()) {
+              setSelected(null);
+              setDirty(false);
+              setTaskView(true);
+            }
+          }}
+        >
+          <CheckSquare size={18} />
+          すべてのタスク
         </button>
         <p className="eyebrow spaced">COLLECTIONS</p>
         {groups.map((g) => (
@@ -180,6 +196,7 @@ export function App({ initialError = "" }: { initialError?: string }) {
                 setSelected(null);
                 setDirty(false);
                 setGroup(g);
+                setTaskView(false);
               }
             }}
           >
@@ -275,6 +292,16 @@ export function App({ initialError = "" }: { initialError?: string }) {
                 busy={busy}
               />
             </>
+          ) : taskView ? (
+            <TaskList
+              onOpen={(id) => {
+                void action(async () => {
+                  setSelected(await api<Note>("/notes/" + id));
+                  setDirty(false);
+                  setStatus("保存済み");
+                });
+              }}
+            />
           ) : (
             <>
               <div className="page-heading">

@@ -4,9 +4,9 @@
 
 `GET /api/notes/{note_id}` / operationId: `get_note`
 
-ハンドラ: [backend/src/app/apis/notes/get_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/get_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/get_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L11)
+処理: [backend/src/app/apis/notes/get_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L15)
 
 ルートの共通ラッパーが、実際に返すHTTPコード・例外から構造化ログを出力する。JWT・パス中の共有トークン・本文・パスワードはログ項目に含めない。API Gatewayが手前で拒否した要求はFastAPIのログ対象外。
 
@@ -39,7 +39,7 @@
 | message_id | get_note.rejected |
 | message | 認証・入力・対象状態によりリクエストを拒否しました |
 | operation | get_note |
-| status | 401, 404, 422 |
+| status | 401, 404, 409, 422 |
 | exception_type | 捕捉した例外のクラス名。正常応答はnull |
 
 ### get_note.failed
@@ -60,5 +60,6 @@
 | 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
 | 404 | API / 認証 | ノートが見つかりません | application/json: {detail: "ノートが見つかりません"} |
+| 409 | API / 認証 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
 | 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |

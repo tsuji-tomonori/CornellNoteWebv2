@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Task(BaseModel):
@@ -27,6 +27,19 @@ class NoteInput(BaseModel):
     tasks: list[Task] = Field(
         default_factory=list[Task], max_length=100, description="チェックリストのアクション一覧"
     )
+
+    @field_validator("tasks")
+    @classmethod
+    def unique_tasks(cls, tasks: list[Task]) -> list[Task]:
+        if len({task.id for task in tasks}) != len(tasks):
+            raise ValueError("同じノート内でタスクIDを重複させることはできません")
+        return tasks
+
+
+class TaskOverview(Task):
+    note_id: UUID = Field(description="タスクが属するノートの識別子")
+    title: str = Field(description="所属ノートの題名")
+    group_name: str = Field(description="所属ノートの分類名")
 
 
 class NoteUpdate(NoteInput):

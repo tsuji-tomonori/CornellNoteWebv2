@@ -1,28 +1,54 @@
-import json
 from datetime import UTC, datetime
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from app.models import Note, NoteInput
-from app.port import Database
+from app.port import QuerySession
 
 from .generated import queries
 
 
-def execute(data: NoteInput, owner: str, repo: Database) -> Note:
-    """初版のノートを保存する。"""
-    note_id = uuid4()
+def ensure_user(owner: str, session: QuerySession) -> None:
+    queries.insert_user(session, queries.InsertUserParams(id=owner, created_at=datetime.now(UTC)))
+
+
+def create(data: NoteInput, owner: str, session: QuerySession) -> queries.InsertNoteRow:
+    return queries.insert_note(
+        session,
+        queries.InsertNoteParams(
+            id=uuid4(),
+            owner_id=owner,
+            title=data.title,
+            group_name=data.group,
+            updated_at=datetime.now(UTC),
+        ),
+    )[0]
+
+
+def response(row: queries.InsertNoteRow, data: NoteInput) -> Note:
+    return Note(**data.model_dump(), id=row.id, version=row.version, updated_at=row.updated_at)
+
+
+def save_sections(note_id: UUID, data: NoteInput, session: QuerySession) -> None:
     now = datetime.now(UTC)
-    params = queries.InsertNoteParams(
-        id=note_id,
-        owner_id=owner,
-        title=data.title,
-        group_name=data.group,
-        cue=data.cue,
-        content=data.content,
-        summary=data.summary,
-        tasks=json.dumps([t.model_dump(mode="json") for t in data.tasks]),
-        updated_at=now,
-    )
-    with repo.transaction() as session:
-        queries.insert_note(session, params)
-    return Note(**data.model_dump(), id=note_id, version=1, updated_at=now)
+    for kind in ("cue", "content", "summary"):
+        queries.insert_section(
+            session,
+            queries.InsertSectionParams(
+                note_id=note_id, kind=kind, body=getattr(data, kind), updated_at=now
+            ),
+        )
+
+
+def save_tasks(note_id: UUID, data: NoteInput, session: QuerySession) -> None:
+    for position, task in enumerate(data.tasks):
+        queries.insert_task(
+            session,
+            queries.InsertTaskParams(
+                note_id=note_id,
+                id=task.id,
+                text=task.text,
+                done=task.done,
+                due=task.due,
+                position=position,
+            ),
+        )

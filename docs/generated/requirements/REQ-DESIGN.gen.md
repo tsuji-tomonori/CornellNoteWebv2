@@ -7,11 +7,11 @@
 | action | maintain |
 | category | nonfunctional |
 | id | REQ-DESIGN |
-| last_changed_by | searchable-design-and-coverage |
-| object | APIのIF・詳細設計・シーケンス・ログ台帳・SQL仕様・テスト観点をlazunexの構成に沿って実装から生成し、正常入力・DB操作と値の出所・全応答を説明する。CRUD図とCDKリソース種類別台帳をMarkdownで自動更新する |
+| last_changed_by | normalized-model-and-router-transactions |
+| object | 実装とDDLからAPIの6帳票、外部キーを含むER図、JOIN参照先も含むCRUD図を生成する。ルーターの単一トランザクションと全SQL、BEGIN・COMMIT・ROLLBACK、分岐と全HTTP応答をシーケンスに示す |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 4 |
+| revision | 5 |
 | scope | project |
 | source_refs | user:2026-09-05-cornellnoteweb |
 | status | active |
@@ -25,7 +25,7 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-DESIGN | 実装が更新される | 設計生成とdrift検査を実行する | APIのIF・詳細設計・シーケンス・ログ台帳・SQL仕様・テスト観点をlazunexの構成に沿って実装から生成し、正常入力・DB操作と値の出所・全応答を説明する。CRUD図とCDKリソース種類別台帳をMarkdownで自動更新する |
+| AC-DESIGN | 実装が更新される | 設計生成とdrift検査を実行する | 実装とDDLからAPIの6帳票、外部キーを含むER図、JOIN参照先も含むCRUD図を生成する。ルーターの単一トランザクションと全SQL、BEGIN・COMMIT・ROLLBACK、分岐と全HTTP応答をシーケンスに示す |
 
 ## トレーサビリティ
 

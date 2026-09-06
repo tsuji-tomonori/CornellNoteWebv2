@@ -4,20 +4,20 @@
 
 Python CDKのsynth結果 `CornellNote.template.json` を静的解析する。AWSへのデプロイ完了や実在を示す台帳ではない。
 
-対象スタック: CornellNote / リソース総数: 29
+対象スタック: CornellNote / リソース総数: 31
 
-正規化テンプレートSHA-256: `88e22fd049362b09d917b67b56d16032c6c3cba9426f4e6ca1c880143f39404d`。Lambda Codeの環境依存S3キーは正規化し、ソースとuv.lockを別途manifestで追跡する。
+正規化テンプレートSHA-256: `be9792fb0879901c147177407096354f25e070c597ebae011f4bbbb560eee79f`。Lambda Codeの環境依存S3キーは正規化し、ソースとuv.lockを別途manifestで追跡する。
 
 ## 全体サマリー
 
 | サービス領域 | 件数 |
 | --- | --- |
-| ApiGatewayV2 | 8 |
+| ApiGatewayV2 | 9 |
 | CloudFront | 3 |
 | Cognito | 3 |
 | DSQL | 1 |
 | IAM | 4 |
-| Lambda | 6 |
+| Lambda | 7 |
 | Logs | 2 |
 | S3 | 2 |
 
@@ -28,7 +28,7 @@ Python CDKのsynth結果 `CornellNote.template.json` を静的解析する。AWS
 | AWS::ApiGatewayV2::Api | 1 | [設定・参照関係](types/aws-apigatewayv2-api.gen.md) |
 | AWS::ApiGatewayV2::Authorizer | 1 | [設定・参照関係](types/aws-apigatewayv2-authorizer.gen.md) |
 | AWS::ApiGatewayV2::Integration | 1 | [設定・参照関係](types/aws-apigatewayv2-integration.gen.md) |
-| AWS::ApiGatewayV2::Route | 4 | [設定・参照関係](types/aws-apigatewayv2-route.gen.md) |
+| AWS::ApiGatewayV2::Route | 5 | [設定・参照関係](types/aws-apigatewayv2-route.gen.md) |
 | AWS::ApiGatewayV2::Stage | 1 | [設定・参照関係](types/aws-apigatewayv2-stage.gen.md) |
 | AWS::CloudFront::Distribution | 1 | [設定・参照関係](types/aws-cloudfront-distribution.gen.md) |
 | AWS::CloudFront::OriginAccessControl | 1 | [設定・参照関係](types/aws-cloudfront-originaccesscontrol.gen.md) |
@@ -40,7 +40,7 @@ Python CDKのsynth結果 `CornellNote.template.json` を静的解析する。AWS
 | AWS::IAM::Policy | 2 | [設定・参照関係](types/aws-iam-policy.gen.md) |
 | AWS::IAM::Role | 2 | [設定・参照関係](types/aws-iam-role.gen.md) |
 | AWS::Lambda::Function | 2 | [設定・参照関係](types/aws-lambda-function.gen.md) |
-| AWS::Lambda::Permission | 4 | [設定・参照関係](types/aws-lambda-permission.gen.md) |
+| AWS::Lambda::Permission | 5 | [設定・参照関係](types/aws-lambda-permission.gen.md) |
 | AWS::Logs::LogGroup | 2 | [設定・参照関係](types/aws-logs-loggroup.gen.md) |
 | AWS::S3::Bucket | 1 | [設定・参照関係](types/aws-s3-bucket.gen.md) |
 | AWS::S3::BucketPolicy | 1 | [設定・参照関係](types/aws-s3-bucketpolicy.gen.md) |

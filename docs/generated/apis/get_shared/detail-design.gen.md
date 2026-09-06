@@ -4,9 +4,9 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L15)
 
-処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
+処理: [backend/src/app/apis/notes/get_shared/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L15)
 
 ## 1. 正常系入力
 
@@ -21,19 +21,42 @@
 | 条件・例外 | 分岐時の応答 |
 | --- | --- |
 | 共有リンクが無効または期限切れです | HTTP 404: application/json: {detail: "共有リンクが無効または期限切れです"} |
+| 更新が競合しました。再読み込みしてください | HTTP 409: application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-### ハッシュと期限が一致する共有ノートを取得する
+### 閲覧条件を満たすノートの基本情報を取得する
 
-テーブル: `notes` / 操作: `SELECT`
+テーブル: `note_shares, notes` / 操作: `SELECT`
 
-対象条件: `WHERE share_hash = %(share_hash)s AND share_expires > %(share_expires)s`
+対象条件: `WHERE sh.token_hash = %(token_hash)s AND sh.expires_at > %(expires_at)s`
 
 | バインド引数 | 値の取得元 |
 | --- | --- |
-| share_hash | hashlib.sha256(token.encode()).hexdigest() |
-| share_expires | datetime.now(UTC) |
+| token_hash | functions.digest(token) |
+| expires_at | datetime.now(UTC) |
+
+### 閲覧可能なノートの問い・本文・要約を取得する
+
+テーブル: `note_sections, note_shares, notes` / 操作: `SELECT`
+
+対象条件: `WHERE sh.token_hash = %(token_hash)s AND sh.expires_at > %(expires_at)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| token_hash | functions.digest(token) |
+| expires_at | datetime.now(UTC) |
+
+### 閲覧可能なノートのタスクを表示順に取得する
+
+テーブル: `note_shares, note_tasks, notes` / 操作: `SELECT`
+
+対象条件: `WHERE sh.token_hash = %(token_hash)s AND sh.expires_at > %(expires_at)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| token_hash | functions.digest(token) |
+| expires_at | datetime.now(UTC) |
 
 ## 3. 正常系リソース変更
 
@@ -50,17 +73,17 @@
 | $ | object |  | 配列・オブジェクトの入れ物 |
 | $.title | string | ノートのタイトル | DB: notes.title |
 | $.group | string | 科目やコレクションの分類名 | DB: notes.group_name |
-| $.cue | string | 問い・キーワード欄 | DB: notes.cue |
-| $.content | string | ノート本文 | DB: notes.content |
-| $.summary | string | 学びを要約するまとめ欄 | DB: notes.summary |
-| $.tasks | array | チェックリストのアクション一覧 | DB: notes.tasks（JSONから復元） |
-| $.tasks[] | object |  | DB: notes.tasks（JSONから復元） |
-| $.tasks[].id | string | 項目を一意に識別するUUID | DB: notes.tasks（JSONから復元） |
-| $.tasks[].text | string | アクションの内容 | DB: notes.tasks（JSONから復元） |
-| $.tasks[].done | boolean | アクションの完了状態 | DB: notes.tasks（JSONから復元） |
-| $.tasks[].due | union | アクションの期日。未指定はnull | DB: notes.tasks（JSONから復元） |
-| $.tasks[].due (候補1) | string |  | DB: notes.tasks（JSONから復元） |
-| $.tasks[].due (候補2) | null |  | DB: notes.tasks（JSONから復元） |
+| $.cue | string | 問い・キーワード欄 | DB: note_sections.body（kind = cue） |
+| $.content | string | ノート本文 | DB: note_sections.body（kind = content） |
+| $.summary | string | 学びを要約するまとめ欄 | DB: note_sections.body（kind = summary） |
+| $.tasks | array | チェックリストのアクション一覧 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[] | object |  | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].id | string | 項目を一意に識別するUUID | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].text | string | アクションの内容 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].done | boolean | アクションの完了状態 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due | union | アクションの期日。未指定はnull | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due (候補1) | string |  | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due (候補2) | null |  | DB: note_tasks の行を表示順に配列化 |
 | $.id | string | 項目を一意に識別するUUID | DB: notes.id |
 | $.version | integer | 保存されたノートの版番号 | DB: notes.version |
 | $.updated_at | string | 最終更新日時 | DB: notes.updated_at |

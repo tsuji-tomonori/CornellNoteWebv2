@@ -51,6 +51,7 @@
 | [HttpApiANYapinotesproxyFastApiIntegrationPermission0D1CCE2E](../types/aws-lambda-permission.gen.md#httpapianyapinotesproxyfastapiintegrationpermission0d1cce2e) | AWS::Lambda::Permission |
 | [HttpApiGETapisharedtokenFastApiIntegrationPermission3DA044D2](../types/aws-lambda-permission.gen.md#httpapigetapisharedtokenfastapiintegrationpermission3da044d2) | AWS::Lambda::Permission |
 | [HttpApiGETapihealthFastApiIntegrationPermissionF0E9BEE3](../types/aws-lambda-permission.gen.md#httpapigetapihealthfastapiintegrationpermissionf0e9bee3) | AWS::Lambda::Permission |
+| [HttpApiGETapitasksFastApiIntegrationPermission9FC11C82](../types/aws-lambda-permission.gen.md#httpapigetapitasksfastapiintegrationpermission9fc11c82) | AWS::Lambda::Permission |
 
 ## MigrationC13A4580
 

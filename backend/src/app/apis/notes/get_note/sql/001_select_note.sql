@@ -1,13 +1,10 @@
--- 所有者とIDでノートを取得する
+-- 閲覧条件を満たすノートの基本情報を取得する
 SELECT
-    id,
-    title,
-    group_name,
-    cue,
-    content,
-    summary,
-    tasks,
-    version,
-    updated_at
-FROM notes
-WHERE id = %(id)s AND owner_id = %(owner_id)s;
+    n.id,
+    n.title,
+    n.group_name,
+    n.version,
+    n.updated_at
+FROM notes AS n
+WHERE n.owner_id = %(owner_id)s AND n.id = %(id)s
+ORDER BY n.updated_at DESC, n.id ASC;

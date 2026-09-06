@@ -4,9 +4,9 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
+処理: [backend/src/app/apis/notes/update_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L15)
 
 ## 0. Router層の暗黙処理
 
@@ -22,11 +22,11 @@
 
 | 要因 | 要素 | 期待観点 |
 | --- | --- | --- |
-| not rows | 成立 | HTTP 404: 'ノートが見つかりません', HTTP 409: '別の画面で更新されています。入力を控えて再読み込みしてください' |
-| not rows | 不成立 | 後続処理または正常応答へ進む |
 | 例外: UpdateConflict | 発生／非発生 | 個別catchのHTTP応答と、非発生時の処理継続を確認する |
 | not owned | 成立 | HTTP 404: 'ノートが見つかりません' |
 | not owned | 不成立 | 後続処理または正常応答へ進む |
+| not rows | 成立 | HTTP 409: '別の画面で更新されています。入力を控えて再読み込みしてください' |
+| not rows | 不成立 | 後続処理または正常応答へ進む |
 
 ## 2. HTTP経路のテストケース一覧
 
@@ -58,3 +58,4 @@
 | REQ-EDIT | 本人のノートを開いている | 問い・記録・まとめを保存する | 再読込後も三欄が保持される | [frontend/e2e/notes.spec.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/e2e/notes.spec.ts), [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py) |
 | REQ-CONFLICT | 同じノートを複数画面で開く | 古いversionで保存する | 409を返し最新保存を上書きしない | [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py) |
 | REQ-SQL | APIのSQLまたはDDLが変更される | コード生成と品質検査を実行する | 型付き引数・行モデル・SQLファイル読込ラッパーが生成され、SQLFluffと差分・境界検査が不備を検出する | [tests/test_queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_queries.py), [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py) |
+| REQ-TRANSACTION | 保存済みノートまたは新規入力がある | APIとデータ移行を実行する | 各DB利用APIのルーターが一つのトランザクションを開き、関数に同じセッションを渡す。全処理とレスポンス構築に成功してCOMMITした後だけ成功を返し、途中失敗・コミット競合時に全変更をROLLBACKする。競合は409、未処理障害は500とし機密情報を応答に含めない | [backend/tests/test_normalized.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_normalized.py), [backend/tests/test_response_contract.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_response_contract.py), [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py), [tests/test_queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_queries.py) |

@@ -15,34 +15,34 @@ SOURCE = ROOT / "backend/src/app/apis"
 
 
 def schema(root: Path) -> dict[str, dict[str, str]]:
+    try:
+        from tools.schema_model import ddl_state, primary_columns
+    except ModuleNotFoundError:
+        from schema_model import ddl_state, primary_columns
     tables = {}
-    for path in sorted((root / "backend/migrations").glob("*.sql")):
-        for statement in sqlglot.parse(path.read_text(), dialect="postgres"):
-            if not isinstance(statement, exp.Create) or statement.kind != "TABLE":
+    for name, (path, statement) in ddl_state(root)[0].items():
+        fields = {}
+        primary = primary_columns(statement.this)
+        for column in statement.this.expressions:
+            if not isinstance(column, exp.ColumnDef):
                 continue
-            table = statement.this
-            if not isinstance(table, exp.Schema):
-                raise ValueError(f"{path}: unsupported table definition")
-            fields = {}
-            for column in table.expressions:
-                if not isinstance(column, exp.ColumnDef):
-                    raise ValueError(f"{path}: unsupported table constraint")
-                kind = column.kind.sql(dialect="postgres").split("(")[0]
-                types = {
-                    "UUID": "UUID",
-                    "VARCHAR": "str",
-                    "TEXT": "str",
-                    "INT": "int",
-                    "TIMESTAMPTZ": "datetime",
-                }
-                if kind not in types:
-                    raise ValueError(f"{path}: unsupported column type {kind}")
-                nonnull = any(
-                    isinstance(c.kind, exp.NotNullColumnConstraint | exp.PrimaryKeyColumnConstraint)
-                    for c in column.constraints
-                )
-                fields[column.name] = types[kind] + ("" if nonnull else " | None")
-            tables[table.this.name] = fields
+            kind = column.kind.sql(dialect="postgres").split("(")[0]
+            types = {
+                "UUID": "UUID",
+                "VARCHAR": "str",
+                "TEXT": "str",
+                "INT": "int",
+                "TIMESTAMPTZ": "datetime",
+                "BOOLEAN": "bool",
+                "DATE": "date",
+            }
+            if kind not in types:
+                raise ValueError(f"{path}: unsupported column type {kind}")
+            nonnull = column.name in primary or any(
+                isinstance(c.kind, exp.NotNullColumnConstraint) for c in column.constraints
+            )
+            fields[column.name] = types[kind] + ("" if nonnull else " | None")
+        tables[name] = fields
     return tables
 
 
@@ -60,24 +60,40 @@ def analyze(path: Path, tables: dict[str, dict[str, str]]) -> dict:
         raise ValueError(f"{path}: exactly one SELECT/INSERT/UPDATE/DELETE is supported")
     statement = statements[0]
     table_nodes = list(statement.find_all(exp.Table))
-    if len(table_nodes) != 1 or table_nodes[0].name not in tables:
-        raise ValueError(
-            f"{path}: expected one known table; joins/subqueries need generator support"
-        )
-    fields = tables[table_nodes[0].name]
-    for column in statement.find_all(exp.Column):
-        if column.name not in fields:
-            raise ValueError(f"{path}: unknown column {column.name}")
+    if not table_nodes or any(n.name not in tables for n in table_nodes):
+        raise ValueError(f"{path}: expected known tables")
+    aliases = {n.alias_or_name: n.name for n in table_nodes}
+
+    def field(column):
+        if column.table:
+            name = aliases.get(column.table)
+            if name is None or column.name not in tables[name]:
+                raise ValueError(f"{path}: unknown column {column.sql()}")
+            return tables[name][column.name]
+        choices = {n.name for n in table_nodes if column.name in tables[n.name]}
+        if len(choices) != 1:
+            raise ValueError(f"{path}: unknown column or ambiguous column {column.name}")
+        return tables[next(iter(choices))][column.name]
+
     if statement.find(exp.Star):
         raise ValueError(f"{path}: enumerate columns instead of SELECT *")
     for column in statement.find_all(exp.Column):
-        if column.table and column.table not in {table_nodes[0].name, table_nodes[0].alias}:
-            raise ValueError(f"{path}: unknown table qualifier {column.table}")
+        field(column)
+
+    def origin(column):
+        name = (
+            aliases.get(column.table)
+            if column.table
+            else next(n.name for n in table_nodes if column.name in tables[n.name])
+        )
+        return name + "." + column.name
+
+    param_sources, row_sources = {}, {}
     placeholders = list(statement.find_all(exp.Placeholder))
     params = {}
     for p in placeholders:
         name = p.this.name if isinstance(p.this, exp.Identifier) else ""
-        if name not in fields or not isinstance(p.this, exp.Identifier):
+        if not isinstance(p.this, exp.Identifier):
             raise ValueError(f"{path}: named pyformat placeholders must match DDL columns")
         parent = p.parent
         if isinstance(parent, exp.Binary):
@@ -85,20 +101,27 @@ def analyze(path: Path, tables: dict[str, dict[str, str]]) -> dict:
             if not isinstance(peer, exp.Column) or peer.name != name:
                 raise ValueError(f"{path}: placeholder must match its compared/assigned column")
         elif isinstance(parent, exp.Tuple) and isinstance(statement, exp.Insert):
-            if statement.this.expressions[parent.expressions.index(p)].name != name:
+            peer = exp.column(
+                statement.this.expressions[parent.expressions.index(p)].name,
+                table=table_nodes[0].alias_or_name,
+            )
+            if peer.name != name:
                 raise ValueError(f"{path}: INSERT parameter/column mismatch")
         else:
             raise ValueError(f"{path}: unsupported parameter context {type(parent).__name__}")
-        params[name] = fields[name]
+        params[name] = field(peer)
+        param_sources[name] = origin(peer)
     projection = statement if isinstance(statement, exp.Select) else statement.args.get("returning")
     rows = {}
     if projection:
-        for c in projection.expressions:
+        for result in projection.expressions:
+            c = result.this if isinstance(result, exp.Alias) else result
             if not isinstance(c, exp.Column):
                 raise ValueError(f"{path}: computed result requires explicit generator support")
-            if c.name in rows:
+            if result.alias_or_name in rows:
                 raise ValueError(f"{path}: duplicate result column {c.name}")
-            rows[c.name] = fields[c.name]
+            rows[result.alias_or_name] = field(c)
+            row_sources[result.alias_or_name] = origin(c)
     name = path.stem[4:]
     return {
         "name": name,
@@ -106,7 +129,10 @@ def analyze(path: Path, tables: dict[str, dict[str, str]]) -> dict:
         "filename": path.name,
         "params": dict(sorted(params.items())),
         "rows": rows,
+        "param_sources": param_sources,
+        "row_sources": row_sources,
         "table": table_nodes[0].name,
+        "tables": sorted({n.name for n in table_nodes}),
         "operation": statement.key.upper(),
         "sha256": hashlib.sha256(text.encode()).hexdigest(),
     }
@@ -121,8 +147,8 @@ def model(name: str, fields: dict[str, str]) -> str:
 def render_module(queries: list[dict]) -> str:
     hints = " ".join(t for q in queries for t in [*q["params"].values(), *q["rows"].values()])
     imports = "from pathlib import Path\nfrom pydantic import BaseModel, ConfigDict\nfrom app.port import QuerySession\n"
-    if "datetime" in hints:
-        imports += "from datetime import datetime\n"
+    if "date" in hints:
+        imports += "from datetime import date, datetime\n"
     if "UUID" in hints:
         imports += "from uuid import UUID\n"
     text = (
@@ -150,7 +176,7 @@ def render_module(queries: list[dict]) -> str:
             "ruff",
             "check",
             "--select",
-            "I",
+            "I,F401",
             "--fix",
             "--stdin-filename",
             "queries.py",
@@ -260,7 +286,27 @@ def check_architecture(root: Path = ROOT) -> None:
                 raise ValueError(
                     f"{path}: SQL/function query mapping mismatch: {expected ^ called}"
                 )
+        if path.name == "router.py" and (path.parent / "sql").exists():
+            for handler in (n for n in tree.body if isinstance(n, ast.FunctionDef)):
+                transactions = [
+                    n
+                    for n in ast.walk(handler)
+                    if isinstance(n, ast.Call)
+                    and isinstance(n.func, ast.Attribute)
+                    and n.func.attr == "transaction"
+                ]
+                if len(transactions) != 1:
+                    raise ValueError(
+                        f"{path}:{handler.lineno}: exactly one router transaction is required"
+                    )
         for node in ast.walk(tree):
+            if (
+                path.name == "functions.py"
+                and isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr in {"transaction", "commit", "rollback"}
+            ):
+                raise ValueError(f"{path}:{node.lineno}: transaction belongs to router")
             if (
                 isinstance(node, ast.ImportFrom)
                 and node.module

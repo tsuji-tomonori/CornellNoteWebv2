@@ -4,9 +4,9 @@
 
 `POST /api/notes/{note_id}/share` / operationId: `create_share`
 
-ハンドラ: [backend/src/app/apis/notes/create_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/create_share/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/router.py#L15)
 
-処理: [backend/src/app/apis/notes/create_share/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L13)
+処理: [backend/src/app/apis/notes/create_share/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_share/functions.py#L15)
 
 ## 0. Router層の暗黙処理
 
@@ -22,8 +22,9 @@
 
 | 要因 | 要素 | 期待観点 |
 | --- | --- | --- |
-| not rows | 成立 | HTTP 404: 'ノートが見つかりません' |
-| not rows | 不成立 | 後続処理または正常応答へ進む |
+| 例外: UpdateConflict | 発生／非発生 | 個別catchのHTTP応答と、非発生時の処理継続を確認する |
+| not owned | 成立 | HTTP 404: 'ノートが見つかりません' |
+| not owned | 不成立 | 後続処理または正常応答へ進む |
 
 ## 2. HTTP経路のテストケース一覧
 
@@ -36,8 +37,9 @@
 | TC003 | 401 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | TC004 | 401 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
 | TC005 | 404 | ノートが見つかりません | application/json: {detail: "ノートが見つかりません"} |
-| TC006 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
-| TC007 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+| TC006 | 409 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
+| TC007 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC008 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 

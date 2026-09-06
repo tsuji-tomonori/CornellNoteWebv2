@@ -4,7 +4,7 @@
 
 [インベントリへ戻る](../index.gen.md)
 
-リソース数: 4
+リソース数: 5
 
 ## Logical ID 一覧
 
@@ -14,6 +14,7 @@
 | [HttpApiANYapinotesproxy02D793B3](#httpapianyapinotesproxy02d793b3) |  | CloudFormation既定 |
 | [HttpApiGETapihealth7FA5887F](#httpapigetapihealth7fa5887f) |  | CloudFormation既定 |
 | [HttpApiGETapisharedtoken16AC79E4](#httpapigetapisharedtoken16ac79e4) |  | CloudFormation既定 |
+| [HttpApiGETapitasks90C3F6E0](#httpapigetapitasks90c3f6e0) |  | CloudFormation既定 |
 
 ## HttpApiANYapinotes49E219FC
 
@@ -101,6 +102,30 @@
 | リソース | 種類 |
 | --- | --- |
 | [HttpApiANYapinotesFastApiIntegration445527F5](../types/aws-apigatewayv2-integration.gen.md#httpapianyapinotesfastapiintegration445527f5) | AWS::ApiGatewayV2::Integration |
+| [HttpApiF5A9A8A7](../types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) | AWS::ApiGatewayV2::Api |
+
+### 参照元
+
+該当なし。
+
+## HttpApiGETapitasks90C3F6E0
+
+### 設定項目
+
+| 項目 | 値 |
+| --- | --- |
+| ApiId | [HttpApiF5A9A8A7](../types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) |
+| AuthorizationType | JWT |
+| AuthorizerId | [HttpApiCognitoJwt4B02D8E4](../types/aws-apigatewayv2-authorizer.gen.md#httpapicognitojwt4b02d8e4) |
+| RouteKey | GET /api/tasks |
+| Target | Fn::Join: , integrations/, [HttpApiANYapinotesFastApiIntegration445527F5](../types/aws-apigatewayv2-integration.gen.md#httpapianyapinotesfastapiintegration445527f5) |
+
+### 参照・明示依存
+
+| リソース | 種類 |
+| --- | --- |
+| [HttpApiANYapinotesFastApiIntegration445527F5](../types/aws-apigatewayv2-integration.gen.md#httpapianyapinotesfastapiintegration445527f5) | AWS::ApiGatewayV2::Integration |
+| [HttpApiCognitoJwt4B02D8E4](../types/aws-apigatewayv2-authorizer.gen.md#httpapicognitojwt4b02d8e4) | AWS::ApiGatewayV2::Authorizer |
 | [HttpApiF5A9A8A7](../types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) | AWS::ApiGatewayV2::Api |
 
 ### 参照元

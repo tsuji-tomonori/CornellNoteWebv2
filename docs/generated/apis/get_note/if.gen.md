@@ -4,9 +4,9 @@
 
 `GET /api/notes/{note_id}` / operationId: `get_note`
 
-ハンドラ: [backend/src/app/apis/notes/get_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/get_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/get_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L11)
+処理: [backend/src/app/apis/notes/get_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L15)
 
 ## 認証
 
@@ -82,7 +82,8 @@ application/json
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:56](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L56) |
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:59](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L59) |
 | 401 | 認証情報が無効または期限切れです | [backend/src/app/auth.py:62](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L62) |
-| 404 | ノートが見つかりません | [backend/src/app/apis/notes/get_note/functions.py:16](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L16) |
+| 404 | ノートが見つかりません | [backend/src/app/apis/notes/get_note/functions.py:20](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L20) |
+| 409 | 更新が競合しました。再読み込みしてください | [backend/src/app/apis/notes/get_note/functions.py:25](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_note/functions.py#L25) |
 
 ## 共通処理を含む応答一覧
 
@@ -93,6 +94,7 @@ application/json
 | 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
 | 404 | API / 認証 | ノートが見つかりません | application/json: {detail: "ノートが見つかりません"} |
+| 409 | API / 認証 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
 | 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 

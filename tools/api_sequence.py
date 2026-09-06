@@ -107,7 +107,11 @@ def label(value):
     )
 
 
-def sequence(node, queries, *, request, definition, auth_errors=()):
+def sequence(node, queries, *, request, definition, auth_errors=(), helpers=None):
+    helpers = helpers or {}
+    transaction_depth = 0
+    helper_stack = []
+    uses_transaction = any(isinstance(n, ast.With) for n in ast.walk(node))
     by_name = {q["name"]: q for q in queries}
     status, body = success_response(definition)
     lines = [
@@ -144,21 +148,29 @@ def sequence(node, queries, *, request, definition, auth_errors=()):
             calls(child)
         if isinstance(expr, ast.Call):
             name = ast.unparse(expr.func)
+            if name.startswith("functions.") and name.split(".")[-1] in helpers:
+                target = name.split(".")[-1]
+                if target in helper_stack:
+                    raise ValueError("Recursive function in sequence: " + target)
+                helper_stack.append(target)
+                block(helpers[target].body, helper=True)
+                helper_stack.pop()
             if name.startswith("queries.") and name.split(".")[-1] in by_name:
                 q = by_name[name.split(".")[-1]]
-                emit(f"A->>D: {q['operation']} {q['table']} / {label(q['summary'])}")
+                emit(f"A->>D: {q['operation']} {', '.join(q['tables'])} / {label(q['summary'])}")
                 emit("D-->>A: " + ("行データ（0件以上）" if q["rows"] else "実行完了"))
 
-    def block(nodes):
+    def block(nodes, helper=False):
+        nonlocal transaction_depth
         for n in nodes:
             if isinstance(n, ast.If):
                 calls(n.test)
                 emit("alt " + label(n.test))
-                yes = block(n.body)
+                yes = block(n.body, helper)
                 no = True
                 if n.orelse:
                     emit("else 条件が偽")
-                    no = block(n.orelse)
+                    no = block(n.orelse, helper)
                 emit("end")
                 if not yes and not no:
                     return False
@@ -166,21 +178,48 @@ def sequence(node, queries, *, request, definition, auth_errors=()):
                 if n.finalbody:
                     raise ValueError("finally control flow requires explicit response extraction")
                 emit("critical try")
-                falls_through = block(n.body)
+                falls_through = block(n.body, helper)
                 if n.orelse and falls_through:
-                    falls_through = block(n.orelse)
+                    falls_through = block(n.orelse, helper)
                 for h in n.handlers:
                     emit("option catch " + label(h.type))
-                    falls_through = block(h.body) or falls_through
+                    if uses_transaction:
+                        emit("A->>D: ROLLBACK（開始済みの場合）")
+                        emit("D-->>A: 全変更を取り消す")
+                    falls_through = block(h.body, helper) or falls_through
                 emit("end")
                 if not falls_through:
                     return False
             elif isinstance(n, ast.With):
-                if not block(n.body):
+                transactional = any(
+                    isinstance(i.context_expr, ast.Call)
+                    and isinstance(i.context_expr.func, ast.Attribute)
+                    and i.context_expr.func.attr == "transaction"
+                    for i in n.items
+                )
+                if transactional:
+                    emit("A->>D: BEGIN（同一スナップショット）")
+                    transaction_depth += 1
+                falls = block(n.body, helper)
+                if transactional:
+                    transaction_depth -= 1
+                    if falls:
+                        emit("A->>D: COMMIT")
+                        emit("D-->>A: 確定完了")
+                if not falls:
                     return False
+            elif isinstance(n, ast.For):
+                emit("loop " + label(n.target) + " ごと")
+                block(n.body, helper)
+                emit("end")
             elif isinstance(n, ast.Return):
                 calls(n.value)
+                if helper:
+                    return False
                 emit("break 正常終了")
+                if transaction_depth:
+                    emit("A->>D: COMMIT")
+                    emit("D-->>A: 確定完了")
                 reply(status, body)
                 emit("end")
                 return False
@@ -192,12 +231,15 @@ def sequence(node, queries, *, request, definition, auth_errors=()):
                 code = ast.literal_eval(values["status_code"])
                 detail = ast.literal_eval(values["detail"])
                 emit("break 異常終了")
+                if transaction_depth:
+                    emit("A->>D: ROLLBACK")
+                    emit("D-->>A: 全変更を取り消す")
                 reply(code, 'application/json: {detail: "' + detail + '"}')
                 emit("end")
                 return False
             elif isinstance(n, ast.Assign | ast.AnnAssign | ast.Expr):
                 calls(n.value)
-            elif not isinstance(n, ast.Pass):
+            elif not isinstance(n, ast.Pass | ast.Import | ast.ImportFrom):
                 raise ValueError(f"Unsupported sequence statement: {type(n).__name__}:{n.lineno}")
         return True
 
@@ -218,6 +260,9 @@ def sequence(node, queries, *, request, definition, auth_errors=()):
     if rejection_branches:
         emit("end")
     emit("option 個別catchで処理されない例外")
+    if uses_transaction:
+        emit("A->>D: ROLLBACK（開始済みの場合）")
+        emit("D-->>A: 全変更を取り消す")
     reply("500", "text/plain: Internal Server Error")
     emit("end")
     return "```mermaid\n" + "\n".join(lines) + "\n```\n"

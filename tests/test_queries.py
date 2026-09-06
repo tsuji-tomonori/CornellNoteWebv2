@@ -40,7 +40,7 @@ def test_SQL生成が決定的で差分検査が書き込まない(project):
         ("SELECT id FROM notes WHERE id = :id", "pyformat"),
         ("SELECT id FROM notes WHERE owner_id = %(id)s", "compared/assigned"),
         ("SELECT count(id) FROM notes", "computed result"),
-        ("SELECT n.id FROM notes n JOIN notes b ON n.id=b.id", "one known table"),
+        ("SELECT x.id FROM notes n JOIN users u ON n.owner_id=u.id", "unknown column"),
     ],
 )
 def test_未対応または不正なSQLを明示的に拒否する(tmp_path, sql, message):
@@ -71,3 +71,24 @@ def test_生成SQLの出力でシンボリックリンクを辿らない(project
     with pytest.raises(ValueError, match="Unsafe generated output"):
         write_outputs({output: "overwritten"}, check=False, root=project)
     assert target.read_text() == "unchanged"
+
+
+def test_JOINの型と参照元をDDLから導出する():
+    path = ROOT / "backend/src/app/apis/notes/list_tasks/sql/001_select_tasks.sql"
+    query = analyze(path, schema(ROOT))
+    assert query["tables"] == ["note_tasks", "notes"]
+    assert query["row_sources"]["title"] == "notes.title"
+    assert query["row_sources"]["done"] == "note_tasks.done"
+    assert query["rows"]["done"] == "bool"
+    assert query["rows"]["due"] == "date | None"
+    assert query["param_sources"]["owner_id"] == "notes.owner_id"
+
+
+def test_関数層のトランザクション開始を拒否する(tmp_path):
+    operation = tmp_path / "backend/src/app/apis/notes/invalid"
+    operation.mkdir(parents=True)
+    (operation / "functions.py").write_text(
+        "def save(repo):\n    with repo.transaction():\n        pass\n"
+    )
+    with pytest.raises(ValueError, match="transaction belongs to router"):
+        check_architecture(tmp_path)

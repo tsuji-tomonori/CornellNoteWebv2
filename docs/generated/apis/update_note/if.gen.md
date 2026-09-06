@@ -4,9 +4,9 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
+処理: [backend/src/app/apis/notes/update_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L15)
 
 ## 認証
 
@@ -102,9 +102,9 @@ application/json
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:56](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L56) |
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:59](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L59) |
 | 401 | 認証情報が無効または期限切れです | [backend/src/app/auth.py:62](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L62) |
-| 404 | ノートが見つかりません | [backend/src/app/apis/notes/update_note/functions.py:36](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L36) |
-| 409 | 別の画面で更新されています。入力を控えて再読み込みしてください | [backend/src/app/apis/notes/update_note/functions.py:37](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L37) |
-| 409 | 更新が競合しました。再読み込みしてください | [backend/src/app/apis/notes/update_note/functions.py:42](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L42) |
+| 404 | ノートが見つかりません | [backend/src/app/apis/notes/update_note/functions.py:20](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L20) |
+| 409 | 別の画面で更新されています。入力を控えて再読み込みしてください | [backend/src/app/apis/notes/update_note/functions.py:23](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L23) |
+| 409 | 更新が競合しました。再読み込みしてください | [backend/src/app/apis/notes/update_note/functions.py:31](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L31) |
 
 ## 共通処理を含む応答一覧
 

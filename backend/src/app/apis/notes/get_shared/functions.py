@@ -1,21 +1,45 @@
-import hashlib
-from datetime import UTC, datetime
+from datetime import datetime
 
 from app.models import Note
-from app.note_mapping import decode
-from app.port import Database
-from fastapi import HTTPException
+from app.note_mapping import assemble
+from app.port import QuerySession
 
 from .generated import queries
 
 
-def execute(token: str, repo: Database) -> Note:
-    """期限内の共有ノートを閲覧用に返す。"""
-    params = queries.SelectSharedNoteParams(
-        share_hash=hashlib.sha256(token.encode()).hexdigest(), share_expires=datetime.now(UTC)
+def select_note(
+    token_hash: str, expires_at: datetime, session: QuerySession
+) -> list[queries.SelectNoteRow]:
+    return queries.select_note(
+        session, queries.SelectNoteParams(token_hash=token_hash, expires_at=expires_at)
     )
-    with repo.transaction() as session:
-        rows = queries.select_shared_note(session, params)
-    if not rows:
-        raise HTTPException(404, "共有リンクが無効または期限切れです")
-    return decode(rows[0])
+
+
+def select_sections(
+    token_hash: str, expires_at: datetime, session: QuerySession
+) -> list[queries.SelectSectionsRow]:
+    return queries.select_sections(
+        session, queries.SelectSectionsParams(token_hash=token_hash, expires_at=expires_at)
+    )
+
+
+def select_tasks(
+    token_hash: str, expires_at: datetime, session: QuerySession
+) -> list[queries.SelectTasksRow]:
+    return queries.select_tasks(
+        session, queries.SelectTasksParams(token_hash=token_hash, expires_at=expires_at)
+    )
+
+
+def response(
+    rows: list[queries.SelectNoteRow],
+    sections: list[queries.SelectSectionsRow],
+    tasks: list[queries.SelectTasksRow],
+) -> Note:
+    return assemble(rows[0], sections, tasks)
+
+
+def digest(token: str) -> str:
+    import hashlib
+
+    return hashlib.sha256(token.encode()).hexdigest()

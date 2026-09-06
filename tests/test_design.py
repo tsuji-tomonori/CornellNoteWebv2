@@ -97,13 +97,17 @@ def test_DDLとOpenAPIの実際の説明と制約を全API文書に出す():
     assert "schema_migrations" in db["database/er.gen.md"]
     assert "所有者のCognito sub" in db["database/tables/notes.gen.md"]
     assert "VARCHAR(128)" in db["database/tables/notes.gen.md"]
-    assert "notes_share_idx" in db["database/tables/notes.gen.md"]
+    assert "notes_owner_fk" in db["database/tables/notes.gen.md"]
+    assert "note_tasks" in db["database/er.gen.md"]
+    assert "users ||--o{ notes" in db["database/er.gen.md"]
+    assert "notes ||--o| note_shares" in db["database/er.gen.md"]
+    assert "UUID note_id PK, FK" in db["database/er.gen.md"]
     docs = api_docs(queries, {"requirements": []})
-    assert len([p for p in docs if p.endswith("if.gen.md")]) == 10
+    assert len([p for p in docs if p.endswith("if.gen.md")]) == 11
     assert "$.tasks[].text" in docs["apis/create_note/if.gen.md"]
     assert "maxLength: 500" in docs["apis/create_note/if.gen.md"]
     assert "409" in docs["apis/update_note/messages.gen.md"]
-    assert "001_update_note.sql" in docs["apis/update_note/query.gen.md"]
+    assert "002_update_note.sql" in docs["apis/update_note/query.gen.md"]
     assert all(p.suffix == ".md" for p in OUT.rglob("*") if p.is_file())
     assert not (ROOT / "spec/requirements/requirements.json").exists()
     assert fields({"type": "string", "maxLength": 17}, {})[0][-1] == {"maxLength": 17}
@@ -125,7 +129,7 @@ def test_シーケンスにテーブルと入力と全HTTP応答を記録する(
     assert "HTTP 500 / text/plain: Internal Server Error" in diagram
     assert "HTTP 404" not in diagram
     assert "HTTP 422" not in diagram
-    assert "WHERE owner_id = %(owner_id)s" in listing
+    assert "WHERE n.owner_id = %(owner_id)s" in listing
     assert "ハンドラ到達前の共通応答" in listing
     assert "HTTP 204 / 本文なし" in docs["apis/delete_note/sequence.gen.md"]
     assert "HTTP 201" in docs["apis/create_note/sequence.gen.md"]
@@ -146,3 +150,38 @@ def test_未対応の例外ハンドラー変更を検出する():
     instance.debug = True
     with pytest.raises(ValueError, match="Custom error handling"):
         verify_framework(instance)
+
+
+def test_ルーターのトランザクションと子テーブル操作を順序通りに生成する():
+    from tools.design import api_docs
+    from tools.generate_queries import collect
+
+    _, queries = collect()
+    docs = api_docs(queries, {"requirements": []})
+    for operation in (
+        "create_note",
+        "update_note",
+        "list_notes",
+        "get_note",
+        "delete_note",
+        "create_share",
+        "revoke_share",
+        "get_shared",
+        "list_tasks",
+    ):
+        diagram = docs[f"apis/{operation}/sequence.gen.md"].split("```mermaid\n")[1].split("```")[0]
+        assert diagram.count("BEGIN") == 1
+        assert "COMMIT" in diagram and "ROLLBACK" in diagram
+        assert diagram.index("BEGIN") < diagram.index("COMMIT")
+        assert diagram.index("確定完了") < diagram.index("HTTP 20")
+        assert "catch UpdateConflict" in diagram and "HTTP 409" in diagram
+        assert diagram.count("participant ") == 3
+    update = docs["apis/update_note/sequence.gen.md"].split("```mermaid\n")[1].split("```")[0]
+    assert (
+        update.index("UPDATE notes")
+        < update.index("INSERT note_sections")
+        < update.index("INSERT note_tasks")
+        < update.index("COMMIT")
+    )
+    assert "DB: note_sections.body" in docs["apis/get_note/detail-design.gen.md"]
+    assert "DB: note_tasks" in docs["apis/get_note/detail-design.gen.md"]

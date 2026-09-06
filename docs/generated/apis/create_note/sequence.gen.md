@@ -4,9 +4,9 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L13)
 
-処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
+処理: [backend/src/app/apis/notes/create_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L13)
 
 ## 入力
 
@@ -17,7 +17,7 @@
 
 ## 呼出し・分岐・応答
 
-生成ラッパー・with・変換用関数の表示を省き、ifとtry/catch、DB操作、HTTP応答を表示する。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。
+ルーターを起点に関数呼出しを展開し、ifとtry/catch、DB操作、BEGIN・COMMIT・ROLLBACK、HTTP応答を表示する。関数層ではトランザクションを開始しない。成功応答はCOMMIT完了後に返す。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。
 
 ```mermaid
 sequenceDiagram
@@ -31,13 +31,36 @@ sequenceDiagram
     else 入力検証で拒否
     A-->>C: HTTP 422 / application/json: HTTPValidationError
     else 検証通過
-    A->>D: INSERT notes / 所有者に紐づく新しいノートを保存する
+    critical try
+    A->>D: BEGIN（同一スナップショット）
+    A->>D: INSERT users / 認証済み所有者を初回のみ登録する
     D-->>A: 実行完了
+    A->>D: INSERT notes / ノートの基本情報を保存する
+    D-->>A: 行データ（0件以上）
+    loop kind ごと
+    A->>D: INSERT note_sections / 問い・本文・要約をそれぞれ一行として保存する
+    D-->>A: 実行完了
+    end
+    loop (position, task) ごと
+    A->>D: INSERT note_tasks / 個別タスクの内容・完了状態・期日・表示順序を保存する
+    D-->>A: 実行完了
+    end
     break 正常終了
+    A->>D: COMMIT
+    D-->>A: 確定完了
     A-->>C: HTTP 201 / application/json: Note
+    end
+    option catch UpdateConflict
+    A->>D: ROLLBACK（開始済みの場合）
+    D-->>A: 全変更を取り消す
+    break 異常終了
+    A-->>C: HTTP 409 / application/json: {detail: #quot;更新が競合しました。再読み込みしてください#quot;}
+    end
     end
     end
     option 個別catchで処理されない例外
+    A->>D: ROLLBACK（開始済みの場合）
+    D-->>A: 全変更を取り消す
     A-->>C: HTTP 500 / text/plain: Internal Server Error
     end
 ```
@@ -46,7 +69,10 @@ sequenceDiagram
 
 | テーブル | 操作 | 処理 | 絞込み条件 | バインド引数 |
 | --- | --- | --- | --- | --- |
-| notes | INSERT | 所有者に紐づく新しいノートを保存する | なし | content, cue, group_name, id, owner_id, summary, tasks, title, updated_at |
+| users | INSERT | 認証済み所有者を初回のみ登録する | なし | created_at, id |
+| notes | INSERT | ノートの基本情報を保存する | なし | group_name, id, owner_id, title, updated_at |
+| note_sections | INSERT | 問い・本文・要約をそれぞれ一行として保存する | なし | body, kind, note_id, updated_at |
+| note_tasks | INSERT | 個別タスクの内容・完了状態・期日・表示順序を保存する | なし | done, due, id, note_id, position, text |
 
 接続は`DSQL_HOST`（AWSのAurora DSQL）または`DATABASE_URL`（ローカルPostgreSQL）。接続処理: [backend/src/app/db.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/db.py) / ローカル構成: [compose.yaml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/compose.yaml)
 
@@ -58,6 +84,7 @@ sequenceDiagram
 | 401 | API / 認証 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
 | 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| 409 | API / 認証 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
 | 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 

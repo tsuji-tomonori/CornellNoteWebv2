@@ -4,9 +4,9 @@
 
 `DELETE /api/notes/{note_id}` / operationId: `delete_note`
 
-ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L14)
 
-処理: [backend/src/app/apis/notes/delete_note/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L8)
+処理: [backend/src/app/apis/notes/delete_note/functions.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L14)
 
 ## 1. 正常系入力
 
@@ -24,10 +24,52 @@
 | ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
 | 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
 | 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| 更新が競合しました。再読み込みしてください | HTTP 409: application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-### 所有者に一致するノートだけを削除する
+### 操作対象ノートの所有者を確認する
+
+テーブル: `notes` / 操作: `SELECT`
+
+対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | パス引数: note_id |
+| owner_id | 認証JWT: sub（所有者） |
+
+### ノートに属する子データを削除する
+
+テーブル: `note_tasks` / 操作: `DELETE`
+
+対象条件: `WHERE note_id = %(note_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+
+### ノートに属する子データを削除する
+
+テーブル: `note_sections` / 操作: `DELETE`
+
+対象条件: `WHERE note_id = %(note_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+
+### ノートに属する子データを削除する
+
+テーブル: `note_shares` / 操作: `DELETE`
+
+対象条件: `WHERE note_id = %(note_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+
+### 所有者に一致するノートの基本情報を最後に削除する
 
 テーブル: `notes` / 操作: `DELETE`
 
@@ -42,6 +84,9 @@
 
 | テーブル | 操作 | カラム | 日本語説明 | 値の取得元 |
 | --- | --- | --- | --- | --- |
+| note_tasks | DELETE | 行全体 | 対象行を削除する | WHERE note_id = %(note_id)s |
+| note_sections | DELETE | 行全体 | 対象行を削除する | WHERE note_id = %(note_id)s |
+| note_shares | DELETE | 行全体 | 対象行を削除する | WHERE note_id = %(note_id)s |
 | notes | DELETE | 行全体 | 対象行を削除する | WHERE id = %(id)s AND owner_id = %(owner_id)s |
 
 ## 4. 正常系レスポンス

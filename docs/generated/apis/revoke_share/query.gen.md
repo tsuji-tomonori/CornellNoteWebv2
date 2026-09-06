@@ -4,19 +4,19 @@
 
 `DELETE /api/notes/{note_id}/share` / operationId: `revoke_share`
 
-ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/revoke_share/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/router.py#L14)
 
-処理: [backend/src/app/apis/notes/revoke_share/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/functions.py#L8)
+処理: [backend/src/app/apis/notes/revoke_share/functions.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/functions.py#L14)
 
-## 001_revoke_share.sql
+## 001_select_owned_note.sql
 
 ### SQL種別
 
-`UPDATE`
+`SELECT`
 
 ### SQLの概要
 
-所有者のノートの共有を失効させる
+操作対象ノートの所有者を確認する
 
 ### 利用するテーブル
 
@@ -31,14 +31,50 @@
 
 ### 戻り値
 
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+
+### SQL
+
+```sql
+-- 操作対象ノートの所有者を確認する
+SELECT id FROM notes
+WHERE id = %(id)s AND owner_id = %(owner_id)s;
+```
+
+正本: [backend/src/app/apis/notes/revoke_share/sql/001_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/sql/001_select_owned_note.sql)
+
+## 002_delete_share.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+所有者が指定した閲覧リンクを失効する
+
+### 利用するテーブル
+
+`note_shares`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_shares | note_id | note_id | 閲覧を許可するノート | UUID | UUID | 不可 |
+
+### 戻り値
+
 該当なし。
 
 ### SQL
 
 ```sql
--- 所有者のノートの共有を失効させる
-UPDATE notes SET share_hash = NULL, share_expires = NULL
-WHERE id = %(id)s AND owner_id = %(owner_id)s;
+-- 所有者が指定した閲覧リンクを失効する
+DELETE FROM note_shares
+WHERE note_id = %(note_id)s;
 ```
 
-正本: [backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/sql/001_revoke_share.sql)
+正本: [backend/src/app/apis/notes/revoke_share/sql/002_delete_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/revoke_share/sql/002_delete_share.sql)

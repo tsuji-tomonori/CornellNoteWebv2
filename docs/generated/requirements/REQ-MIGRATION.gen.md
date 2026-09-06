@@ -7,11 +7,11 @@
 | action | maintain |
 | category | nonfunctional |
 | id | REQ-MIGRATION |
-| last_changed_by | initial-implementation |
-| object | 適用済checksumを検査しテーブルと全カラムに日本語コメントがある |
+| last_changed_by | normalized-model-and-router-transactions |
+| object | 旧ノートからユーザー・記入欄・タスク・共有リンクへ一件ずつ移行し、元データと照合してから旧カラムを除去する。失敗時に旧データを保ち再開可能であり、checksumと全テーブル・カラムの日本語コメントを検証する |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 1 |
+| revision | 2 |
 | scope | project |
 | source_refs | user:2026-09-05-cornellnoteweb |
 | status | active |
@@ -25,13 +25,13 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-MIGRATION | DBを初期化または更新する | migrationを実行する | 適用済checksumを検査しテーブルと全カラムに日本語コメントがある |
+| AC-MIGRATION | DBを初期化または更新する | migrationを実行する | 旧ノートからユーザー・記入欄・タスク・共有リンクへ一件ずつ移行し、元データと照合してから旧カラムを除去する。失敗時に旧データを保ち再開可能であり、checksumと全テーブル・カラムの日本語コメントを検証する |
 
 ## トレーサビリティ
 
 | 種類 | 正本の参照 |
 | --- | --- |
 | design | [docs/generated/README.gen.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/README.gen.md) |
-| implementation | [backend/src/app/migrate.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/migrate.py), [backend/migrations/001_notes.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/migrations/001_notes.sql) |
+| implementation | [backend/src/app/migrate.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/migrate.py), [backend/migrations/001_notes.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/migrations/001_notes.sql), [backend/src/app/migration_data.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/migration_data.py), [backend/migrations/004_normalized_tables.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/migrations/004_normalized_tables.sql), [backend/migrations/006_remove_embedded_columns.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/migrations/006_remove_embedded_columns.sql), [backend/migrations/007_owner_reference.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/migrations/007_owner_reference.sql) |
 | standards | [AGENTS.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/AGENTS.md) |
-| tests | [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py) |
+| tests | [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py), [backend/tests/test_normalized.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_normalized.py) |

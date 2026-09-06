@@ -4,73 +4,11 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
+処理: [backend/src/app/apis/notes/update_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L15)
 
-## 001_update_note.sql
-
-### SQL種別
-
-`UPDATE`
-
-### SQLの概要
-
-所有者と版が一致するノートを更新する
-
-### 利用するテーブル
-
-`notes`
-
-### 引数
-
-| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
-| --- | --- | --- | --- | --- | --- | --- |
-| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
-| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
-| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
-| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
-| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
-| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
-| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
-| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
-| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
-| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
-
-### 戻り値
-
-| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
-| --- | --- | --- | --- | --- | --- | --- |
-| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
-| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
-| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
-| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
-| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
-| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
-| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
-| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
-| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
-
-### SQL
-
-```sql
--- 所有者と版が一致するノートを更新する
-UPDATE notes SET
-    title = %(title)s,
-    group_name = %(group_name)s,
-    cue = %(cue)s,
-    content = %(content)s,
-    summary = %(summary)s,
-    tasks = %(tasks)s,
-    version = version + 1,
-    updated_at = %(updated_at)s
-WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s RETURNING
-    id, title, group_name, cue, content, summary, tasks, version, updated_at;
-```
-
-正本: [backend/src/app/apis/notes/update_note/sql/001_update_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/001_update_note.sql)
-
-## 002_select_owned_note.sql
+## 001_select_owned_note.sql
 
 ### SQL種別
 
@@ -78,7 +16,7 @@ WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s RETURNIN
 
 ### SQLの概要
 
-更新失敗が権限不足か版競合かを区別する
+所有者に一致するノートと現在の版を確認する
 
 ### 利用するテーブル
 
@@ -96,13 +34,219 @@ WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s RETURNIN
 | DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
 | --- | --- | --- | --- | --- | --- | --- |
 | notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
 
 ### SQL
 
 ```sql
--- 更新失敗が権限不足か版競合かを区別する
-SELECT id FROM notes
+-- 所有者に一致するノートと現在の版を確認する
+SELECT
+    id,
+    title,
+    group_name,
+    version,
+    updated_at
+FROM notes
 WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
 
-正本: [backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/002_select_owned_note.sql)
+正本: [backend/src/app/apis/notes/update_note/sql/001_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/001_select_owned_note.sql)
+
+## 002_update_note.sql
+
+### SQL種別
+
+`UPDATE`
+
+### SQLの概要
+
+所有者と版が一致するときだけ基本情報を更新する
+
+### 利用するテーブル
+
+`notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### SQL
+
+```sql
+-- 所有者と版が一致するときだけ基本情報を更新する
+UPDATE notes SET
+    title = %(title)s,
+    group_name = %(group_name)s,
+    version = version + 1,
+    updated_at = %(updated_at)s
+WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s RETURNING
+    id, title, group_name, version, updated_at;
+```
+
+正本: [backend/src/app/apis/notes/update_note/sql/002_update_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/002_update_note.sql)
+
+## 003_delete_sections.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+同一トランザクション内で保存対象の記入欄を置き換える
+
+### 利用するテーブル
+
+`note_sections`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_sections | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 同一トランザクション内で保存対象の記入欄を置き換える
+DELETE FROM note_sections
+WHERE note_id = %(note_id)s;
+```
+
+正本: [backend/src/app/apis/notes/update_note/sql/003_delete_sections.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/003_delete_sections.sql)
+
+## 004_delete_tasks.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+同一トランザクション内で保存対象のタスクを置き換える
+
+### 利用するテーブル
+
+`note_tasks`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_tasks | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 同一トランザクション内で保存対象のタスクを置き換える
+DELETE FROM note_tasks
+WHERE note_id = %(note_id)s;
+```
+
+正本: [backend/src/app/apis/notes/update_note/sql/004_delete_tasks.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/004_delete_tasks.sql)
+
+## 005_insert_section.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
+
+問い・本文・要約をそれぞれ一行として保存する
+
+### 利用するテーブル
+
+`note_sections`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_sections | body | body | この記入欄の自由記述本文 | TEXT | str | 不可 |
+| note_sections | kind | kind | 記入欄の種類（cue:問い、content:本文、summary:要約） | VARCHAR(16) | str | 不可 |
+| note_sections | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+| note_sections | updated_at | updated_at | 記入欄を保存した日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 問い・本文・要約をそれぞれ一行として保存する
+INSERT INTO note_sections (note_id, kind, body, updated_at) VALUES (
+    %(note_id)s, %(kind)s, %(body)s, %(updated_at)s
+);
+```
+
+正本: [backend/src/app/apis/notes/update_note/sql/005_insert_section.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/005_insert_section.sql)
+
+## 006_insert_task.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
+
+個別タスクの内容・完了状態・期日・表示順序を保存する
+
+### 利用するテーブル
+
+`note_tasks`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_tasks | done | done | 完了していればtrue、未完了ならfalse | BOOLEAN | bool | 不可 |
+| note_tasks | due | due | 期日。未指定はNULL | DATE | date \| None | 可 |
+| note_tasks | id | id | ノート内で一意なタスク識別子 | UUID | UUID | 不可 |
+| note_tasks | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+| note_tasks | position | position | ノート内の表示順序（0始まり） | INT | int | 不可 |
+| note_tasks | text | text | タスクの内容 | VARCHAR(500) | str | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 個別タスクの内容・完了状態・期日・表示順序を保存する
+INSERT INTO note_tasks (note_id, id, text, done, due, position) VALUES (
+    %(note_id)s, %(id)s, %(text)s, %(done)s, %(due)s, %(position)s
+);
+```
+
+正本: [backend/src/app/apis/notes/update_note/sql/006_insert_task.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/sql/006_insert_task.sql)

@@ -14,5 +14,6 @@
 | revoke_share | DELETE | /api/notes/{note_id}/share | Bearer JWT | [revoke_share](revoke_share/if.gen.md) |
 | create_share | POST | /api/notes/{note_id}/share | Bearer JWT | [create_share](create_share/if.gen.md) |
 | get_shared | GET | /api/shared/{token} | なし（local_loginはlocalモードのみ） | [get_shared](get_shared/if.gen.md) |
+| list_tasks | GET | /api/tasks | Bearer JWT | [list_tasks](list_tasks/if.gen.md) |
 
 各APIにIF・詳細設計・シーケンス・メッセージ・SQL・テスト観点の6文書を生成する。

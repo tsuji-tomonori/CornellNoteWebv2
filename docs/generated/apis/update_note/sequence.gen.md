@@ -4,9 +4,9 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
+処理: [backend/src/app/apis/notes/update_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L15)
 
 ## 入力
 
@@ -18,7 +18,7 @@
 
 ## 呼出し・分岐・応答
 
-生成ラッパー・with・変換用関数の表示を省き、ifとtry/catch、DB操作、HTTP応答を表示する。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。
+ルーターを起点に関数呼出しを展開し、ifとtry/catch、DB操作、BEGIN・COMMIT・ROLLBACK、HTTP応答を表示する。関数層ではトランザクションを開始しない。成功応答はCOMMIT完了後に返す。breakはその経路の終了。入力と認証に複数の不備がある場合の検証順序は省略し、確定した応答別に分岐する。
 
 ```mermaid
 sequenceDiagram
@@ -33,30 +33,53 @@ sequenceDiagram
     A-->>C: HTTP 422 / application/json: HTTPValidationError
     else 検証通過
     critical try
-    A->>D: UPDATE notes / 所有者と版が一致するノートを更新する
-    D-->>A: 行データ（0件以上）
-    alt not rows
-    A->>D: SELECT notes / 更新失敗が権限不足か版競合かを区別する
+    A->>D: BEGIN（同一スナップショット）
+    A->>D: SELECT notes / 所有者に一致するノートと現在の版を確認する
     D-->>A: 行データ（0件以上）
     alt not owned
     break 異常終了
+    A->>D: ROLLBACK
+    D-->>A: 全変更を取り消す
     A-->>C: HTTP 404 / application/json: {detail: #quot;ノートが見つかりません#quot;}
     end
     end
+    A->>D: UPDATE notes / 所有者と版が一致するときだけ基本情報を更新する
+    D-->>A: 行データ（0件以上）
+    alt not rows
     break 異常終了
+    A->>D: ROLLBACK
+    D-->>A: 全変更を取り消す
     A-->>C: HTTP 409 / application/json: {detail: #quot;別の画面で更新されています。入力を控えて再読み込みしてください#quot;}
     end
     end
+    A->>D: DELETE note_sections / 同一トランザクション内で保存対象の記入欄を置き換える
+    D-->>A: 実行完了
+    A->>D: DELETE note_tasks / 同一トランザクション内で保存対象のタスクを置き換える
+    D-->>A: 実行完了
+    loop kind ごと
+    A->>D: INSERT note_sections / 問い・本文・要約をそれぞれ一行として保存する
+    D-->>A: 実行完了
+    end
+    loop (position, task) ごと
+    A->>D: INSERT note_tasks / 個別タスクの内容・完了状態・期日・表示順序を保存する
+    D-->>A: 実行完了
+    end
     break 正常終了
+    A->>D: COMMIT
+    D-->>A: 確定完了
     A-->>C: HTTP 200 / application/json: Note
     end
     option catch UpdateConflict
+    A->>D: ROLLBACK（開始済みの場合）
+    D-->>A: 全変更を取り消す
     break 異常終了
     A-->>C: HTTP 409 / application/json: {detail: #quot;更新が競合しました。再読み込みしてください#quot;}
     end
     end
     end
     option 個別catchで処理されない例外
+    A->>D: ROLLBACK（開始済みの場合）
+    D-->>A: 全変更を取り消す
     A-->>C: HTTP 500 / text/plain: Internal Server Error
     end
 ```
@@ -65,8 +88,12 @@ sequenceDiagram
 
 | テーブル | 操作 | 処理 | 絞込み条件 | バインド引数 |
 | --- | --- | --- | --- | --- |
-| notes | UPDATE | 所有者と版が一致するノートを更新する | WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s | content, cue, group_name, id, owner_id, summary, tasks, title, updated_at, version |
-| notes | SELECT | 更新失敗が権限不足か版競合かを区別する | WHERE id = %(id)s AND owner_id = %(owner_id)s | id, owner_id |
+| notes | SELECT | 所有者に一致するノートと現在の版を確認する | WHERE id = %(id)s AND owner_id = %(owner_id)s | id, owner_id |
+| notes | UPDATE | 所有者と版が一致するときだけ基本情報を更新する | WHERE id = %(id)s AND owner_id = %(owner_id)s AND version = %(version)s | group_name, id, owner_id, title, updated_at, version |
+| note_sections | DELETE | 同一トランザクション内で保存対象の記入欄を置き換える | WHERE note_id = %(note_id)s | note_id |
+| note_tasks | DELETE | 同一トランザクション内で保存対象のタスクを置き換える | WHERE note_id = %(note_id)s | note_id |
+| note_sections | INSERT | 問い・本文・要約をそれぞれ一行として保存する | なし | body, kind, note_id, updated_at |
+| note_tasks | INSERT | 個別タスクの内容・完了状態・期日・表示順序を保存する | なし | done, due, id, note_id, position, text |
 
 接続は`DSQL_HOST`（AWSのAurora DSQL）または`DATABASE_URL`（ローカルPostgreSQL）。接続処理: [backend/src/app/db.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/db.py) / ローカル構成: [compose.yaml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/compose.yaml)
 

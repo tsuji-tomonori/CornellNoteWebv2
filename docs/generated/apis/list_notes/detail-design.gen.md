@@ -4,9 +4,9 @@
 
 `GET /api/notes` / operationId: `list_notes`
 
-ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L13)
 
-処理: [backend/src/app/apis/notes/list_notes/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L8)
+処理: [backend/src/app/apis/notes/list_notes/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L13)
 
 ## 1. 正常系入力
 
@@ -23,13 +23,34 @@
 | ログインが必要です | HTTP 401: application/json: {detail: "ログインが必要です"} |
 | 認証情報が無効です | HTTP 401: application/json: {detail: "認証情報が無効です"} |
 | 認証情報が無効または期限切れです | HTTP 401: application/json: {detail: "認証情報が無効または期限切れです"} |
+| 更新が競合しました。再読み込みしてください | HTTP 409: application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-### 所有者のノートを更新日時順に取得する
+### 閲覧条件を満たすノートの基本情報を取得する
 
 テーブル: `notes` / 操作: `SELECT`
 
-対象条件: `WHERE owner_id = %(owner_id)s`
+対象条件: `WHERE n.owner_id = %(owner_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| owner_id | 認証JWT: sub（所有者） |
+
+### 閲覧可能なノートの問い・本文・要約を取得する
+
+テーブル: `note_sections, notes` / 操作: `SELECT`
+
+対象条件: `WHERE n.owner_id = %(owner_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| owner_id | 認証JWT: sub（所有者） |
+
+### 閲覧可能なノートのタスクを表示順に取得する
+
+テーブル: `note_tasks, notes` / 操作: `SELECT`
+
+対象条件: `WHERE n.owner_id = %(owner_id)s`
 
 | バインド引数 | 値の取得元 |
 | --- | --- |
@@ -51,17 +72,17 @@
 | $[] | object |  | 配列・オブジェクトの入れ物 |
 | $[].title | string | ノートのタイトル | DB: notes.title |
 | $[].group | string | 科目やコレクションの分類名 | DB: notes.group_name |
-| $[].cue | string | 問い・キーワード欄 | DB: notes.cue |
-| $[].content | string | ノート本文 | DB: notes.content |
-| $[].summary | string | 学びを要約するまとめ欄 | DB: notes.summary |
-| $[].tasks | array | チェックリストのアクション一覧 | DB: notes.tasks（JSONから復元） |
-| $[].tasks[] | object |  | DB: notes.tasks（JSONから復元） |
-| $[].tasks[].id | string | 項目を一意に識別するUUID | DB: notes.tasks（JSONから復元） |
-| $[].tasks[].text | string | アクションの内容 | DB: notes.tasks（JSONから復元） |
-| $[].tasks[].done | boolean | アクションの完了状態 | DB: notes.tasks（JSONから復元） |
-| $[].tasks[].due | union | アクションの期日。未指定はnull | DB: notes.tasks（JSONから復元） |
-| $[].tasks[].due (候補1) | string |  | DB: notes.tasks（JSONから復元） |
-| $[].tasks[].due (候補2) | null |  | DB: notes.tasks（JSONから復元） |
+| $[].cue | string | 問い・キーワード欄 | DB: note_sections.body（kind = cue） |
+| $[].content | string | ノート本文 | DB: note_sections.body（kind = content） |
+| $[].summary | string | 学びを要約するまとめ欄 | DB: note_sections.body（kind = summary） |
+| $[].tasks | array | チェックリストのアクション一覧 | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[] | object |  | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[].id | string | 項目を一意に識別するUUID | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[].text | string | アクションの内容 | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[].done | boolean | アクションの完了状態 | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[].due | union | アクションの期日。未指定はnull | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[].due (候補1) | string |  | DB: note_tasks の行を表示順に配列化 |
+| $[].tasks[].due (候補2) | null |  | DB: note_tasks の行を表示順に配列化 |
 | $[].id | string | 項目を一意に識別するUUID | DB: notes.id |
 | $[].version | integer | 保存されたノートの版番号 | DB: notes.version |
 | $[].updated_at | string | 最終更新日時 | DB: notes.updated_at |

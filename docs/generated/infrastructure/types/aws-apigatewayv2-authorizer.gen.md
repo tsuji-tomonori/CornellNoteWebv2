@@ -39,3 +39,4 @@
 | --- | --- |
 | [HttpApiANYapinotes49E219FC](../types/aws-apigatewayv2-route.gen.md#httpapianyapinotes49e219fc) | AWS::ApiGatewayV2::Route |
 | [HttpApiANYapinotesproxy02D793B3](../types/aws-apigatewayv2-route.gen.md#httpapianyapinotesproxy02d793b3) | AWS::ApiGatewayV2::Route |
+| [HttpApiGETapitasks90C3F6E0](../types/aws-apigatewayv2-route.gen.md#httpapigetapitasks90c3f6e0) | AWS::ApiGatewayV2::Route |

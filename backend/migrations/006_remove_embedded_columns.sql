@@ -1,0 +1,7 @@
+ALTER TABLE notes DROP COLUMN IF EXISTS cue;
+ALTER TABLE notes DROP COLUMN IF EXISTS content;
+ALTER TABLE notes DROP COLUMN IF EXISTS summary;
+ALTER TABLE notes DROP COLUMN IF EXISTS tasks;
+ALTER TABLE notes DROP COLUMN IF EXISTS share_hash;
+ALTER TABLE notes DROP COLUMN IF EXISTS share_expires;
+COMMENT ON TABLE notes IS 'コーネル式ノートの基本情報と所有者。記入欄・タスク・共有は別テーブル';

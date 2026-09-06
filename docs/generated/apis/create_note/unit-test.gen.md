@@ -4,9 +4,9 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L13)
 
-処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
+処理: [backend/src/app/apis/notes/create_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L13)
 
 ## 0. Router層の暗黙処理
 
@@ -20,7 +20,9 @@
 
 ## 1. 要因ごとの要素
 
-該当なし。
+| 要因 | 要素 | 期待観点 |
+| --- | --- | --- |
+| 例外: UpdateConflict | 発生／非発生 | 個別catchのHTTP応答と、非発生時の処理継続を確認する |
 
 ## 2. HTTP経路のテストケース一覧
 
@@ -32,8 +34,9 @@
 | TC002 | 401 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
 | TC003 | 401 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | TC004 | 401 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
-| TC005 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
-| TC006 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+| TC005 | 409 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
+| TC006 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC007 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 
@@ -44,4 +47,6 @@
 
 ## 要件の受入基準
 
-該当なし。
+| 要件 | Given | When | Then | 検証ソース（ファイル単位） |
+| --- | --- | --- | --- | --- |
+| REQ-TRANSACTION | 保存済みノートまたは新規入力がある | APIとデータ移行を実行する | 各DB利用APIのルーターが一つのトランザクションを開き、関数に同じセッションを渡す。全処理とレスポンス構築に成功してCOMMITした後だけ成功を返し、途中失敗・コミット競合時に全変更をROLLBACKする。競合は409、未処理障害は500とし機密情報を応答に含めない | [backend/tests/test_normalized.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_normalized.py), [backend/tests/test_response_contract.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_response_contract.py), [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py), [tests/test_queries.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_queries.py) |

@@ -28,11 +28,12 @@ def connect(*, admin: bool = False) -> psycopg.Connection[dict[str, Any]]:
             sslrootcert=certifi.where(),
             connect_timeout=10,
             row_factory=dict_row,
+            prepare_threshold=None,
         )
     if not cfg.database_url:
         raise RuntimeError("DATABASE_URL or DSQL_HOST is required")
     return psycopg.Connection[dict[str, Any]].connect(
-        cfg.database_url, row_factory=dict_row, connect_timeout=10
+        cfg.database_url, row_factory=dict_row, connect_timeout=10, prepare_threshold=None
     )
 
 
@@ -52,6 +53,7 @@ class PostgresDatabase:
     def transaction(self) -> Generator[QuerySession, None, None]:
         try:
             with connect() as conn:
+                conn.isolation_level = psycopg.IsolationLevel.REPEATABLE_READ
                 yield PostgresSession(conn)
         except SerializationFailure as exc:
             raise UpdateConflict from exc

@@ -4,9 +4,9 @@
 
 `DELETE /api/notes/{note_id}` / operationId: `delete_note`
 
-ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L14)
 
-処理: [backend/src/app/apis/notes/delete_note/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L8)
+処理: [backend/src/app/apis/notes/delete_note/functions.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L14)
 
 ## 0. Router層の暗黙処理
 
@@ -20,7 +20,11 @@
 
 ## 1. 要因ごとの要素
 
-該当なし。
+| 要因 | 要素 | 期待観点 |
+| --- | --- | --- |
+| 例外: UpdateConflict | 発生／非発生 | 個別catchのHTTP応答と、非発生時の処理継続を確認する |
+| not owned | 成立 | 後続処理または正常応答へ進む |
+| not owned | 不成立 | 後続処理または正常応答へ進む |
 
 ## 2. HTTP経路のテストケース一覧
 
@@ -32,8 +36,9 @@
 | TC002 | 401 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
 | TC003 | 401 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | TC004 | 401 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
-| TC005 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
-| TC006 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+| TC005 | 409 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
+| TC006 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC007 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 

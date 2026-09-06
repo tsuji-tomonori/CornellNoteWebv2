@@ -1,5 +1,5 @@
 # Generated from sibling sql/*.sql and migration DDL. Do not edit.
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -19,17 +19,55 @@ class SelectNotesRow(BaseModel):
     id: UUID
     title: str
     group_name: str
-    cue: str
-    content: str
-    summary: str
-    tasks: str
     version: int
     updated_at: datetime
 
 
 def select_notes(session: QuerySession, params: SelectNotesParams) -> list[SelectNotesRow]:
-    """所有者のノートを更新日時順に取得する"""
+    """閲覧条件を満たすノートの基本情報を取得する"""
     return [
         SelectNotesRow.model_validate(row)
         for row in session.fetch_all(SQL_DIR / "001_select_notes.sql", params.model_dump())
+    ]
+
+
+class SelectSectionsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    owner_id: str
+
+
+class SelectSectionsRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    note_id: UUID
+    kind: str
+    body: str
+
+
+def select_sections(session: QuerySession, params: SelectSectionsParams) -> list[SelectSectionsRow]:
+    """閲覧可能なノートの問い・本文・要約を取得する"""
+    return [
+        SelectSectionsRow.model_validate(row)
+        for row in session.fetch_all(SQL_DIR / "002_select_sections.sql", params.model_dump())
+    ]
+
+
+class SelectTasksParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    owner_id: str
+
+
+class SelectTasksRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    note_id: UUID
+    id: UUID
+    text: str
+    done: bool
+    due: date | None
+
+
+def select_tasks(session: QuerySession, params: SelectTasksParams) -> list[SelectTasksRow]:
+    """閲覧可能なノートのタスクを表示順に取得する"""
+    return [
+        SelectTasksRow.model_validate(row)
+        for row in session.fetch_all(SQL_DIR / "003_select_tasks.sql", params.model_dump())
     ]

@@ -262,3 +262,72 @@ test("誤ったパスワードでログインできない", async ({ page }, inf
     },
   );
 });
+
+test("全ノートのタスクを状態別に探して編集結果を確認する", async ({
+  page,
+}, info) => {
+  const title = `横断タスク ${info.project.name}`;
+  await step(
+    page,
+    info,
+    "Given",
+    "未完了と完了のタスクを持つノートが保存されている",
+    async () => {
+      await login(page);
+      await create(page, title);
+      await page.getByLabel("新しいアクション").fill("横断一覧で復習する");
+      await page.getByRole("button", { name: "アクションを追加" }).click();
+      await page.getByLabel("新しいアクション").fill("資料を読み終えた");
+      await page.getByRole("button", { name: "アクションを追加" }).click();
+      await page.getByLabel("資料を読み終えたを完了").check();
+      await save(page);
+    },
+  );
+  await step(
+    page,
+    info,
+    "When",
+    "全タスクを開いてノート名で検索し完了状態を切り替える",
+    async () => {
+      await page.getByRole("button", { name: "すべてのタスク" }).click();
+      await page.getByRole("textbox", { name: "タスクを検索" }).fill(title);
+      await expect(
+        page.getByText("横断一覧で復習する", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByText("資料を読み終えた", { exact: true }),
+      ).not.toBeVisible();
+      await page.getByRole("button", { name: "完了", exact: true }).click();
+      await expect(
+        page.getByText("資料を読み終えた", { exact: true }),
+      ).toBeVisible();
+      await page.getByRole("button", { name: "すべて", exact: true }).click();
+      await expect(
+        page.getByText("横断一覧で復習する", { exact: true }),
+      ).toBeVisible();
+    },
+  );
+  await step(
+    page,
+    info,
+    "Then",
+    "所属ノートで復習を完了すると一覧の完了側に反映される",
+    async () => {
+      await page
+        .getByRole("button", { name: `ノートを開く: ${title}`, exact: true })
+        .first()
+        .click();
+      await page.getByLabel("横断一覧で復習するを完了").check();
+      await save(page);
+      await page.getByRole("button", { name: "すべてのタスク" }).click();
+      await page.getByRole("textbox", { name: "タスクを検索" }).fill(title);
+      await page.getByRole("button", { name: "完了", exact: true }).click();
+      await expect(
+        page.getByText("横断一覧で復習する", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByText("資料を読み終えた", { exact: true }),
+      ).toBeVisible();
+    },
+  );
+});

@@ -101,6 +101,9 @@ class CornellStack(Stack):
             role=role,
             log_group=log_group,
             timeout=Duration.seconds(28),
+            reserved_concurrent_executions=0
+            if self.node.try_get_context("maintenance") == "true"
+            else None,
             memory_size=256,
             environment={"AUTH_MODE": "cognito", "DSQL_HOST": database.attr_endpoint},
         )
@@ -184,6 +187,12 @@ class CornellStack(Stack):
             path="/api/shared/{token}", methods=[apigw.HttpMethod.GET], integration=integration
         )
         api.add_routes(path="/api/health", methods=[apigw.HttpMethod.GET], integration=integration)
+        api.add_routes(
+            path="/api/tasks",
+            methods=[apigw.HttpMethod.GET],
+            integration=integration,
+            authorizer=jwt_authorizer,
+        )
         stage = api.default_stage.node.default_child
         stage.default_route_settings = apigw.CfnStage.RouteSettingsProperty(
             throttling_burst_limit=20, throttling_rate_limit=10

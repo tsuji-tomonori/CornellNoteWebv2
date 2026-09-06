@@ -38,3 +38,4 @@
 | [HttpApiANYapinotesproxy02D793B3](../types/aws-apigatewayv2-route.gen.md#httpapianyapinotesproxy02d793b3) | AWS::ApiGatewayV2::Route |
 | [HttpApiGETapisharedtoken16AC79E4](../types/aws-apigatewayv2-route.gen.md#httpapigetapisharedtoken16ac79e4) | AWS::ApiGatewayV2::Route |
 | [HttpApiGETapihealth7FA5887F](../types/aws-apigatewayv2-route.gen.md#httpapigetapihealth7fa5887f) | AWS::ApiGatewayV2::Route |
+| [HttpApiGETapitasks90C3F6E0](../types/aws-apigatewayv2-route.gen.md#httpapigetapitasks90c3f6e0) | AWS::ApiGatewayV2::Route |

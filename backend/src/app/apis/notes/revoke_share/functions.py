@@ -1,11 +1,15 @@
 from uuid import UUID
 
-from app.port import Database
+from app.port import QuerySession
 
 from .generated import queries
 
 
-def execute(note_id: UUID, owner: str, repo: Database) -> None:
-    """本人のノートの共有リンクを失効させる。"""
-    with repo.transaction() as session:
-        queries.revoke_share(session, queries.RevokeShareParams(id=note_id, owner_id=owner))
+def find(note_id: UUID, owner: str, session: QuerySession) -> list[queries.SelectOwnedNoteRow]:
+    return queries.select_owned_note(
+        session, queries.SelectOwnedNoteParams(id=note_id, owner_id=owner)
+    )
+
+
+def remove(note_id: UUID, session: QuerySession) -> None:
+    queries.delete_share(session, queries.DeleteShareParams(note_id=note_id))

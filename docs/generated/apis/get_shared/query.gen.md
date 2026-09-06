@@ -4,11 +4,11 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L15)
 
-処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
+処理: [backend/src/app/apis/notes/get_shared/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L15)
 
-## 001_select_shared_note.sql
+## 001_select_note.sql
 
 ### SQL種別
 
@@ -16,18 +16,18 @@
 
 ### SQLの概要
 
-ハッシュと期限が一致する共有ノートを取得する
+閲覧条件を満たすノートの基本情報を取得する
 
 ### 利用するテーブル
 
-`notes`
+`note_shares, notes`
 
 ### 引数
 
 | DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
 | --- | --- | --- | --- | --- | --- | --- |
-| notes | share_expires | share_expires | 共有リンクの有効期限 | TIMESTAMPTZ | datetime \| None | 可 |
-| notes | share_hash | share_hash | 共有トークンのSHA256（生トークンは保存しない） | VARCHAR(64) | str \| None | 可 |
+| note_shares | expires_at | expires_at | 閲覧リンクの有効期限（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| note_shares | token_hash | token_hash | 共有トークンのSHA256。生トークンは保持しない | VARCHAR(64) | str | 不可 |
 
 ### 戻り値
 
@@ -36,29 +36,118 @@
 | notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
 | notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
 | notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
-| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
-| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
-| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
-| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
 | notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
 | notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
 
 ### SQL
 
 ```sql
--- ハッシュと期限が一致する共有ノートを取得する
+-- 閲覧条件を満たすノートの基本情報を取得する
 SELECT
-    id,
-    title,
-    group_name,
-    cue,
-    content,
-    summary,
-    tasks,
-    version,
-    updated_at
-FROM notes
-WHERE share_hash = %(share_hash)s AND share_expires > %(share_expires)s;
+    n.id,
+    n.title,
+    n.group_name,
+    n.version,
+    n.updated_at
+FROM notes AS n
+INNER JOIN note_shares AS sh ON n.id = sh.note_id
+WHERE sh.token_hash = %(token_hash)s AND sh.expires_at > %(expires_at)s
+ORDER BY n.updated_at DESC, n.id ASC;
 ```
 
-正本: [backend/src/app/apis/notes/get_shared/sql/001_select_shared_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/sql/001_select_shared_note.sql)
+正本: [backend/src/app/apis/notes/get_shared/sql/001_select_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/sql/001_select_note.sql)
+
+## 002_select_sections.sql
+
+### SQL種別
+
+`SELECT`
+
+### SQLの概要
+
+閲覧可能なノートの問い・本文・要約を取得する
+
+### 利用するテーブル
+
+`note_sections, note_shares, notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_shares | expires_at | expires_at | 閲覧リンクの有効期限（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| note_shares | token_hash | token_hash | 共有トークンのSHA256。生トークンは保持しない | VARCHAR(64) | str | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_sections | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+| note_sections | kind | kind | 記入欄の種類（cue:問い、content:本文、summary:要約） | VARCHAR(16) | str | 不可 |
+| note_sections | body | body | この記入欄の自由記述本文 | TEXT | str | 不可 |
+
+### SQL
+
+```sql
+-- 閲覧可能なノートの問い・本文・要約を取得する
+SELECT
+    s.note_id,
+    s.kind,
+    s.body
+FROM note_sections AS s
+INNER JOIN notes AS n ON s.note_id = n.id
+INNER JOIN note_shares AS sh ON n.id = sh.note_id
+WHERE sh.token_hash = %(token_hash)s AND sh.expires_at > %(expires_at)s;
+```
+
+正本: [backend/src/app/apis/notes/get_shared/sql/002_select_sections.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/sql/002_select_sections.sql)
+
+## 003_select_tasks.sql
+
+### SQL種別
+
+`SELECT`
+
+### SQLの概要
+
+閲覧可能なノートのタスクを表示順に取得する
+
+### 利用するテーブル
+
+`note_shares, note_tasks, notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_shares | expires_at | expires_at | 閲覧リンクの有効期限（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| note_shares | token_hash | token_hash | 共有トークンのSHA256。生トークンは保持しない | VARCHAR(64) | str | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_tasks | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+| note_tasks | id | id | ノート内で一意なタスク識別子 | UUID | UUID | 不可 |
+| note_tasks | text | text | タスクの内容 | VARCHAR(500) | str | 不可 |
+| note_tasks | done | done | 完了していればtrue、未完了ならfalse | BOOLEAN | bool | 不可 |
+| note_tasks | due | due | 期日。未指定はNULL | DATE | date \| None | 可 |
+
+### SQL
+
+```sql
+-- 閲覧可能なノートのタスクを表示順に取得する
+SELECT
+    t.note_id,
+    t.id,
+    t.text,
+    t.done,
+    t.due
+FROM note_tasks AS t
+INNER JOIN notes AS n ON t.note_id = n.id
+INNER JOIN note_shares AS sh ON n.id = sh.note_id
+WHERE sh.token_hash = %(token_hash)s AND sh.expires_at > %(expires_at)s
+ORDER BY t.note_id, t.position;
+```
+
+正本: [backend/src/app/apis/notes/get_shared/sql/003_select_tasks.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/sql/003_select_tasks.sql)

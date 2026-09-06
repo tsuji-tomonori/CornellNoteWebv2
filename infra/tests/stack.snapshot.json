@@ -674,6 +674,59 @@
       },
       "Type": "AWS::Lambda::Permission"
     },
+    "HttpApiGETapitasks90C3F6E0": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "HttpApiF5A9A8A7"
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "HttpApiCognitoJwt4B02D8E4"
+        },
+        "RouteKey": "GET /api/tasks",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "HttpApiANYapinotesFastApiIntegration445527F5"
+              }
+            ]
+          ]
+        }
+      },
+      "Type": "AWS::ApiGatewayV2::Route"
+    },
+    "HttpApiGETapitasksFastApiIntegrationPermission9FC11C82": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ApiFunctionCE271BD4",
+            "Arn"
+          ]
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:ap-northeast-1:111111111111:",
+              {
+                "Ref": "HttpApiF5A9A8A7"
+              },
+              "/*/*/api/tasks"
+            ]
+          ]
+        }
+      },
+      "Type": "AWS::Lambda::Permission"
+    },
     "MigrationC13A4580": {
       "DependsOn": [
         "MigrationRoleDefaultPolicy6B18891E",

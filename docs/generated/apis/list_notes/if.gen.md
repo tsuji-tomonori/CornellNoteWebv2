@@ -4,9 +4,9 @@
 
 `GET /api/notes` / operationId: `list_notes`
 
-ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/list_notes/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/router.py#L13)
 
-処理: [backend/src/app/apis/notes/list_notes/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L8)
+処理: [backend/src/app/apis/notes/list_notes/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L13)
 
 ## 認証
 
@@ -61,6 +61,7 @@ application/json
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:56](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L56) |
 | 401 | 認証情報が無効です | [backend/src/app/auth.py:59](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L59) |
 | 401 | 認証情報が無効または期限切れです | [backend/src/app/auth.py:62](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/auth.py#L62) |
+| 409 | 更新が競合しました。再読み込みしてください | [backend/src/app/apis/notes/list_notes/functions.py:21](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_notes/functions.py#L21) |
 
 ## 共通処理を含む応答一覧
 
@@ -70,6 +71,7 @@ application/json
 | 401 | API / 認証 | ログインが必要です | application/json: {detail: "ログインが必要です"} |
 | 401 | API / 認証 | 認証情報が無効です | application/json: {detail: "認証情報が無効です"} |
 | 401 | API / 認証 | 認証情報が無効または期限切れです | application/json: {detail: "認証情報が無効または期限切れです"} |
+| 409 | API / 認証 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 | HTTP | 処理区分 | 条件 | 応答内容 |

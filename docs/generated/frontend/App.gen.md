@@ -13,6 +13,7 @@
 | ./api |
 | ./auth |
 | ./domain |
+| ./TaskList |
 | ./Editor |
 
 ## 型・インターフェース
@@ -23,13 +24,13 @@
 
 | 名前 | 引数 | 戻り値 | 行 |
 | --- | --- | --- | --- |
-| App | { initialError = "" }: { initialError?: string } | inferred | 28 |
-| action | work: () =&gt; Promise&lt;void&gt; | inferred | 82 |
-| create |  | inferred | 94 |
-| save | data: NoteInput | inferred | 104 |
-| Brand |  | inferred | 474 |
-| LoginView | {<br>  error,<br>  onError,<br>  onLogin,<br>}: {<br>  error: string;<br>  onError: (v: string) =&gt; void;<br>  onLogin: () =&gt; void;<br>} | inferred | 486 |
-| submit | e: React.FormEvent | inferred | 498 |
+| App | { initialError = "" }: { initialError?: string } | inferred | 29 |
+| action | work: () =&gt; Promise&lt;void&gt; | inferred | 84 |
+| create |  | inferred | 96 |
+| save | data: NoteInput | inferred | 106 |
+| Brand |  | inferred | 501 |
+| LoginView | {<br>  error,<br>  onError,<br>  onLogin,<br>}: {<br>  error: string;<br>  onError: (v: string) =&gt; void;<br>  onLogin: () =&gt; void;<br>} | inferred | 513 |
+| submit | e: React.FormEvent | inferred | 525 |
 
 ## JSX属性
 

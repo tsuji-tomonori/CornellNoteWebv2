@@ -4,11 +4,48 @@
 
 `DELETE /api/notes/{note_id}` / operationId: `delete_note`
 
-ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L13)
+ハンドラ: [backend/src/app/apis/notes/delete_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/router.py#L14)
 
-処理: [backend/src/app/apis/notes/delete_note/functions.py:8](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L8)
+処理: [backend/src/app/apis/notes/delete_note/functions.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/functions.py#L14)
 
-## 001_delete_note.sql
+## 001_select_owned_note.sql
+
+### SQL種別
+
+`SELECT`
+
+### SQLの概要
+
+操作対象ノートの所有者を確認する
+
+### 利用するテーブル
+
+`notes`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+
+### SQL
+
+```sql
+-- 操作対象ノートの所有者を確認する
+SELECT id FROM notes
+WHERE id = %(id)s AND owner_id = %(owner_id)s;
+```
+
+正本: [backend/src/app/apis/notes/delete_note/sql/001_select_owned_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/001_select_owned_note.sql)
+
+## 002_delete_tasks.sql
 
 ### SQL種別
 
@@ -16,7 +53,109 @@
 
 ### SQLの概要
 
-所有者に一致するノートだけを削除する
+ノートに属する子データを削除する
+
+### 利用するテーブル
+
+`note_tasks`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_tasks | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- ノートに属する子データを削除する
+DELETE FROM note_tasks
+WHERE note_id = %(note_id)s;
+```
+
+正本: [backend/src/app/apis/notes/delete_note/sql/002_delete_tasks.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/002_delete_tasks.sql)
+
+## 003_delete_sections.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+ノートに属する子データを削除する
+
+### 利用するテーブル
+
+`note_sections`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_sections | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- ノートに属する子データを削除する
+DELETE FROM note_sections
+WHERE note_id = %(note_id)s;
+```
+
+正本: [backend/src/app/apis/notes/delete_note/sql/003_delete_sections.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/003_delete_sections.sql)
+
+## 004_delete_share.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+ノートに属する子データを削除する
+
+### 利用するテーブル
+
+`note_shares`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_shares | note_id | note_id | 閲覧を許可するノート | UUID | UUID | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- ノートに属する子データを削除する
+DELETE FROM note_shares
+WHERE note_id = %(note_id)s;
+```
+
+正本: [backend/src/app/apis/notes/delete_note/sql/004_delete_share.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/004_delete_share.sql)
+
+## 005_delete_note.sql
+
+### SQL種別
+
+`DELETE`
+
+### SQLの概要
+
+所有者に一致するノートの基本情報を最後に削除する
 
 ### 利用するテーブル
 
@@ -36,9 +175,9 @@
 ### SQL
 
 ```sql
--- 所有者に一致するノートだけを削除する
+-- 所有者に一致するノートの基本情報を最後に削除する
 DELETE FROM notes
 WHERE id = %(id)s AND owner_id = %(owner_id)s;
 ```
 
-正本: [backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/001_delete_note.sql)
+正本: [backend/src/app/apis/notes/delete_note/sql/005_delete_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/delete_note/sql/005_delete_note.sql)

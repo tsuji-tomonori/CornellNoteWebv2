@@ -4,8 +4,12 @@
 
 | テーブル | 仕様 | 説明 |
 | --- | --- | --- |
-| notes | [仕様](tables/notes.gen.md) | 利用者ごとのコーネル式ノート |
+| note_sections | [仕様](tables/note_sections.gen.md) | ノートごとの問い・本文・要約。種類ごとに一行 |
+| note_shares | [仕様](tables/note_shares.gen.md) | ノートごとに一つの期限付き閲覧リンク。再発行で旧リンクを失効する |
+| note_tasks | [仕様](tables/note_tasks.gen.md) | ノートに紐づく個別タスク。完了状態や期日で横断検索する |
+| notes | [仕様](tables/notes.gen.md) | コーネル式ノートの基本情報と所有者。記入欄・タスク・共有は別テーブル |
 | schema_migrations | [仕様](tables/schema_migrations.gen.md) | 適用済みマイグレーションの改変検知台帳 |
+| users | [仕様](tables/users.gen.md) | Cognitoで認証されたノート所有者。パスワードは保持しない |
 
 
 [ER図](er.gen.md) · [CRUD](crud.gen.md) · [マイグレーション](migrations.gen.md)

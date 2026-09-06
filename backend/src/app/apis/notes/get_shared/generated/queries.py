@@ -1,5 +1,5 @@
 # Generated from sibling sql/*.sql and migration DDL. Do not edit.
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -9,30 +9,68 @@ from pydantic import BaseModel, ConfigDict
 SQL_DIR = Path(__file__).parents[1] / "sql"
 
 
-class SelectSharedNoteParams(BaseModel):
+class SelectNoteParams(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    share_expires: datetime | None
-    share_hash: str | None
+    expires_at: datetime
+    token_hash: str
 
 
-class SelectSharedNoteRow(BaseModel):
+class SelectNoteRow(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: UUID
     title: str
     group_name: str
-    cue: str
-    content: str
-    summary: str
-    tasks: str
     version: int
     updated_at: datetime
 
 
-def select_shared_note(
-    session: QuerySession, params: SelectSharedNoteParams
-) -> list[SelectSharedNoteRow]:
-    """ハッシュと期限が一致する共有ノートを取得する"""
+def select_note(session: QuerySession, params: SelectNoteParams) -> list[SelectNoteRow]:
+    """閲覧条件を満たすノートの基本情報を取得する"""
     return [
-        SelectSharedNoteRow.model_validate(row)
-        for row in session.fetch_all(SQL_DIR / "001_select_shared_note.sql", params.model_dump())
+        SelectNoteRow.model_validate(row)
+        for row in session.fetch_all(SQL_DIR / "001_select_note.sql", params.model_dump())
+    ]
+
+
+class SelectSectionsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    expires_at: datetime
+    token_hash: str
+
+
+class SelectSectionsRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    note_id: UUID
+    kind: str
+    body: str
+
+
+def select_sections(session: QuerySession, params: SelectSectionsParams) -> list[SelectSectionsRow]:
+    """閲覧可能なノートの問い・本文・要約を取得する"""
+    return [
+        SelectSectionsRow.model_validate(row)
+        for row in session.fetch_all(SQL_DIR / "002_select_sections.sql", params.model_dump())
+    ]
+
+
+class SelectTasksParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    expires_at: datetime
+    token_hash: str
+
+
+class SelectTasksRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    note_id: UUID
+    id: UUID
+    text: str
+    done: bool
+    due: date | None
+
+
+def select_tasks(session: QuerySession, params: SelectTasksParams) -> list[SelectTasksRow]:
+    """閲覧可能なノートのタスクを表示順に取得する"""
+    return [
+        SelectTasksRow.model_validate(row)
+        for row in session.fetch_all(SQL_DIR / "003_select_tasks.sql", params.model_dump())
     ]

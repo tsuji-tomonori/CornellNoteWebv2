@@ -40,9 +40,11 @@ jobs:
           ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
           npx --yes aws-cdk@2.1140.0 synth --strict -c account="$ACCOUNT"
           npx --yes aws-cdk@2.1140.0 diff -c account="$ACCOUNT"
-          npx --yes aws-cdk@2.1140.0 deploy --require-approval never -c account="$ACCOUNT" --outputs-file build/outputs.json
+          npx --yes aws-cdk@2.1140.0 deploy --require-approval never -c account="$ACCOUNT" -c maintenance=true --outputs-file build/outputs.json
       - name: Migrate database and deploy frontend
         run: |
+          # APIの最大実行時間28秒を超えるまで既存リクエストの終了を待つ。
+          sleep 30
           MIGRATION=$(jq -r '.CornellNote.MigrationFunction' build/outputs.json)
           aws lambda invoke --function-name "$MIGRATION" --payload '{}' build/migration-result.json > build/migration-invoke.json
           test "$(jq -r '.FunctionError // empty' build/migration-invoke.json)" = ""
@@ -55,3 +57,7 @@ jobs:
           aws s3 sync frontend/dist/ "s3://$BUCKET/" --cache-control 'public,max-age=31536000,immutable' --exclude index.html
           aws s3 cp frontend/dist/index.html "s3://$BUCKET/index.html" --cache-control 'no-cache'
           aws cloudfront create-invalidation --distribution-id "$(jq -r '.CornellNote.DistributionId' build/outputs.json)" --paths '/' '/index.html'
+      - name: Resume API after successful migration and frontend deployment
+        run: |
+          ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+          npx --yes aws-cdk@2.1140.0 deploy --require-approval never -c account="$ACCOUNT" -c maintenance=false

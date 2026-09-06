@@ -9,6 +9,7 @@ from psycopg import sql
 
 from app.auth import settings
 from app.db import connect
+from app.migration_data import split_notes
 
 
 def migrate() -> None:
@@ -21,12 +22,23 @@ def migrate() -> None:
         conn.execute(
             "COMMENT ON TABLE schema_migrations IS '適用済みマイグレーションの改変検知台帳'"
         )
-        conn.execute("COMMENT ON COLUMN schema_migrations.name IS '適用済みSQLファイル名'")
         conn.execute(
-            "COMMENT ON COLUMN schema_migrations.checksum IS 'SQLファイルのSHA-256ハッシュ'"
+            "COMMENT ON COLUMN schema_migrations.name IS '適用済みマイグレーション識別子（SQLファイル名またはデータ移行名）'"
         )
-        for path in sorted(Path(os.getenv("MIGRATIONS_DIR", "backend/migrations")).glob("*.sql")):
-            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        conn.execute(
+            "COMMENT ON COLUMN schema_migrations.checksum IS 'SQL、またはデータ移行SQL群と移行コードのSHA-256'"
+        )
+        for path in sorted(Path(os.getenv("MIGRATIONS_DIR", "backend/migrations")).iterdir()):
+            if path.suffix != ".sql" and path.name != "005_split_note_data":
+                continue
+            if path.is_dir():
+                payload = b"".join(
+                    p.name.encode() + p.read_bytes() for p in sorted(path.glob("*.sql"))
+                )
+                payload += Path(__file__).with_name("migration_data.py").read_bytes()
+            else:
+                payload = path.read_bytes()
+            digest = hashlib.sha256(payload).hexdigest()
             previous = conn.execute(
                 "SELECT checksum FROM schema_migrations WHERE name=%s", (path.name,)
             ).fetchone()
@@ -34,10 +46,25 @@ def migrate() -> None:
                 if previous["checksum"] != digest:
                     raise RuntimeError("Applied migration modified: " + path.name)
                 continue
+            if path.is_dir():
+                split_notes(conn, path)
+                conn.execute(
+                    "INSERT INTO schema_migrations (name, checksum) VALUES (%s,%s)",
+                    (path.name, digest),
+                )
+                continue
             for expression in cast(Callable[..., list[sqlglot.Expression | None]], sqlglot.parse)(  # pyright: ignore[reportUnknownMemberType]
                 path.read_text(), dialect="postgres"
             ):
                 if expression is None:
+                    continue
+                if (
+                    path.name == "007_owner_reference.sql"
+                    and conn.execute(
+                        "SELECT conname FROM pg_constraint WHERE conname=%s AND conrelid='notes'::regclass",
+                        ("notes_owner_fk",),
+                    ).fetchone()
+                ):
                     continue
                 statement = cast(Callable[..., str], expression.sql)(dialect="postgres")  # pyright: ignore[reportUnknownMemberType]
                 if cfg.dsql_host and statement.startswith("CREATE INDEX"):
@@ -56,7 +83,10 @@ def migrate() -> None:
             ).fetchone():
                 conn.execute("CREATE ROLE cornell_app WITH LOGIN")
             conn.execute("GRANT USAGE ON SCHEMA public TO cornell_app")
-            conn.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON notes TO cornell_app")
+            conn.execute("GRANT SELECT, INSERT ON users TO cornell_app")
+            conn.execute(
+                "GRANT SELECT, INSERT, UPDATE, DELETE ON notes, note_sections, note_tasks, note_shares TO cornell_app"
+            )
             conn.execute(
                 sql.SQL("AWS IAM GRANT cornell_app TO {}").format(
                     sql.Literal(os.environ["APP_ROLE_ARN"])

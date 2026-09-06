@@ -6,12 +6,12 @@
 
 ```mermaid
 flowchart TD
-  S0["ApiGatewayV2 (8)"]
+  S0["ApiGatewayV2 (9)"]
   S1["CloudFront (3)"]
   S2["Cognito (3)"]
   S3["DSQL (1)"]
   S4["IAM (4)"]
-  S5["Lambda (6)"]
+  S5["Lambda (7)"]
   S6["Logs (2)"]
   S7["S3 (2)"]
   S0 -->|参照| S2
@@ -68,6 +68,11 @@ flowchart TD
 | [HttpApiGETapisharedtoken16AC79E4](types/aws-apigatewayv2-route.gen.md#httpapigetapisharedtoken16ac79e4) | [HttpApiF5A9A8A7](types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) |
 | [HttpApiGETapisharedtokenFastApiIntegrationPermission3DA044D2](types/aws-lambda-permission.gen.md#httpapigetapisharedtokenfastapiintegrationpermission3da044d2) | [ApiFunctionCE271BD4](types/aws-lambda-function.gen.md#apifunctionce271bd4) |
 | [HttpApiGETapisharedtokenFastApiIntegrationPermission3DA044D2](types/aws-lambda-permission.gen.md#httpapigetapisharedtokenfastapiintegrationpermission3da044d2) | [HttpApiF5A9A8A7](types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) |
+| [HttpApiGETapitasks90C3F6E0](types/aws-apigatewayv2-route.gen.md#httpapigetapitasks90c3f6e0) | [HttpApiANYapinotesFastApiIntegration445527F5](types/aws-apigatewayv2-integration.gen.md#httpapianyapinotesfastapiintegration445527f5) |
+| [HttpApiGETapitasks90C3F6E0](types/aws-apigatewayv2-route.gen.md#httpapigetapitasks90c3f6e0) | [HttpApiCognitoJwt4B02D8E4](types/aws-apigatewayv2-authorizer.gen.md#httpapicognitojwt4b02d8e4) |
+| [HttpApiGETapitasks90C3F6E0](types/aws-apigatewayv2-route.gen.md#httpapigetapitasks90c3f6e0) | [HttpApiF5A9A8A7](types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) |
+| [HttpApiGETapitasksFastApiIntegrationPermission9FC11C82](types/aws-lambda-permission.gen.md#httpapigetapitasksfastapiintegrationpermission9fc11c82) | [ApiFunctionCE271BD4](types/aws-lambda-function.gen.md#apifunctionce271bd4) |
+| [HttpApiGETapitasksFastApiIntegrationPermission9FC11C82](types/aws-lambda-permission.gen.md#httpapigetapitasksfastapiintegrationpermission9fc11c82) | [HttpApiF5A9A8A7](types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) |
 | [MigrationC13A4580](types/aws-lambda-function.gen.md#migrationc13a4580) | [ApiRole1873F438](types/aws-iam-role.gen.md#apirole1873f438) |
 | [MigrationC13A4580](types/aws-lambda-function.gen.md#migrationc13a4580) | [Database](types/aws-dsql-cluster.gen.md#database) |
 | [MigrationC13A4580](types/aws-lambda-function.gen.md#migrationc13a4580) | [MigrationLogs670D4322](types/aws-logs-loggroup.gen.md#migrationlogs670d4322) |

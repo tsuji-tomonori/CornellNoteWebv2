@@ -4,7 +4,7 @@
 
 [インベントリへ戻る](../index.gen.md)
 
-リソース数: 4
+リソース数: 5
 
 ## Logical ID 一覧
 
@@ -14,6 +14,7 @@
 | [HttpApiANYapinotesproxyFastApiIntegrationPermission0D1CCE2E](#httpapianyapinotesproxyfastapiintegrationpermission0d1cce2e) |  | CloudFormation既定 |
 | [HttpApiGETapihealthFastApiIntegrationPermissionF0E9BEE3](#httpapigetapihealthfastapiintegrationpermissionf0e9bee3) |  | CloudFormation既定 |
 | [HttpApiGETapisharedtokenFastApiIntegrationPermission3DA044D2](#httpapigetapisharedtokenfastapiintegrationpermission3da044d2) |  | CloudFormation既定 |
+| [HttpApiGETapitasksFastApiIntegrationPermission9FC11C82](#httpapigetapitasksfastapiintegrationpermission9fc11c82) |  | CloudFormation既定 |
 
 ## HttpApiANYapinotesFastApiIntegrationPermission80191C22
 
@@ -91,6 +92,28 @@
 | FunctionName | [ApiFunctionCE271BD4](../types/aws-lambda-function.gen.md#apifunctionce271bd4).Arn |
 | Principal | apigateway.amazonaws.com |
 | SourceArn | Fn::Join: , arn:, Ref: AWS::Partition, :execute-api:ap-northeast-1:111111111111:, [HttpApiF5A9A8A7](../types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7), /*/*/api/shared/{token} |
+
+### 参照・明示依存
+
+| リソース | 種類 |
+| --- | --- |
+| [ApiFunctionCE271BD4](../types/aws-lambda-function.gen.md#apifunctionce271bd4) | AWS::Lambda::Function |
+| [HttpApiF5A9A8A7](../types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7) | AWS::ApiGatewayV2::Api |
+
+### 参照元
+
+該当なし。
+
+## HttpApiGETapitasksFastApiIntegrationPermission9FC11C82
+
+### 設定項目
+
+| 項目 | 値 |
+| --- | --- |
+| Action | lambda:InvokeFunction |
+| FunctionName | [ApiFunctionCE271BD4](../types/aws-lambda-function.gen.md#apifunctionce271bd4).Arn |
+| Principal | apigateway.amazonaws.com |
+| SourceArn | Fn::Join: , arn:, Ref: AWS::Partition, :execute-api:ap-northeast-1:111111111111:, [HttpApiF5A9A8A7](../types/aws-apigatewayv2-api.gen.md#httpapif5a9a8a7), /*/*/api/tasks |
 
 ### 参照・明示依存
 

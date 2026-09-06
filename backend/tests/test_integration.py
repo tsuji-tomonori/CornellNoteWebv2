@@ -47,9 +47,9 @@ def test_ノートの作成更新削除と所有者分離を確認する(client)
     assert client.get(url, headers=alice).json()["tasks"][0]["done"] is True
     with connect() as conn:
         assert (
-            conn.execute("SELECT content FROM notes WHERE id=%s", (note["id"],)).fetchone()[
-                "content"
-            ]
+            conn.execute(
+                "SELECT body FROM note_sections WHERE note_id=%s AND kind='content'", (note["id"],)
+            ).fetchone()["body"]
             == update["content"]
         )
     client.delete(url, headers=bob)
@@ -63,16 +63,20 @@ def test_共有の期限と再発行と解除を確認する(client):
     note = client.post("/api/notes", headers=alice, json={"title": "共有の学習"}).json()
     url = "/api/notes/" + note["id"]
     assert client.post(url + "/share", headers=bob).status_code == 404
-    first = client.post(url + "/share", headers=alice).json()["token"]
+    issued = client.post(url + "/share", headers=alice)
+    assert issued.status_code == 200
+    first = issued.json()["token"]
     assert client.get("/api/shared/" + first).status_code == 200
     second = client.post(url + "/share", headers=alice).json()["token"]
     assert client.get("/api/shared/" + first).status_code == 404
     assert client.get("/api/shared/" + second).status_code == 200
     with connect() as conn:
-        row = conn.execute("SELECT share_hash FROM notes WHERE id=%s", (note["id"],)).fetchone()
-        assert row["share_hash"] != second
+        row = conn.execute(
+            "SELECT token_hash FROM note_shares WHERE note_id=%s", (note["id"],)
+        ).fetchone()
+        assert row["token_hash"] != second
         conn.execute(
-            "UPDATE notes SET share_expires=%s WHERE id=%s",
+            "UPDATE note_shares SET expires_at=%s WHERE note_id=%s",
             (datetime.now(UTC) - timedelta(seconds=1), note["id"]),
         )
     assert client.get("/api/shared/" + second).status_code == 404
@@ -86,11 +90,11 @@ def test_再マイグレーションでデータを保ち日本語カラム説�
     migrate()
     migrate()
     with connect() as conn:
-        assert conn.execute("SELECT count(*) AS n FROM schema_migrations").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM schema_migrations").fetchone()["n"] == 7
         rows = conn.execute(
             "SELECT col_description('notes'::regclass, ordinal_position) AS description FROM information_schema.columns WHERE table_name='notes'"
         ).fetchall()
-        assert len(rows) == 12
+        assert len(rows) == 6
         assert all(row["description"] for row in rows)
 
 

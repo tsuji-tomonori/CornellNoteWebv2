@@ -28,10 +28,10 @@ test("階層一覧からケースへ移動しGWTの画像だけを読める", as
   await expect(
     navigation.getByText("スマートフォン", { exact: true }),
   ).toBeVisible();
-  await expect(navigation.locator("ul ul ul a")).toHaveCount(10);
-  await expect(page.locator("article.case")).toHaveCount(10);
+  await expect(navigation.locator("ul ul ul a")).toHaveCount(12);
+  await expect(page.locator("article.case")).toHaveCount(12);
   await expect(page.locator("details")).toHaveCount(0);
-  await expect(page.locator(".step img")).toHaveCount(32);
+  await expect(page.locator(".step img")).toHaveCount(38);
   const target = navigation.getByRole("link").last();
   const fragment = await target.getAttribute("href");
   await target.click();
@@ -152,7 +152,7 @@ test("全APIのシーケンス図を構文エラーなく描画する", async ({
     .evaluateAll((links) =>
       links.map((link) => (link as HTMLAnchorElement).href),
     );
-  expect(urls).toHaveLength(10);
+  expect(urls).toHaveLength(11);
   for (const url of urls) {
     await page.goto(url);
     await expect(page.locator(".mermaid svg").first()).toBeVisible();

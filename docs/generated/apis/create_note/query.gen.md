@@ -4,11 +4,11 @@
 
 `POST /api/notes` / operationId: `create_note`
 
-ハンドラ: [backend/src/app/apis/notes/create_note/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/create_note/router.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/router.py#L13)
 
-処理: [backend/src/app/apis/notes/create_note/functions.py:11](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L11)
+処理: [backend/src/app/apis/notes/create_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/functions.py#L13)
 
-## 001_insert_note.sql
+## 001_insert_user.sql
 
 ### SQL種別
 
@@ -16,7 +16,41 @@
 
 ### SQLの概要
 
-所有者に紐づく新しいノートを保存する
+認証済み所有者を初回のみ登録する
+
+### 利用するテーブル
+
+`users`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| users | created_at | created_at | アプリのユーザー行を登録した日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+| users | id | id | Cognito sub。ローカルでは検証用ユーザー名 | VARCHAR(128) | str | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 認証済み所有者を初回のみ登録する
+INSERT INTO users (id, created_at) VALUES (%(id)s, %(created_at)s) ON CONFLICT (id) DO NOTHING;
+```
+
+正本: [backend/src/app/apis/notes/create_note/sql/001_insert_user.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/001_insert_user.sql)
+
+## 002_insert_note.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
+
+ノートの基本情報を保存する
 
 ### 利用するテーブル
 
@@ -26,15 +60,55 @@
 
 | DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
 | --- | --- | --- | --- | --- | --- | --- |
-| notes | content | content | 自由記述の記録本文 | TEXT | str | 不可 |
-| notes | cue | cue | 問い・キーワード | TEXT | str | 不可 |
 | notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
 | notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
 | notes | owner_id | owner_id | 所有者のCognito sub | VARCHAR(128) | str | 不可 |
-| notes | summary | summary | 自分の言葉による要約 | TEXT | str | 不可 |
-| notes | tasks | tasks | チェック項目・完了状態・期日のJSON配列 | TEXT | str | 不可 |
 | notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
 | notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### 戻り値
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| notes | id | id | ノート識別子（ランダムUUID） | UUID | UUID | 不可 |
+| notes | title | title | ノートの題名 | VARCHAR(200) | str | 不可 |
+| notes | group_name | group_name | 科目またはプロジェクトの分類名 | VARCHAR(80) | str | 不可 |
+| notes | version | version | 同時更新検知の連番 | INT | int | 不可 |
+| notes | updated_at | updated_at | 最終更新日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
+
+### SQL
+
+```sql
+-- ノートの基本情報を保存する
+INSERT INTO notes (id, owner_id, title, group_name, version, updated_at) VALUES (
+    %(id)s, %(owner_id)s, %(title)s, %(group_name)s, 1, %(updated_at)s
+) RETURNING id, title, group_name, version, updated_at;
+```
+
+正本: [backend/src/app/apis/notes/create_note/sql/002_insert_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/002_insert_note.sql)
+
+## 003_insert_section.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
+
+問い・本文・要約をそれぞれ一行として保存する
+
+### 利用するテーブル
+
+`note_sections`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_sections | body | body | この記入欄の自由記述本文 | TEXT | str | 不可 |
+| note_sections | kind | kind | 記入欄の種類（cue:問い、content:本文、summary:要約） | VARCHAR(16) | str | 不可 |
+| note_sections | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+| note_sections | updated_at | updated_at | 記入欄を保存した日時（UTC） | TIMESTAMPTZ | datetime | 不可 |
 
 ### 戻り値
 
@@ -43,21 +117,50 @@
 ### SQL
 
 ```sql
--- 所有者に紐づく新しいノートを保存する
-INSERT INTO notes (
-    id, owner_id, title, group_name, cue, content, summary, tasks, version, updated_at
-) VALUES (
-    %(id)s,
-    %(owner_id)s,
-    %(title)s,
-    %(group_name)s,
-    %(cue)s,
-    %(content)s,
-    %(summary)s,
-    %(tasks)s,
-    1,
-    %(updated_at)s
+-- 問い・本文・要約をそれぞれ一行として保存する
+INSERT INTO note_sections (note_id, kind, body, updated_at) VALUES (
+    %(note_id)s, %(kind)s, %(body)s, %(updated_at)s
 );
 ```
 
-正本: [backend/src/app/apis/notes/create_note/sql/001_insert_note.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/001_insert_note.sql)
+正本: [backend/src/app/apis/notes/create_note/sql/003_insert_section.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/003_insert_section.sql)
+
+## 004_insert_task.sql
+
+### SQL種別
+
+`INSERT`
+
+### SQLの概要
+
+個別タスクの内容・完了状態・期日・表示順序を保存する
+
+### 利用するテーブル
+
+`note_tasks`
+
+### 引数
+
+| DDLテーブル | DDL項目 | SQL項目 | 日本語名 | DB型 | Python型 | NULL許容 |
+| --- | --- | --- | --- | --- | --- | --- |
+| note_tasks | done | done | 完了していればtrue、未完了ならfalse | BOOLEAN | bool | 不可 |
+| note_tasks | due | due | 期日。未指定はNULL | DATE | date \| None | 可 |
+| note_tasks | id | id | ノート内で一意なタスク識別子 | UUID | UUID | 不可 |
+| note_tasks | note_id | note_id | 所属ノートの識別子 | UUID | UUID | 不可 |
+| note_tasks | position | position | ノート内の表示順序（0始まり） | INT | int | 不可 |
+| note_tasks | text | text | タスクの内容 | VARCHAR(500) | str | 不可 |
+
+### 戻り値
+
+該当なし。
+
+### SQL
+
+```sql
+-- 個別タスクの内容・完了状態・期日・表示順序を保存する
+INSERT INTO note_tasks (note_id, id, text, done, due, position) VALUES (
+    %(note_id)s, %(id)s, %(text)s, %(done)s, %(due)s, %(position)s
+);
+```
+
+正本: [backend/src/app/apis/notes/create_note/sql/004_insert_task.sql](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/create_note/sql/004_insert_task.sql)

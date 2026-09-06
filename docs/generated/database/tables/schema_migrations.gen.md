@@ -10,8 +10,12 @@
 
 | カラム | 型 | NULL | キー | 制約・既定値 | 日本語説明 |
 | --- | --- | --- | --- | --- | --- |
-| name | VARCHAR(200) | 不可 | PK | PRIMARY KEY | 適用済みSQLファイル名 |
-| checksum | VARCHAR(64) | 不可 |  | NOT NULL | SQLファイルのSHA-256ハッシュ |
+| name | VARCHAR(200) | 不可 | PK | PRIMARY KEY | 適用済みマイグレーション識別子（SQLファイル名またはデータ移行名） |
+| checksum | VARCHAR(64) | 不可 |  | NOT NULL | SQL、またはデータ移行SQL群と移行コードのSHA-256 |
+
+## 外部キー
+
+該当なし。
 
 ## インデックス
 

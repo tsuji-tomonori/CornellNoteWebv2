@@ -4,9 +4,9 @@
 
 `PUT /api/notes/{note_id}` / operationId: `update_note`
 
-ハンドラ: [backend/src/app/apis/notes/update_note/router.py:14](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L14)
+ハンドラ: [backend/src/app/apis/notes/update_note/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/router.py#L15)
 
-処理: [backend/src/app/apis/notes/update_note/functions.py:13](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L13)
+処理: [backend/src/app/apis/notes/update_note/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/update_note/functions.py#L15)
 
 ## 1. 正常系入力
 
@@ -49,7 +49,18 @@
 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | HTTP 422: application/json: HTTPValidationError（detail配列） |
 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | HTTP 500: text/plain: Internal Server Error |
 
-### 所有者と版が一致するノートを更新する
+### 所有者に一致するノートと現在の版を確認する
+
+テーブル: `notes` / 操作: `SELECT`
+
+対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| id | パス引数: note_id |
+| owner_id | 認証JWT: sub（所有者） |
+
+### 所有者と版が一致するときだけ基本情報を更新する
 
 テーブル: `notes` / 操作: `UPDATE`
 
@@ -61,23 +72,56 @@
 | owner_id | 認証JWT: sub（所有者） |
 | title | リクエスト: title |
 | group_name | リクエスト: group |
-| cue | リクエスト: cue |
-| content | リクエスト: content |
-| summary | リクエスト: summary |
-| tasks | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
-| updated_at | datetime.now(UTC) |
 | version | リクエスト: version |
+| updated_at | datetime.now(UTC) |
 
-### 更新失敗が権限不足か版競合かを区別する
+### 同一トランザクション内で保存対象の記入欄を置き換える
 
-テーブル: `notes` / 操作: `SELECT`
+テーブル: `note_sections` / 操作: `DELETE`
 
-対象条件: `WHERE id = %(id)s AND owner_id = %(owner_id)s`
+対象条件: `WHERE note_id = %(note_id)s`
 
 | バインド引数 | 値の取得元 |
 | --- | --- |
-| id | パス引数: note_id |
-| owner_id | 認証JWT: sub（所有者） |
+| note_id | パス引数: note_id |
+
+### 同一トランザクション内で保存対象のタスクを置き換える
+
+テーブル: `note_tasks` / 操作: `DELETE`
+
+対象条件: `WHERE note_id = %(note_id)s`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+
+### 問い・本文・要約をそれぞれ一行として保存する
+
+テーブル: `note_sections` / 操作: `INSERT`
+
+対象条件: `条件なし`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+| kind | kind |
+| body | getattr(data, kind) |
+| updated_at | datetime.now(UTC) |
+
+### 個別タスクの内容・完了状態・期日・表示順序を保存する
+
+テーブル: `note_tasks` / 操作: `INSERT`
+
+対象条件: `条件なし`
+
+| バインド引数 | 値の取得元 |
+| --- | --- |
+| note_id | パス引数: note_id |
+| id | task.id |
+| text | task.text |
+| done | task.done |
+| due | task.due |
+| position | position |
 
 ## 3. 正常系リソース変更
 
@@ -85,12 +129,20 @@
 | --- | --- | --- | --- | --- |
 | notes | UPDATE | title | ノートの題名 | リクエスト: title |
 | notes | UPDATE | group_name | 科目またはプロジェクトの分類名 | リクエスト: group |
-| notes | UPDATE | cue | 問い・キーワード | リクエスト: cue |
-| notes | UPDATE | content | 自由記述の記録本文 | リクエスト: content |
-| notes | UPDATE | summary | 自分の言葉による要約 | リクエスト: summary |
-| notes | UPDATE | tasks | チェック項目・完了状態・期日のJSON配列 | json.dumps([t.model_dump(mode='json') for t in data.tasks]) |
 | notes | UPDATE | version | 同時更新検知の連番 | SQL式: version + 1 |
 | notes | UPDATE | updated_at | 最終更新日時（UTC） | datetime.now(UTC) |
+| note_sections | DELETE | 行全体 | 対象行を削除する | WHERE note_id = %(note_id)s |
+| note_tasks | DELETE | 行全体 | 対象行を削除する | WHERE note_id = %(note_id)s |
+| note_sections | INSERT | note_id | 所属ノートの識別子 | パス引数: note_id |
+| note_sections | INSERT | kind | 記入欄の種類（cue:問い、content:本文、summary:要約） | kind |
+| note_sections | INSERT | body | この記入欄の自由記述本文 | getattr(data, kind) |
+| note_sections | INSERT | updated_at | 記入欄を保存した日時（UTC） | datetime.now(UTC) |
+| note_tasks | INSERT | note_id | 所属ノートの識別子 | パス引数: note_id |
+| note_tasks | INSERT | id | ノート内で一意なタスク識別子 | task.id |
+| note_tasks | INSERT | text | タスクの内容 | task.text |
+| note_tasks | INSERT | done | 完了していればtrue、未完了ならfalse | task.done |
+| note_tasks | INSERT | due | 期日。未指定はNULL | task.due |
+| note_tasks | INSERT | position | ノート内の表示順序（0始まり） | position |
 
 ## 4. 正常系レスポンス
 
@@ -103,20 +155,20 @@
 | $ | object |  | 配列・オブジェクトの入れ物 |
 | $.title | string | ノートのタイトル | DB: notes.title |
 | $.group | string | 科目やコレクションの分類名 | DB: notes.group_name |
-| $.cue | string | 問い・キーワード欄 | DB: notes.cue |
-| $.content | string | ノート本文 | DB: notes.content |
-| $.summary | string | 学びを要約するまとめ欄 | DB: notes.summary |
-| $.tasks | array | チェックリストのアクション一覧 | DB: notes.tasks（JSONから復元） |
-| $.tasks[] | object |  | DB: notes.tasks（JSONから復元） |
-| $.tasks[].id | string | 項目を一意に識別するUUID | DB: notes.tasks（JSONから復元） |
-| $.tasks[].text | string | アクションの内容 | DB: notes.tasks（JSONから復元） |
-| $.tasks[].done | boolean | アクションの完了状態 | DB: notes.tasks（JSONから復元） |
-| $.tasks[].due | union | アクションの期日。未指定はnull | DB: notes.tasks（JSONから復元） |
-| $.tasks[].due (候補1) | string |  | DB: notes.tasks（JSONから復元） |
-| $.tasks[].due (候補2) | null |  | DB: notes.tasks（JSONから復元） |
-| $.id | string | 項目を一意に識別するUUID | DB: notes.id |
-| $.version | integer | 保存されたノートの版番号 | DB: notes.version |
-| $.updated_at | string | 最終更新日時 | DB: notes.updated_at |
+| $.cue | string | 問い・キーワード欄 | DB: note_sections.body（kind = cue） |
+| $.content | string | ノート本文 | DB: note_sections.body（kind = content） |
+| $.summary | string | 学びを要約するまとめ欄 | DB: note_sections.body（kind = summary） |
+| $.tasks | array | チェックリストのアクション一覧 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[] | object |  | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].id | string | 項目を一意に識別するUUID | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].text | string | アクションの内容 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].done | boolean | アクションの完了状態 | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due | union | アクションの期日。未指定はnull | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due (候補1) | string |  | DB: note_tasks の行を表示順に配列化 |
+| $.tasks[].due (候補2) | null |  | DB: note_tasks の行を表示順に配列化 |
+| $.id | string | 項目を一意に識別するUUID | row.id |
+| $.version | integer | 保存されたノートの版番号 | row.version |
+| $.updated_at | string | 最終更新日時 | row.updated_at |
 
 ## 5. 要件との直接対応
 
@@ -125,3 +177,4 @@
 | REQ-EDIT | コーネル式の三欄を編集する |
 | REQ-CONFLICT | 同時更新の上書きを防ぐ |
 | REQ-SQL | API単位のSQLから型付きクエリを生成し静的解析する |
+| REQ-TRANSACTION | ルーターでAPI全体のトランザクションを管理する |

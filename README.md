@@ -116,3 +116,13 @@ SQLFluffのJSON診断、生成差分・境界検査、型検査、既存API結�
 APIの6文書は [lazunex list_apis](https://github.com/tsuji-tomonori/lazunex/tree/main/docs/spec/40.apis/apis/list_apis)、インフラ台帳は [rag-assist](https://github.com/tsuji-tomonori/rag-assist/blob/main/docs/generated/infra-inventory.md) の構成を参照しました。詳細設計は入力・前提・DB変更と値の出所・正常応答を説明します。ログ台帳は`ObservedRoute`の構造化ログ定義、CRUD図はSQL AST、インフラ台帳と種類別設定・参照関係はPython CDKのsynth結果から生成します。AWS上の実リソース調査やデプロイ完了を意味しません。
 
 C0は命令網羅、C1は分岐網羅です。Pythonはcoverage.pyの実行可能行、TypeScriptはV8/Istanbulの命令を測定単位とし、分母・分子を表示します。以前TSの行カバレッジが10.27%だったのは画面とAPI通信の単体テストがなかったためです。測定対象を除外せず、画面・エディター・通信・認証のテストを追加しました。Vitestの閾値C0 85%／C1 80%をCIで検査します。日本語のテスト一覧はテストソースおよびJUnit/Vitestの実行結果から生成します。
+
+データモデルは `users`（Cognito sub）、`notes`（題名・分類・所有者・版）、`note_sections`（問い・本文・要約の各行）、`note_tasks`（個別タスク）、`note_shares`（一つの有効な閲覧リンク）に分割しています。所有者と子ノートの外部キーからER図を生成します。本人以外へのユーザー指定招待は今回追加せず、本人の操作と期限付き匿名閲覧の二種類を維持します。
+
+DBを使うルーターは一つのトランザクションを開き、関数へ同じセッションを渡します。全処理とレスポンス構築が成功し、COMMITが完了してから応答します。途中失敗は全体をROLLBACKし、競合は409になります。タスク一覧は `/api/tasks` で本人の全ノートから取得します。
+
+既存データの更新では、004で移行先テーブルを作り、005でノートごとに移行・照合し、006で移行済みの旧カラムを除去、007で所有者の外部キーを追加します。005は途中停止後も照合から再開できます。元データが不正または不一致なら旧カラムの削除に進みません。適用済みのマイグレーションは編集せず、追加ファイルで更新してください。
+
+この移行中は旧版APIを停止する必要があります。mainのCDはCDKの `maintenance=true` でAPIの同時実行数を0にし、既存処理の終了を待って移行します。移行とフロント配置が成功した後に通常構成へ戻します。失敗時は停止状態を保ち、データを確認して同じコミットのCDを再実行してください。ローカルでは `docker compose down` の後に `docker compose up --build -d --wait` を実行します。データを保持するため、移行時は `down -v` を使いません。
+
+DSQLとの互換性は[外部キー](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-foreign-key-constraints.html)と[トランザクション・移行制約](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility-migration-guide.html)に基づき、DDLを一文ずつ、データ移行を一件ずつのトランザクションに分けています。AWS上での移行実行は未実施です。

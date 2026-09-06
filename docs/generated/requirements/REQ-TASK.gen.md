@@ -7,11 +7,11 @@
 | action | maintain |
 | category | functional |
 | id | REQ-TASK |
-| last_changed_by | initial-implementation |
-| object | 保存後もタスク状態を保持する |
+| last_changed_by | normalized-model-and-router-transactions |
+| object | タスクを個別行として保存し、所有者の全ノートを横断して内容・期日・完了状態を一覧表示、状態と文字列で絞り込み、所属ノートで編集した状態を反映する |
 | rationale | 利用者の初期構築依頼を継続的に満たす |
 | retirement_reason |  |
-| revision | 1 |
+| revision | 2 |
 | scope | product |
 | source_refs | user:2026-09-05-cornellnoteweb |
 | status | active |
@@ -25,13 +25,13 @@
 
 | ID | Given | When | Then |
 | --- | --- | --- | --- |
-| AC-TASK | ノートを編集中 | 期日付きタスクを追加・完了・削除する | 保存後もタスク状態を保持する |
+| AC-TASK | ノートを編集中 | 期日付きタスクを追加・完了・削除する | タスクを個別行として保存し、所有者の全ノートを横断して内容・期日・完了状態を一覧表示、状態と文字列で絞り込み、所属ノートで編集した状態を反映する |
 
 ## トレーサビリティ
 
 | 種類 | 正本の参照 |
 | --- | --- |
 | design | [docs/generated/README.gen.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/docs/generated/README.gen.md) |
-| implementation | [frontend/src/Editor.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.tsx), [backend/src/app/models.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/models.py) |
+| implementation | [frontend/src/Editor.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.tsx), [backend/src/app/models.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/models.py), [backend/src/app/apis/notes/list_tasks/router.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_tasks/router.py), [backend/src/app/apis/notes/list_tasks/functions.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/list_tasks/functions.py), [frontend/src/TaskList.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.tsx) |
 | standards | [AGENTS.md](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/AGENTS.md) |
-| tests | [frontend/e2e/notes.spec.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/e2e/notes.spec.ts), [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py) |
+| tests | [frontend/e2e/notes.spec.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/e2e/notes.spec.ts), [backend/tests/test_integration.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_integration.py), [backend/tests/test_normalized.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/tests/test_normalized.py), [frontend/src/TaskList.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.test.tsx) |

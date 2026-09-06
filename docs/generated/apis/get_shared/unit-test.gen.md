@@ -4,9 +4,9 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L15)
 
-処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
+処理: [backend/src/app/apis/notes/get_shared/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L15)
 
 ## 0. Router層の暗黙処理
 
@@ -19,6 +19,7 @@
 
 | 要因 | 要素 | 期待観点 |
 | --- | --- | --- |
+| 例外: UpdateConflict | 発生／非発生 | 個別catchのHTTP応答と、非発生時の処理継続を確認する |
 | not rows | 成立 | HTTP 404: '共有リンクが無効または期限切れです' |
 | not rows | 不成立 | 後続処理または正常応答へ進む |
 
@@ -30,8 +31,9 @@
 | --- | --- | --- | --- |
 | TC001 | 200 | 正常終了 | application/json: Note |
 | TC002 | 404 | 共有リンクが無効または期限切れです | application/json: {detail: "共有リンクが無効または期限切れです"} |
-| TC003 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
-| TC004 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
+| TC003 | 409 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
+| TC004 | 422 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
+| TC005 | 500 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 
 ## 入力スキーマの制約
 

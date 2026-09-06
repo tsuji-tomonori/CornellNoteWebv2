@@ -49,6 +49,12 @@
 | apis | [list_notes SQL仕様](apis/list_notes/query.gen.md) |
 | apis | [list_notes シーケンス](apis/list_notes/sequence.gen.md) |
 | apis | [list_notes テスト観点](apis/list_notes/unit-test.gen.md) |
+| apis | [list_tasks 詳細設計](apis/list_tasks/detail-design.gen.md) |
+| apis | [list_tasks IF仕様](apis/list_tasks/if.gen.md) |
+| apis | [list_tasks ログ・メッセージ台帳](apis/list_tasks/messages.gen.md) |
+| apis | [list_tasks SQL仕様](apis/list_tasks/query.gen.md) |
+| apis | [list_tasks シーケンス](apis/list_tasks/sequence.gen.md) |
+| apis | [list_tasks テスト観点](apis/list_tasks/unit-test.gen.md) |
 | apis | [local_login 詳細設計](apis/local_login/detail-design.gen.md) |
 | apis | [local_login IF仕様](apis/local_login/if.gen.md) |
 | apis | [local_login ログ・メッセージ台帳](apis/local_login/messages.gen.md) |
@@ -71,10 +77,15 @@
 | database | [DB全体ER図](database/er.gen.md) |
 | database | [DB一覧](database/index.gen.md) |
 | database | [マイグレーション仕様](database/migrations.gen.md) |
+| database | [note_sections テーブル仕様](database/tables/note_sections.gen.md) |
+| database | [note_shares テーブル仕様](database/tables/note_shares.gen.md) |
+| database | [note_tasks テーブル仕様](database/tables/note_tasks.gen.md) |
 | database | [notes テーブル仕様](database/tables/notes.gen.md) |
 | database | [schema_migrations テーブル仕様](database/tables/schema_migrations.gen.md) |
+| database | [users テーブル仕様](database/tables/users.gen.md) |
 | frontend | [frontend/src/App.tsx 画面・型・関数](frontend/App.gen.md) |
 | frontend | [frontend/src/Editor.tsx 画面・型・関数](frontend/Editor.gen.md) |
+| frontend | [frontend/src/TaskList.tsx 画面・型・関数](frontend/TaskList.gen.md) |
 | frontend | [frontend/src/api.ts 画面・型・関数](frontend/api.gen.md) |
 | frontend | [frontend/src/auth.ts 画面・型・関数](frontend/auth.gen.md) |
 | frontend | [frontend/src/domain.ts 画面・型・関数](frontend/domain.gen.md) |
@@ -119,6 +130,7 @@
 | requirements | [REQ-LIST ノートを分類して表示する](requirements/REQ-LIST.gen.md) |
 | requirements | [REQ-MIGRATION スキーマを追跡して適用する](requirements/REQ-MIGRATION.gen.md) |
 | requirements | [REQ-MOBILE スマートフォンで編集する](requirements/REQ-MOBILE.gen.md) |
+| requirements | [REQ-MODEL データの責務に応じてモデルを分離する](requirements/REQ-MODEL.gen.md) |
 | requirements | [REQ-OWNER 他人のノートを保護する](requirements/REQ-OWNER.gen.md) |
 | requirements | [REQ-REPORT 日本語E2E証跡を公開する](requirements/REQ-REPORT.gen.md) |
 | requirements | [REQ-REVOKE 共有リンクを解除する](requirements/REQ-REVOKE.gen.md) |
@@ -127,6 +139,7 @@
 | requirements | [REQ-SQL API単位のSQLから型付きクエリを生成し静的解析する](requirements/REQ-SQL.gen.md) |
 | requirements | [REQ-TASK チェックリストを管理する](requirements/REQ-TASK.gen.md) |
 | requirements | [REQ-TEST 品質検査を継続する](requirements/REQ-TEST.gen.md) |
+| requirements | [REQ-TRANSACTION ルーターでAPI全体のトランザクションを管理する](requirements/REQ-TRANSACTION.gen.md) |
 | requirements | [REQ-UI 4cの見た目を採用する](requirements/REQ-UI.gen.md) |
 | requirements | [要件仕様一覧](requirements/index.gen.md) |
 | requirements | [要件対応表](requirements/trace.gen.md) |

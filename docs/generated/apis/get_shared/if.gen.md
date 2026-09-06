@@ -4,9 +4,9 @@
 
 `GET /api/shared/{token}` / operationId: `get_shared`
 
-ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L12)
+ハンドラ: [backend/src/app/apis/notes/get_shared/router.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/router.py#L15)
 
-処理: [backend/src/app/apis/notes/get_shared/functions.py:12](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L12)
+処理: [backend/src/app/apis/notes/get_shared/functions.py:15](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L15)
 
 ## 認証
 
@@ -76,7 +76,8 @@ application/json
 
 | HTTP | detail（文字列） | 発生箇所 |
 | --- | --- | --- |
-| 404 | 共有リンクが無効または期限切れです | [backend/src/app/apis/notes/get_shared/functions.py:20](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L20) |
+| 404 | 共有リンクが無効または期限切れです | [backend/src/app/apis/notes/get_shared/functions.py:22](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L22) |
+| 409 | 更新が競合しました。再読み込みしてください | [backend/src/app/apis/notes/get_shared/functions.py:27](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/backend/src/app/apis/notes/get_shared/functions.py#L27) |
 
 ## 共通処理を含む応答一覧
 
@@ -84,6 +85,7 @@ application/json
 | --- | --- | --- | --- |
 | 200 | API | 正常終了 | application/json: Note |
 | 404 | API / 認証 | 共有リンクが無効または期限切れです | application/json: {detail: "共有リンクが無効または期限切れです"} |
+| 409 | API / 認証 | 更新が競合しました。再読み込みしてください | application/json: {detail: "更新が競合しました。再読み込みしてください"} |
 | 422 | FastAPI入力検証 | パス・query・bodyの型/制約違反、必須項目不足、不正なJSON | application/json: HTTPValidationError（detail配列） |
 | 500 | FastAPI / Starlette共通処理 | 未処理例外（DB接続・実行・結果変換など）。個別catchでHTTP応答に変換した例外はそのコードを返す | text/plain: Internal Server Error |
 

@@ -94,3 +94,26 @@ def test_CDK_nagの未抑制エラーがなく抑制理由が全て存在する(
     assert suppressions
     assert all(s["reason"] for s in suppressions)
     assert not any(s["id"] == "AwsSolutions-S10" for s in suppressions)
+
+
+def test_移行中はAPIを停止し移行Lambdaは実行可能なままにする():
+    app = cdk.App(context={"maintenance": "true"})
+    stack = CornellStack(
+        app, "CornellNote", env=cdk.Environment(account="111111111111", region="ap-northeast-1")
+    )
+    t = Template.from_stack(stack)
+    t.has_resource_properties(
+        "AWS::Lambda::Function",
+        {"Handler": "app.main.handler", "ReservedConcurrentExecutions": 0, "Timeout": 28},
+    )
+    t.has_resource_properties(
+        "AWS::Lambda::Function",
+        {
+            "Handler": "app.migration_handler.handler",
+            "ReservedConcurrentExecutions": Match.absent(),
+        },
+    )
+    t.has_resource_properties(
+        "AWS::ApiGatewayV2::Route", {"RouteKey": "GET /api/tasks", "AuthorizationType": "JWT"}
+    )
+    Annotations.from_stack(stack).has_no_error("*", Match.any_value())

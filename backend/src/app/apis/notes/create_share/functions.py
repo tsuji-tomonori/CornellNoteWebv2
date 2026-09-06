@@ -1,27 +1,39 @@
-import hashlib
-import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from uuid import UUID
 
 from app.models import Share
-from app.port import Database
-from fastapi import HTTPException
+from app.port import QuerySession
 
 from .generated import queries
 
 
-def execute(note_id: UUID, owner: str, repo: Database) -> Share:
-    """生トークンを保存せず、7日間の閲覧リンクを発行する。"""
-    token = secrets.token_urlsafe(32)
-    expires = datetime.now(UTC) + timedelta(days=7)
-    params = queries.UpdateShareParams(
-        id=note_id,
-        owner_id=owner,
-        share_hash=hashlib.sha256(token.encode()).hexdigest(),
-        share_expires=expires,
+def find(note_id: UUID, owner: str, session: QuerySession) -> list[queries.SelectOwnedNoteRow]:
+    return queries.select_owned_note(
+        session, queries.SelectOwnedNoteParams(id=note_id, owner_id=owner)
     )
-    with repo.transaction() as session:
-        rows = queries.update_share(session, params)
-    if not rows:
-        raise HTTPException(404, "ノートが見つかりません")
-    return Share(token=token, expires_at=expires)
+
+
+def remove(note_id: UUID, session: QuerySession) -> None:
+    queries.delete_share(session, queries.DeleteShareParams(note_id=note_id))
+
+
+def issue() -> Share:
+    import secrets
+    from datetime import timedelta
+
+    return Share(token=secrets.token_urlsafe(32), expires_at=datetime.now(UTC) + timedelta(days=7))
+
+
+def save(note_id: UUID, share: Share, owner: str, session: QuerySession) -> Share:
+    import hashlib
+
+    queries.insert_share(
+        session,
+        queries.InsertShareParams(
+            note_id=note_id,
+            token_hash=hashlib.sha256(share.token.encode()).hexdigest(),
+            expires_at=share.expires_at,
+            created_by=owner,
+        ),
+    )
+    return share

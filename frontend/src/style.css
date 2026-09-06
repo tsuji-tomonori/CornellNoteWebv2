@@ -919,3 +919,55 @@ small {
     transition: none !important;
   }
 }
+
+.task-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.task-filters [aria-pressed="true"] {
+  background: var(--mint, #d9efe5);
+  color: #174e40;
+  border-color: #7eb6a1;
+}
+.task-overview {
+  list-style: none;
+  padding: 0;
+}
+.task-overview li {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #dce8e2;
+  border-radius: 12px;
+  margin: 0.8rem 0;
+}
+.task-overview li > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.task-overview p {
+  margin: 0.4rem 0;
+}
+.task-state {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #28735c;
+  white-space: nowrap;
+}
+@media (max-width: 650px) {
+  .task-overview li {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .task-overview li > div {
+    flex-basis: 60%;
+  }
+  .task-overview li > button {
+    margin-left: auto;
+  }
+}

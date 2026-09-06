@@ -4,7 +4,7 @@
 
 正本: [spec/requirements/requirements.qnt](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/spec/requirements/requirements.qnt)
 
-カタログ版: 6 / 製品: CornellNoteWebv2
+カタログ版: 7 / 製品: CornellNoteWebv2
 
 Quintの型・不変条件・traceを検証し、メモリ上で直列化したJSONから生成する。
 
@@ -31,3 +31,5 @@ Quintの型・不変条件・traceを検証し、メモリ上で直列化したJ
 | [REQ-REPORT](REQ-REPORT.gen.md) | 日本語E2E証跡を公開する | active | nonfunctional |
 | [REQ-DEPLOY](REQ-DEPLOY.gen.md) | 検査済みのコードだけをデプロイする | active | nonfunctional |
 | [REQ-SQL](REQ-SQL.gen.md) | API単位のSQLから型付きクエリを生成し静的解析する | active | nonfunctional |
+| [REQ-MODEL](REQ-MODEL.gen.md) | データの責務に応じてモデルを分離する | active | nonfunctional |
+| [REQ-TRANSACTION](REQ-TRANSACTION.gen.md) | ルーターでAPI全体のトランザクションを管理する | active | nonfunctional |

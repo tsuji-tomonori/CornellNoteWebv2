@@ -40,4 +40,6 @@
 | [HttpApiGETapisharedtoken16AC79E4](../types/aws-apigatewayv2-route.gen.md#httpapigetapisharedtoken16ac79e4) | AWS::ApiGatewayV2::Route |
 | [HttpApiGETapihealthFastApiIntegrationPermissionF0E9BEE3](../types/aws-lambda-permission.gen.md#httpapigetapihealthfastapiintegrationpermissionf0e9bee3) | AWS::Lambda::Permission |
 | [HttpApiGETapihealth7FA5887F](../types/aws-apigatewayv2-route.gen.md#httpapigetapihealth7fa5887f) | AWS::ApiGatewayV2::Route |
+| [HttpApiGETapitasksFastApiIntegrationPermission9FC11C82](../types/aws-lambda-permission.gen.md#httpapigetapitasksfastapiintegrationpermission9fc11c82) | AWS::Lambda::Permission |
+| [HttpApiGETapitasks90C3F6E0](../types/aws-apigatewayv2-route.gen.md#httpapigetapitasks90c3f6e0) | AWS::ApiGatewayV2::Route |
 | [Web3C8945DB](../types/aws-cloudfront-distribution.gen.md#web3c8945db) | AWS::CloudFront::Distribution |

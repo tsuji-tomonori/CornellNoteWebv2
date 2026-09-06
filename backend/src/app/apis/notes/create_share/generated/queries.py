@@ -9,22 +9,45 @@ from pydantic import BaseModel, ConfigDict
 SQL_DIR = Path(__file__).parents[1] / "sql"
 
 
-class UpdateShareParams(BaseModel):
+class SelectOwnedNoteParams(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: UUID
     owner_id: str
-    share_expires: datetime | None
-    share_hash: str | None
 
 
-class UpdateShareRow(BaseModel):
+class SelectOwnedNoteRow(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: UUID
 
 
-def update_share(session: QuerySession, params: UpdateShareParams) -> list[UpdateShareRow]:
-    """所有者のノートに期限付き共有を発行する"""
+def select_owned_note(
+    session: QuerySession, params: SelectOwnedNoteParams
+) -> list[SelectOwnedNoteRow]:
+    """操作対象ノートの所有者を確認する"""
     return [
-        UpdateShareRow.model_validate(row)
-        for row in session.fetch_all(SQL_DIR / "001_update_share.sql", params.model_dump())
+        SelectOwnedNoteRow.model_validate(row)
+        for row in session.fetch_all(SQL_DIR / "001_select_owned_note.sql", params.model_dump())
     ]
+
+
+class DeleteShareParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    note_id: UUID
+
+
+def delete_share(session: QuerySession, params: DeleteShareParams) -> None:
+    """以前の閲覧リンクを失効する"""
+    session.execute(SQL_DIR / "002_delete_share.sql", params.model_dump())
+
+
+class InsertShareParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    created_by: str
+    expires_at: datetime
+    note_id: UUID
+    token_hash: str
+
+
+def insert_share(session: QuerySession, params: InsertShareParams) -> None:
+    """期限付き閲覧リンクのハッシュと発行者を保存する"""
+    session.execute(SQL_DIR / "003_insert_share.sql", params.model_dump())
