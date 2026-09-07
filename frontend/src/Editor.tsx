@@ -88,6 +88,28 @@ export function Editor({
           <button
             role="tab"
             aria-selected={tab === key}
+            aria-controls={"note-field-" + key}
+            tabIndex={tab === key ? 0 : -1}
+            onKeyDown={(e) => {
+              const keys = ["cue", "content", "summary"];
+              const index = keys.indexOf(key);
+              const next =
+                e.key === "ArrowRight"
+                  ? (index + 1) % 3
+                  : e.key === "ArrowLeft"
+                    ? (index + 2) % 3
+                    : e.key === "Home"
+                      ? 0
+                      : e.key === "End"
+                        ? 2
+                        : -1;
+              if (next < 0) return;
+              e.preventDefault();
+              setTab(keys[next]);
+              (
+                e.currentTarget.parentElement?.children[next] as HTMLElement
+              )?.focus();
+            }}
             key={key}
             onClick={() => setTab(key)}
           >
@@ -103,6 +125,7 @@ export function Editor({
             CUE <small>問い・キーワード</small>
           </span>
           <textarea
+            id="note-field-cue"
             aria-label="問い・キーワード"
             maxLength={20000}
             readOnly={readOnly}
@@ -123,6 +146,7 @@ export function Editor({
             NOTE <small>自由に書き留める</small>
           </span>
           <textarea
+            id="note-field-content"
             aria-label="ノート本文"
             maxLength={80000}
             readOnly={readOnly}
@@ -145,6 +169,7 @@ export function Editor({
             SUMMARY <small>自分の言葉でまとめる</small>
           </span>
           <textarea
+            id="note-field-summary"
             aria-label="まとめ"
             maxLength={20000}
             readOnly={readOnly}

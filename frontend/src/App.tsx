@@ -156,10 +156,14 @@ export function App({ initialError = "" }: { initialError?: string }) {
   const shown = groupedNotes(notes, query, group);
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        本文へ移動
+      </a>
       <aside className="sidebar">
         <Brand />
-        <p className="eyebrow">YOUR WORKSPACE</p>
+        <p className="eyebrow">ワークスペース</p>
         <button
+          aria-current={!group && !taskView ? "page" : undefined}
           className={!group && !taskView ? "nav active" : "nav"}
           onClick={() => {
             if (leave()) {
@@ -174,6 +178,7 @@ export function App({ initialError = "" }: { initialError?: string }) {
           すべてのノート<span>{notes.length}</span>
         </button>
         <button
+          aria-current={taskView ? "page" : undefined}
           className={taskView ? "nav active" : "nav"}
           onClick={() => {
             if (leave()) {
@@ -186,10 +191,11 @@ export function App({ initialError = "" }: { initialError?: string }) {
           <CheckSquare size={18} />
           すべてのタスク
         </button>
-        <p className="eyebrow spaced">COLLECTIONS</p>
+        <p className="eyebrow spaced">コレクション</p>
         {groups.map((g) => (
           <button
-            className={group === g ? "nav active" : "nav"}
+            aria-current={group === g && !taskView ? "page" : undefined}
+            className={group === g && !taskView ? "nav active" : "nav"}
             key={g}
             onClick={() => {
               if (leave()) {
@@ -225,11 +231,15 @@ export function App({ initialError = "" }: { initialError?: string }) {
           </button>
         </div>
       </aside>
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <header className="topbar">
           <span>
             <span className="muted">ワークスペース</span> /{" "}
-            {selected ? "ノートを編集" : "マイノート"}
+            {selected
+              ? "ノートを編集"
+              : taskView
+                ? "すべてのタスク"
+                : "マイノート"}
           </span>
           <span className="pill">Personal workspace</span>
         </header>
@@ -410,7 +420,14 @@ export function App({ initialError = "" }: { initialError?: string }) {
                       ? "一致するノートはありません"
                       : "最初の一枚から、はじめよう。"}
                   </h2>
-                  <p>問い・記録・まとめ。3つの欄が思考を整えます。</p>
+                  <p>
+                    {query
+                      ? "検索語を短くするか、別の言葉で検索してください。"
+                      : "問い・記録・まとめ。3つの欄が思考を整えます。"}
+                  </p>
+                  {query && (
+                    <button onClick={() => setQuery("")}>検索をクリア</button>
+                  )}
                   <button onClick={() => void create()}>
                     <Plus size={17} />
                     ノートを作成

@@ -4,7 +4,7 @@
 
 正本: [spec/requirements/requirements.qnt](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/spec/requirements/requirements.qnt)
 
-カタログ版: 7 / 製品: CornellNoteWebv2
+カタログ版: 8 / 製品: CornellNoteWebv2
 
 Quintの型・不変条件・traceを検証し、メモリ上で直列化したJSONから生成する。
 
@@ -21,7 +21,7 @@ Quintの型・不変条件・traceを検証し、メモリ上で直列化したJ
 | [REQ-EXPIRY](REQ-EXPIRY.gen.md) | 共有リンクの期限を守る | active | functional |
 | [REQ-CONFLICT](REQ-CONFLICT.gen.md) | 同時更新の上書きを防ぐ | active | functional |
 | [REQ-MOBILE](REQ-MOBILE.gen.md) | スマートフォンで編集する | active | nonfunctional |
-| [REQ-UI](REQ-UI.gen.md) | 4cの見た目を採用する | active | nonfunctional |
+| [REQ-UI](REQ-UI.gen.md) | ミント配色を維持して読みやすいUIを提供する | active | nonfunctional |
 | [REQ-COMPOSE](REQ-COMPOSE.gen.md) | AWS不要で全体を起動する | active | nonfunctional |
 | [REQ-AWS](REQ-AWS.gen.md) | 指定のサーバーレス構成を生成する | active | nonfunctional |
 | [REQ-COST](REQ-COST.gen.md) | 常時課金の追加セキュリティを抑える | active | nonfunctional |

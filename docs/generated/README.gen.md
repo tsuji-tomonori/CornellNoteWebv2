@@ -140,7 +140,7 @@
 | requirements | [REQ-TASK チェックリストを管理する](requirements/REQ-TASK.gen.md) |
 | requirements | [REQ-TEST 品質検査を継続する](requirements/REQ-TEST.gen.md) |
 | requirements | [REQ-TRANSACTION ルーターでAPI全体のトランザクションを管理する](requirements/REQ-TRANSACTION.gen.md) |
-| requirements | [REQ-UI 4cの見た目を採用する](requirements/REQ-UI.gen.md) |
+| requirements | [REQ-UI ミント配色を維持して読みやすいUIを提供する](requirements/REQ-UI.gen.md) |
 | requirements | [要件仕様一覧](requirements/index.gen.md) |
 | requirements | [要件対応表](requirements/trace.gen.md) |
 | tests | [Playwrightシナリオ](tests/e2e.gen.md) |

@@ -134,9 +134,9 @@
 | [frontend/report-tests/report.spec.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/report-tests/report.spec.ts) | ed33760bbb810ce39b1631587fea0630c3c0ab5f86e3b496a84ec2226470b712 |
 | [frontend/report.config.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/report.config.ts) | 14826cc31dc9d80ba01b957fd3cbe220e95a7f2257fc3d40a35795c08082e2e6 |
 | [frontend/src/App.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/App.test.tsx) | a8a23f3cf4a8e1fe84c21d8dc66ad3e1a5e02a7333aa9fc974fa08aeaaecb903 |
-| [frontend/src/App.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/App.tsx) | b531d9ef827a696bb8b2a0474ce3d6b1d0fab56467bd074c2f46e53d87b1868b |
-| [frontend/src/Editor.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx) | 900bfc3ced671308e88ebea1fafa15c005d77eb2ecd20cc9d94546cc03bb856f |
-| [frontend/src/Editor.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.tsx) | 0cd41590f2ccfc3856752a50efc29706e884dfdd871f243684f057114eb04c67 |
+| [frontend/src/App.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/App.tsx) | 60c4d0d160eb08a855949492d398a1209581a6d8f63359c0edb8c554d81e5291 |
+| [frontend/src/Editor.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx) | 5807b1771257f2273b7f4949ceb817fd3732c3a85f917ba0f6928075d02af291 |
+| [frontend/src/Editor.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.tsx) | 3f063350107952269021f30fae6bd0df2f002e7ed2d25e8419380c0634f0e6b6 |
 | [frontend/src/TaskList.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.test.tsx) | 8259f3ff4f1d202974758eec33650d261c29a5b0ee8c4b02a6d92afe9694f7e2 |
 | [frontend/src/TaskList.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.tsx) | 998832dab1e681e04483be1bd9e3ba07188750de0fcd791089ebeef02be9b71a |
 | [frontend/src/api.test.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/api.test.ts) | 8a60a7c89c41245a263d4678f11ea5772e647ea79a7db95d46e52b62786b95a2 |
@@ -147,7 +147,7 @@
 | [frontend/src/domain.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/domain.ts) | 44e597deaa6099dff02405630a1101436f0f5d4b8d221c65bfab2be0ea49cf04 |
 | [frontend/src/main.test.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/main.test.tsx) | 4f859b04166feba89b06ddb37b9ca7f3a46d26e862670395bffa295e86ec7131 |
 | [frontend/src/main.tsx](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/main.tsx) | 35be82ae4d3b3973ca93be9974c98a3011cd1311cb43dfa8d8e977361d9cf5a0 |
-| [frontend/src/style.css](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/style.css) | c666d86b0ac840dbd9b5c7b1bfc2606ddae9d53c9e48e05f785eb5e4eee00a76 |
+| [frontend/src/style.css](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/style.css) | 33079783d047cb385b2eb843547e9a4e33a5b8e35e1e729570d8776f424de35e |
 | [frontend/test-setup.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/test-setup.ts) | 837c3429d06dfd56c207c68b561e3d15830698a30b18ac2a9433805a345f1c2c |
 | [frontend/vite.config.ts](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/vite.config.ts) | 607e1f53fc2b05669a5cef91f3fd571d03b0430324062d31e45bb6643813484a |
 | [infra/__init__.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/infra/__init__.py) | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
@@ -155,7 +155,7 @@
 | [infra/stack.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/infra/stack.py) | c365c083619039c733b7f034655a142dab6fc86b7a0f23a347a58bf159cd11f0 |
 | [infra/tests/test_stack.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/infra/tests/test_stack.py) | 7cd33f2efd32db7a4da3a3afdb0a4c169980e49034b573218f4f23add931eb3f |
 | [pyproject.toml](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/pyproject.toml) | b24738e1db5939a9fcababc62f6aa08f817c9c3055aab9774d7c65bfc56da843 |
-| [spec/requirements/requirements.qnt](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/spec/requirements/requirements.qnt) | 0953ea6fec08c827661d41a7d9fdab6883e0ba27fc79f7fd2f4b59e9511a533a |
+| [spec/requirements/requirements.qnt](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/spec/requirements/requirements.qnt) | 3f4a5ea64ab738636d363e5eba860341e7ca34dd4852e4ea646d9ae5ab0033be |
 | [spec/skills/skills.qnt](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/spec/skills/skills.qnt) | 0d8b73c5510358f14468106ad0e102e038af2842e4247a1d99be36724920ceef |
 | [tests/test_design.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_design.py) | 1ea9f423349dcb1f053e16c73412f573179dbaf0cb28445841073c28c9e65634 |
 | [tests/test_docs_site.py](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/tests/test_docs_site.py) | 4a6c5cf0f403694bc12da1226152ec3cfd9cf55666da776d4fc808c00454cf43 |

@@ -68,6 +68,7 @@
 | Vitest | 三欄と科目を編集しタスクの追加・完了・期日・削除を保存する | [frontend/src/Editor.test.tsx:16](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx#L16) |  |
 | Vitest | 空の入力と100件超のアクション追加を防ぐ | [frontend/src/Editor.test.tsx:65](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx#L65) |  |
 | Vitest | 保存ショートカットを処理し閲覧専用と保存中は変更しない | [frontend/src/Editor.test.tsx:101](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx#L101) |  |
+| Vitest | タブを矢印とHome・Endで選びフォーカスを移動できる | [frontend/src/Editor.test.tsx:134](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/Editor.test.tsx#L134) |  |
 | Vitest | 未完了と完了を横断表示し検索して所属ノートを開く | [frontend/src/TaskList.test.tsx:35](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.test.tsx#L35) |  |
 | Vitest | 取得失敗は空一覧と区別して表示する | [frontend/src/TaskList.test.tsx:58](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.test.tsx#L58) |  |
 | Vitest | 移動後に完了した通信ではアンマウント済み画面を更新しない | [frontend/src/TaskList.test.tsx:68](https://github.com/tsuji-tomonori/CornellNoteWebv2/blob/dev/frontend/src/TaskList.test.tsx#L68) |  |
