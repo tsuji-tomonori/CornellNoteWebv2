@@ -28,9 +28,9 @@
 | action | work: () =&gt; Promise&lt;void&gt; | inferred | 84 |
 | create |  | inferred | 96 |
 | save | data: NoteInput | inferred | 106 |
-| Brand |  | inferred | 501 |
-| LoginView | {<br>  error,<br>  onError,<br>  onLogin,<br>}: {<br>  error: string;<br>  onError: (v: string) =&gt; void;<br>  onLogin: () =&gt; void;<br>} | inferred | 513 |
-| submit | e: React.FormEvent | inferred | 525 |
+| Brand |  | inferred | 518 |
+| LoginView | {<br>  error,<br>  onError,<br>  onLogin,<br>}: {<br>  error: string;<br>  onError: (v: string) =&gt; void;<br>  onLogin: () =&gt; void;<br>} | inferred | 530 |
+| submit | e: React.FormEvent | inferred | 542 |
 
 ## JSX属性
 
@@ -41,6 +41,7 @@
 | role | alert |
 | className | error |
 | className | app-shell |
+| className | skip-link |
 | className | sidebar |
 | className | eyebrow |
 | className | eyebrow spaced |

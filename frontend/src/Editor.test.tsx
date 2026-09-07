@@ -130,3 +130,27 @@ test("保存ショートカットを処理し閲覧専用と保存中は変更�
   fireEvent.keyDown(window, { key: "s", ctrlKey: true });
   expect(onSave).toHaveBeenCalledOnce();
 });
+
+test("タブを矢印とHome・Endで選びフォーカスを移動できる", () => {
+  render(
+    <Editor note={note()} onSave={vi.fn()} onDirty={vi.fn()} busy={false} />,
+  );
+  const content = screen.getByRole("tab", { name: "ノート" });
+  content.focus();
+  fireEvent.keyDown(content, { key: "ArrowRight" });
+  const summary = screen.getByRole("tab", { name: "まとめ" });
+  expect(summary).toHaveFocus();
+  expect(summary).toHaveAttribute("aria-selected", "true");
+  fireEvent.keyDown(summary, { key: "ArrowRight" });
+  const cue = screen.getByRole("tab", { name: "問い" });
+  expect(cue).toHaveFocus();
+  fireEvent.keyDown(cue, { key: "ArrowLeft" });
+  expect(summary).toHaveFocus();
+  fireEvent.keyDown(summary, { key: "Home" });
+  expect(cue).toHaveFocus();
+  fireEvent.keyDown(cue, { key: "End" });
+  expect(summary).toHaveFocus();
+  fireEvent.keyDown(summary, { key: "Tab" });
+  expect(summary).toHaveAttribute("tabindex", "0");
+  expect(content).toHaveAttribute("tabindex", "-1");
+});
